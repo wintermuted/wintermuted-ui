@@ -68,12 +68,13 @@ export function FieldGroup({ label, htmlFor, hint, error, className, children, .
   const id = useId();
   const descriptionId = `${id}-description`;
   const child = Children.only(children);
-  const controlId = htmlFor || child.props.id || `${id}-control`;
+  const controlId = htmlFor || child.props.inputId || child.props.id || `${id}-control`;
   const describedBy = cx(child.props["aria-describedby"], (hint || error) && descriptionId) || undefined;
   return h("div", { ...props, className: cx("wm-field", className) },
     h("label", { htmlFor: controlId }, label),
     cloneElement(child, {
       id: controlId, "aria-describedby": describedBy,
+      ...(child.props.inputId !== undefined ? { inputId: controlId } : {}),
       "aria-invalid": error ? true : child.props["aria-invalid"],
     }),
     (hint || error) && h("div", { id: descriptionId, className: error ? "wm-field-error" : "wm-field-hint" }, error || hint));
@@ -163,6 +164,7 @@ export function Menu({ label, items, className, ...props }) {
       "aria-expanded": open, "aria-controls": open ? id : undefined,
       onClick: () => { focusLast.current = false; setOpen(!open); },
       onKeyDown: event => {
+        if (open && event.key === "Escape") { event.preventDefault(); close(true); return; }
         if (event.key === "ArrowDown" || event.key === "ArrowUp") {
           event.preventDefault(); focusLast.current = event.key === "ArrowUp"; setOpen(true);
         }
@@ -235,7 +237,8 @@ export function Dialog({ open, onClose, title, children, className, ...props }) 
       "a[href], area[href], button, input, select, textarea, summary, iframe, object, embed, audio[controls], video[controls], [tabindex], [contenteditable='true']",
     )).filter(node => (node.tabIndex >= 0 || (node.isContentEditable && !node.hasAttribute("tabindex")))
       && !node.matches(":disabled")
-      && !node.closest("[inert]") && node.getClientRects().length > 0);
+      && !node.closest("[inert]") && node.getClientRects().length > 0
+      && window.getComputedStyle(node).visibility === "visible");
     const tabbable = candidates.filter(node => {
       if (node.tagName !== "INPUT" || node.type !== "radio" || !node.name) return true;
       const group = candidates.filter(other => other.tagName === "INPUT" && other.type === "radio"
@@ -254,7 +257,12 @@ export function Dialog({ open, onClose, title, children, className, ...props }) 
   return h("dialog", { ...props, ref, "aria-labelledby": titleId,
     tabIndex: props.tabIndex ?? -1, onKeyDown: trapFocus,
     className: cx("wm-dialog", className),
-    onCancel: event => { event.preventDefault(); onClose(); },
+    onCancel: event => {
+      props.onCancel?.(event);
+      const cancelled = event.defaultPrevented;
+      event.preventDefault();
+      if (!cancelled) onClose();
+    },
     onClose: () => {
       if (internalCloses.current > 0) internalCloses.current -= 1;
       else if (open) onClose();
