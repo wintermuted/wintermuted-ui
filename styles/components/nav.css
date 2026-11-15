@@ -1,0 +1,18 @@
+.wm-nav {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--wm-space-3);
+}
+
+.wm-nav a[aria-current="page"] {
+  color: var(--wm-color-accent);
+  text-decoration-color: currentcolor;
+  font-weight: 600;
+}
+
+.wm-nav a:focus-visible,
+.wm-btn:focus-visible {
+  outline: 2px solid var(--wm-color-accent);
+  outline-offset: 2px;
+}

@@ -15,3 +15,27 @@
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
+
+.wm-badge-info {
+  background: var(--wm-color-accent-soft);
+  border-color: var(--wm-color-accent-border);
+  color: var(--wm-color-accent);
+}
+
+.wm-badge-success {
+  background: var(--wm-color-success-soft);
+  border-color: var(--wm-color-success-border);
+  color: var(--wm-color-success);
+}
+
+.wm-badge-warning {
+  background: var(--wm-color-warning-soft);
+  border-color: var(--wm-color-warning-border);
+  color: var(--wm-color-text);
+}
+
+.wm-badge-danger {
+  background: var(--wm-color-danger-soft);
+  border-color: var(--wm-color-danger-border);
+  color: var(--wm-color-danger);
+}

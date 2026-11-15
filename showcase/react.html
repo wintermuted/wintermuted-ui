@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>React Components | Wintermuted UI Library Docs</title>
+    <script type="module" crossorigin src="../assets/react-DUzSZfYr.js"></script>
+    <link rel="stylesheet" crossorigin href="../assets/react-BuUhaf_S.css">
+  </head>
+  <body>
+    <div class="docs-shell">
+      <aside class="docs-sidebar wm-card card"></aside>
+      <main class="docs-main">
+        <header class="page-header">
+          <h1>React components</h1>
+          <p>Optional behavior, shared Wintermuted styles. The CSS-only package remains independent of React.</p>
+        </header>
+        <div id="react-showcase"></div>
+        <section class="react-doc-section">
+          <h3>Install only what you use</h3>
+          <pre><code>npm install @wintermuted/ui-theme react react-dom
+# Optional searchable multi-select:
+npm install react-select</code></pre>
+          <pre><code>import "@wintermuted/ui-theme/index.css";
+import { Button, ThemeProvider, ThemeSelect } from "@wintermuted/ui-theme/react";
+import { MultiSelect } from "@wintermuted/ui-theme/react/select";
+import { initTheme } from "@wintermuted/ui-theme/theme";
+
+initTheme({ storageKey: "my-app:theme" }); // before createRoot
+// Use the same key on ThemeProvider.</code></pre>
+          <p>Native props and refs pass through primitives. Card slots, ListGroup, ListItem and Nav accept
+            <code>as</code> for semantic markup or router links. No router dependency or grid framework is required.</p>
+        </section>
+        <section class="react-doc-section">
+          <h3>Interaction contracts</h3>
+          <p>Tabs use arrow keys, Home and End with roving focus. Menus use arrow keys, Enter, Escape and Tab.
+            Dialog uses the browser's modal top layer, focus containment and Escape; the caller owns its open state.
+            Accordions use native details/summary. Tooltips show on focus and hover and dismiss with Escape.</p>
+          <p>Theme starts in System mode. Light/Dark overrides persist; returning to System follows OS changes.
+            Put <code>getThemeScript()</code> in an inline head script with your CSP nonce for SSR first paint.
+            Theme changes touch only document theme attributes and color-scheme, never map layers.</p>
+          <p>See the repository README for all prop contracts, accessibility requirements, SSR and package compatibility notes.</p>
+        </section>
+      </main>
+    </div>
+    <script src="./showcase.js"></script>
+  </body>
+</html>
