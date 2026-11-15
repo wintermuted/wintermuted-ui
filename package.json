@@ -22,7 +22,7 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/wintermuted/ui-theme.git"
+    "url": "git+https://github.com/wintermuted/wintermuted-ui.git"
   },
   "bugs": {
     "url": "https://github.com/wintermuted/ui-theme/issues"

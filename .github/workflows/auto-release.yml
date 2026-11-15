@@ -35,6 +35,9 @@ jobs:
         with:
           node-version: 22
 
+      - name: Install npm with trusted publishing support
+        run: npm install --global npm@11.5.1 --registry=https://registry.npmjs.org
+
       - name: Compute next patch version
         id: version
         run: |
