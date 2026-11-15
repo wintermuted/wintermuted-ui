@@ -11,7 +11,11 @@ permissions:
   id-token: write
 
 jobs:
+  compatibility:
+    uses: ./.github/workflows/react-package.yml
+
   publish:
+    needs: compatibility
     runs-on: ubuntu-latest
 
     steps:

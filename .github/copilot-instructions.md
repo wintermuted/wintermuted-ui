@@ -14,6 +14,7 @@ styles/
   components/         # One CSS file per component (card, button, badge, …)
 index.css             # Public CSS entry point
 index.js              # Public JS entry point (re-exports styles as ES module)
+react/                # Optional distributable React JS, declarations, select adapter, theme bootstrap
 showcase/             # Static HTML/CSS documentation site for the component library
 scripts/              # Helper shell scripts (link-local, unlink-local)
 ```
@@ -28,9 +29,11 @@ scripts/              # Helper shell scripts (link-local, unlink-local)
 
 ## Development workflow
 
-- Serve the showcase locally with `npm run showcase:serve` (starts a Python HTTP server on port 4174).
+- Serve the showcase locally with `npm run showcase:serve` (starts Vite on port 4174, including the React page).
 - Link the package locally for integration testing with `npm run link:local` / `npm run unlink:local`.
-- There are no unit tests or linting scripts — validate changes by inspecting the showcase site.
+- Run `npm test`, `npm run test:pack`, and `npm run test:browser` for behavioral, package, and native browser checks.
+- Leave lint, type checks, and builds to CI. `test:consumers` checks TS 4.9/node, Vite 5 and Webpack 5 consumers in CI.
+- Preserve the CSS-only root export. React entry points are plain JavaScript with `.d.ts` files and `typesVersions` for legacy TypeScript resolution; do not export TSX. Keep react-select isolated to `react/select` and all React-related peers optional.
 
 ## Pull request guidelines
 

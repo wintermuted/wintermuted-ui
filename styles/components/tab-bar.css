@@ -66,6 +66,23 @@
 
 /* Section label above a tab group or filter set */
 
+.wm-tabs .wm-tab-bar {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.wm-tabs .wm-tab-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.wm-tabs .wm-tab-btn:focus-visible {
+  outline: 2px solid var(--wm-color-accent);
+  outline-offset: -2px;
+}
+
+.wm-tab-panel { padding-block: var(--wm-space-4); }
+
 .tab-section-label,
 .wm-tab-section-label {
   display: flex;

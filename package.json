@@ -15,6 +15,8 @@
     "index.js",
     "index.css",
     "styles/**/*.css",
+    "react/**/*.js",
+    "react/**/*.d.ts",
     "README.md",
     "LICENSE"
   ],
@@ -32,6 +34,18 @@
   },
   "exports": {
     ".": "./index.js",
+    "./react": {
+      "types": "./react/index.d.ts",
+      "default": "./react/index.js"
+    },
+    "./react/select": {
+      "types": "./react/select.d.ts",
+      "default": "./react/select.js"
+    },
+    "./theme": {
+      "types": "./react/theme.d.ts",
+      "default": "./react/theme.js"
+    },
     "./index.css": "./index.css",
     "./styles/tokens.css": "./styles/tokens.css",
     "./styles/base.css": "./styles/base.css",
@@ -58,10 +72,44 @@
     "./styles/components/slider.css": "./styles/components/slider.css",
     "./styles/components/toggle-group.css": "./styles/components/toggle-group.css",
     "./styles/components/toast.css": "./styles/components/toast.css",
-    "./styles/components/code-block.css": "./styles/components/code-block.css"
+    "./styles/components/code-block.css": "./styles/components/code-block.css",
+    "./styles/components/alert.css": "./styles/components/alert.css",
+    "./styles/components/spinner.css": "./styles/components/spinner.css",
+    "./styles/components/progress.css": "./styles/components/progress.css",
+    "./styles/components/field.css": "./styles/components/field.css",
+    "./styles/components/list-group.css": "./styles/components/list-group.css",
+    "./styles/components/table.css": "./styles/components/table.css",
+    "./styles/components/nav.css": "./styles/components/nav.css",
+    "./styles/components/accordion.css": "./styles/components/accordion.css",
+    "./styles/components/menu.css": "./styles/components/menu.css",
+    "./styles/components/tooltip.css": "./styles/components/tooltip.css",
+    "./styles/components/dialog.css": "./styles/components/dialog.css",
+    "./styles/components/search-select.css": "./styles/components/search-select.css"
+  },
+  "typesVersions": {
+    "*": {
+      "react": ["react/index.d.ts"],
+      "react/select": ["react/select.d.ts"],
+      "theme": ["react/theme.d.ts"]
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.3.0 || ^19.0.0",
+    "react-dom": "^18.3.0 || ^19.0.0",
+    "react-select": "^5.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": { "optional": true },
+    "react-dom": { "optional": true },
+    "react-select": { "optional": true }
   },
   "scripts": {
-    "showcase:serve": "python3 -m http.server 4174",
+    "test": "node --test tests/*.test.js",
+    "test:browser": "node --test browser-tests/*.test.js",
+    "test:pack": "node tests/consumers.mjs --package-only",
+    "test:consumers": "node tests/consumers.mjs",
+    "showcase:serve": "vite --host 127.0.0.1 --port 4174 --strictPort",
+    "showcase:build": "vite build --config showcase/vite.config.js",
     "showcase:open": "sh -c 'command -v open >/dev/null 2>&1 && open http://localhost:4174/showcase/ || xdg-open http://localhost:4174/showcase/'",
     "showcase:open:sample-data": "sh -c 'command -v open >/dev/null 2>&1 && open http://localhost:4174/showcase/sample-data.html || xdg-open http://localhost:4174/showcase/sample-data.html'",
     "showcase:open:forms": "sh -c 'command -v open >/dev/null 2>&1 && open http://localhost:4174/showcase/forms.html || xdg-open http://localhost:4174/showcase/forms.html'",
@@ -71,6 +119,20 @@
     "lint": "stylelint \"styles/**/*.css\" \"index.css\""
   },
   "devDependencies": {
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "playwright": "^1.56.1",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "jsdom": "^26.1.0",
+    "css-loader": "^7.1.2",
+    "style-loader": "^4.0.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-select": "^5.10.2",
+    "typescript": "~4.9.5",
+    "vite": "^5.4.21",
+    "webpack": "^5.102.1",
     "stylelint": "^17.10.0",
     "stylelint-config-standard": "^40.0.0"
   }
