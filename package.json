@@ -1,6 +1,6 @@
 {
   "name": "@wintermuted/ui-theme",
-  "version": "0.21.4",
+  "version": "0.21.5",
   "description": "Shared Wintermuted UI theme (design tokens, base resets, and component styles) derived from the CV styling language.",
   "type": "module",
   "main": "./index.js",
@@ -88,9 +88,15 @@
   },
   "typesVersions": {
     "*": {
-      "react": ["react/index.d.ts"],
-      "react/select": ["react/select.d.ts"],
-      "theme": ["react/theme.d.ts"]
+      "react": [
+        "react/index.d.ts"
+      ],
+      "react/select": [
+        "react/select.d.ts"
+      ],
+      "theme": [
+        "react/theme.d.ts"
+      ]
     }
   },
   "peerDependencies": {
@@ -99,9 +105,15 @@
     "react-select": "^5.8.0"
   },
   "peerDependenciesMeta": {
-    "react": { "optional": true },
-    "react-dom": { "optional": true },
-    "react-select": { "optional": true }
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "react-select": {
+      "optional": true
+    }
   },
   "scripts": {
     "test": "node --test tests/*.test.js",
