@@ -8,6 +8,7 @@
       items: [
         { page: "index.html", label: "Introduction" },
         { page: "installation.html", label: "Installation" },
+        { page: "react.html", label: "React Components" },
         { page: "typography.html", label: "Typography" },
         { page: "cards.html", label: "Cards" },
       ],
@@ -185,6 +186,7 @@
     githubLink.rel = "noopener noreferrer";
     githubLink.setAttribute("aria-label", "View on GitHub");
     githubLink.innerHTML = '<i data-lucide="github" aria-hidden="true"></i>';
+    if (getCurrentPage() === "react.html") githubLink.textContent = "GitHub";
 
     const toggleBtn = document.createElement("button");
     toggleBtn.className = "docs-topbar-toggle";
@@ -197,7 +199,8 @@
     const currentLabel = getPageLabel(getCurrentPage());
     if (currentLabel) pageTitle.textContent = currentLabel;
 
-    actions.append(versionSelect, githubLink, toggleBtn);
+    actions.append(versionSelect, githubLink);
+    if (getCurrentPage() !== "react.html") actions.append(toggleBtn);
 
     inner.append(sidebarToggle, brand, pageTitle, actions);
     topbar.appendChild(inner);
@@ -480,6 +483,7 @@
   }
 
   function wireThemeToggle() {
+    if (getCurrentPage() === "react.html") return;
     const saved = localStorage.getItem(key);
     const initial = saved === "dark" ? "dark" : "light";
     applyTheme(initial);

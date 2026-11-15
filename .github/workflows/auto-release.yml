@@ -16,7 +16,11 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  compatibility:
+    uses: ./.github/workflows/react-package.yml
+
   release:
+    needs: compatibility
     runs-on: ubuntu-latest
     environment: wintermuted-ui-theme
 
