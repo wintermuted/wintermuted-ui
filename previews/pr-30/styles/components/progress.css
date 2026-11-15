@@ -1,0 +1,23 @@
+.wm-progress {
+  display: block;
+  width: 100%;
+  height: var(--wm-space-2);
+  overflow: hidden;
+  appearance: none;
+  border: 0;
+  border-radius: var(--wm-radius-pill);
+  background: var(--wm-color-surface-strong);
+  accent-color: var(--wm-color-accent);
+}
+
+.wm-progress::-webkit-progress-bar {
+  background: var(--wm-color-surface-strong);
+}
+
+.wm-progress::-webkit-progress-value {
+  background: var(--wm-color-accent);
+}
+
+.wm-progress::-moz-progress-bar {
+  background: var(--wm-color-accent);
+}
