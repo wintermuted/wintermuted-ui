@@ -1,0 +1,20 @@
+.wm-tooltip-anchor {
+  position: relative;
+  display: inline-flex;
+}
+
+.wm-tooltip {
+  position: absolute;
+  inset-block-end: 100%;
+  inset-inline-start: 0;
+  z-index: var(--wm-layer-tooltip);
+  width: max-content;
+  max-width: min(24rem, 80vw);
+  padding: var(--wm-space-2) var(--wm-space-3);
+  border: 1px solid var(--wm-color-border-strong);
+  border-radius: var(--wm-radius-xs);
+  background: var(--wm-color-surface-solid);
+  color: var(--wm-color-text);
+  font-size: var(--wm-text-sm);
+  box-shadow: var(--wm-shadow-soft);
+}
