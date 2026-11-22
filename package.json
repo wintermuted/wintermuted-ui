@@ -1,6 +1,6 @@
 {
   "name": "@wintermuted/ui-theme",
-  "version": "0.21.5",
+  "version": "0.21.6",
   "description": "Shared Wintermuted UI theme (design tokens, base resets, and component styles) derived from the CV styling language.",
   "type": "module",
   "main": "./index.js",
