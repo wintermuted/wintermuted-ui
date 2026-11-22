@@ -1,5 +1,0 @@
-/* The searchable control owns its focus ring; the inner input must not add one. */
-.wm-search-select input,
-.wm-search-select input:focus {
-  box-shadow: none;
-}
