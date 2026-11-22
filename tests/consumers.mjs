@@ -2,7 +2,7 @@
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, readFileSync, existsSync, rmSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
@@ -71,11 +71,13 @@ export const app = <ThemeProvider><Card as="article"><CardTitle as="h4">Stops</C
 </Card></ThemeProvider>;
 `);
   writeFileSync(join(css, "tsconfig.json"), JSON.stringify({
-    compilerOptions: { strict: true, noEmit: true, moduleResolution: "node", module: "ESNext",
+    compilerOptions: { strict: true, noEmit: true, moduleResolution: "bundler", module: "ESNext",
       target: "ES2020", jsx: "react-jsx", esModuleInterop: true, skipLibCheck: false },
     files: ["consumer.tsx"],
   }));
-  execFileSync(process.execPath, [require.resolve("typescript/bin/tsc"), "-p", join(css, "tsconfig.json")],
+  const typescriptManifest = require.resolve("typescript/package.json");
+  const typescriptBin = JSON.parse(readFileSync(typescriptManifest, "utf8")).bin.tsc;
+  execFileSync(process.execPath, [resolve(dirname(typescriptManifest), typescriptBin), "-p", join(css, "tsconfig.json")],
     { cwd: css, stdio: "inherit" });
   writeFileSync(join(css, "main.js"), `
 import "@wintermuted/ui-theme/index.css";
@@ -104,7 +106,7 @@ React.createElement(MultiSelect, {options:[{label:"Main",value:1}]})));
       else ok();
     }));
   });
-  console.log("Packed CSS-only, React 18, TypeScript 4.9/node, Vite 5 and Webpack 5 consumers passed.");
+  console.log("Packed CSS-only, React 18, TypeScript 7/bundler, Vite 8 and Webpack 5 consumers passed.");
   } else {
     console.log("Packed CSS-only install, optional peers, React 18 SSR imports and React-free theme imports passed.");
   }
