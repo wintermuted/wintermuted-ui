@@ -107,7 +107,7 @@
       const releases = await response.json();
       const tags = releases
         .map((release) => release && release.tag_name)
-        .filter((tag) => typeof tag === "string" && /^v\d+\.\d+\.\d+$/.test(tag));
+        .filter((tag) => typeof tag === "string" && /^(?:v|ui-theme@)\d+\.\d+\.\d+$/.test(tag));
 
       return tags.length ? tags : fallbackTags;
     } catch (_err) {
