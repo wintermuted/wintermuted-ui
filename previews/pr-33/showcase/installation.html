@@ -11,8 +11,8 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
     />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" crossorigin />
-    <link rel="icon" type="image/png" sizes="32x32" href="./assets/logo-CfXa7hfS.png" />
-    <link rel="apple-touch-icon" href="./assets/logo-CfXa7hfS.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="./logo.png" />
+    <link rel="apple-touch-icon" href="./logo.png" />
     <link rel="stylesheet" crossorigin href="./assets/showcase-BDIBFcvM.css">
   </head>
   <body>
@@ -168,6 +168,7 @@ if (saved === 'dark') {
           <div class="code-sample" data-lang="bash">
             <button class="code-copy-btn" type="button" data-copy>Copy</button>
             <pre class="code-block"><code class="language-bash"># In the wintermuted-ui repo
+node scripts/prepare-theme-react.mjs
 npm link --workspace=@wintermuted/ui-theme
 
 # In your consumer project
