@@ -6,6 +6,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
+import { JSDOM } from "jsdom";
 
 const require = createRequire(import.meta.url);
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -36,6 +37,13 @@ try {
   runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund",
     "react@18.3.1", "react-dom@18.3.1", "react-select@5",
     "@types/react@18", "@types/react-dom@18"], css);
+  const docs = new JSDOM(readFileSync(join(root, "apps", "showcase", "react.html"), "utf8"));
+  const example = [...docs.window.document.querySelectorAll("pre code")]
+    .map(node => node.textContent).find(code => code.startsWith("import "));
+  assert.ok(example, "Missing external React installation example");
+  execFileSync(process.execPath, ["--input-type=module", "-e",
+    example.replace('import "@wintermuted/ui-theme/index.css";', "")], { cwd: css, stdio: "inherit" });
+  docs.window.close();
   execFileSync(process.execPath, ["--input-type=module", "-e", `
 import assert from "node:assert/strict";
 import React from "react";

@@ -11,6 +11,7 @@ invocation_dir="$PWD"
 
 echo "Linking @wintermuted/ui-theme from $repo_root/packages/ui-theme"
 cd "$repo_root"
+node scripts/prepare-theme-react.mjs
 npm link --workspace=@wintermuted/ui-theme
 
 for target in "$@"; do

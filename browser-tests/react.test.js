@@ -29,6 +29,10 @@ test("native modal focus containment, keyboard interactions, themes and responsi
     await page.goto(`http://127.0.0.1:${address.port}/showcase/react.html`);
     const appearance = page.getByLabel("Appearance", { exact: true });
     await appearance.waitFor();
+    await page.waitForFunction(() => {
+      const logo = document.querySelector(".docs-topbar-brand-icon");
+      return logo?.complete && logo.naturalWidth > 0;
+    });
     assert.notEqual(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--wm-color-text")), "");
     assert.equal(await appearance.inputValue(), "system");
     assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");

@@ -76,7 +76,7 @@ npm run link:local -- ../sub-killer ../cv
 npm run unlink:local -- ../sub-killer ../cv
 ```
 
-These Bash helpers resolve relative paths from the invoking directory and link the theme workspace, not the private root. Internal npm workspaces are linked automatically during installation.
+These Bash helpers prepare the legacy React/theme entry points, resolve relative paths from the invoking directory, and link the theme workspace, not the private root. Internal npm workspaces are linked automatically during installation.
 
 ## Pages deployments
 

@@ -22,4 +22,5 @@ for (const page of pages) {
   dom.window.close();
 }
 assert.ok(existsSync(resolve(output, "showcase.js")), "Missing shared classic showcase script");
+assert.ok(existsSync(resolve(output, "logo.png")), "Missing logo used by the shared script's runtime header image");
 console.log(`Verified ${pages.length} built pages and relative assets for production and nested PR previews.`);
