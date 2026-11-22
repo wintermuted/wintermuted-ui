@@ -1,0 +1,140 @@
+{
+  "name": "@wintermuted/ui-theme",
+  "version": "0.21.7",
+  "description": "Shared Wintermuted UI theme (design tokens, base resets, and component styles) derived from the CV styling language.",
+  "type": "module",
+  "volta": {
+    "node": "22.23.5"
+  },
+  "main": "./index.js",
+  "license": "MIT",
+  "keywords": [
+    "css",
+    "design-system",
+    "theme",
+    "ui"
+  ],
+  "files": [
+    "index.js",
+    "index.css",
+    "styles/**/*.css",
+    "react/**/*.js",
+    "react/**/*.d.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/wintermuted/wintermuted-ui.git",
+    "directory": "packages/ui-theme"
+  },
+  "bugs": {
+    "url": "https://github.com/wintermuted/ui-theme/issues"
+  },
+  "homepage": "https://github.com/wintermuted/ui-theme#readme",
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./react": {
+      "types": "./react/index.d.ts",
+      "default": "./react/index.js"
+    },
+    "./react/select": {
+      "types": "./react/select.d.ts",
+      "default": "./react/select.js"
+    },
+    "./theme": {
+      "types": "./react/theme.d.ts",
+      "default": "./react/theme.js"
+    },
+    "./index.css": "./index.css",
+    "./styles/tokens.css": "./styles/tokens.css",
+    "./styles/base.css": "./styles/base.css",
+    "./styles/components.css": "./styles/components.css",
+    "./styles/components/card.css": "./styles/components/card.css",
+    "./styles/components/button.css": "./styles/components/button.css",
+    "./styles/components/badge.css": "./styles/components/badge.css",
+    "./styles/components/tag.css": "./styles/components/tag.css",
+    "./styles/components/list.css": "./styles/components/list.css",
+    "./styles/components/separator.css": "./styles/components/separator.css",
+    "./styles/components/side-nav.css": "./styles/components/side-nav.css",
+    "./styles/components/stat-card.css": "./styles/components/stat-card.css",
+    "./styles/components/tab-bar.css": "./styles/components/tab-bar.css",
+    "./styles/components/modal.css": "./styles/components/modal.css",
+    "./styles/components/empty-state.css": "./styles/components/empty-state.css",
+    "./styles/components/file-upload.css": "./styles/components/file-upload.css",
+    "./styles/components/view-header.css": "./styles/components/view-header.css",
+    "./styles/components/layout.css": "./styles/components/layout.css",
+    "./styles/components/inline-panel.css": "./styles/components/inline-panel.css",
+    "./styles/components/checkbox-filter.css": "./styles/components/checkbox-filter.css",
+    "./styles/components/chart.css": "./styles/components/chart.css",
+    "./styles/components/gallery.css": "./styles/components/gallery.css",
+    "./styles/components/toggle.css": "./styles/components/toggle.css",
+    "./styles/components/slider.css": "./styles/components/slider.css",
+    "./styles/components/toggle-group.css": "./styles/components/toggle-group.css",
+    "./styles/components/toast.css": "./styles/components/toast.css",
+    "./styles/components/code-block.css": "./styles/components/code-block.css",
+    "./styles/components/alert.css": "./styles/components/alert.css",
+    "./styles/components/spinner.css": "./styles/components/spinner.css",
+    "./styles/components/progress.css": "./styles/components/progress.css",
+    "./styles/components/field.css": "./styles/components/field.css",
+    "./styles/components/list-group.css": "./styles/components/list-group.css",
+    "./styles/components/table.css": "./styles/components/table.css",
+    "./styles/components/nav.css": "./styles/components/nav.css",
+    "./styles/components/accordion.css": "./styles/components/accordion.css",
+    "./styles/components/menu.css": "./styles/components/menu.css",
+    "./styles/components/tooltip.css": "./styles/components/tooltip.css",
+    "./styles/components/dialog.css": "./styles/components/dialog.css",
+    "./styles/components/search-select.css": "./styles/components/search-select.css"
+  },
+  "typesVersions": {
+    "*": {
+      "react": [
+        "react/index.d.ts"
+      ],
+      "react/select": [
+        "react/select.d.ts"
+      ],
+      "theme": [
+        "react/theme.d.ts"
+      ]
+    }
+  },
+  "peerDependencies": {
+    "react": "^18.3.0 || ^19.0.0",
+    "react-dom": "^18.3.0 || ^19.0.0",
+    "react-select": "^5.8.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "react-select": {
+      "optional": true
+    }
+  },
+  "scripts": {
+    "prepack": "node ../../scripts/prepare-theme-react.mjs",
+    "lint": "stylelint \"styles/**/*.css\" \"index.css\""
+  },
+  "nx": {
+    "name": "ui-theme",
+    "tags": ["type:library"],
+    "implicitDependencies": ["ui-react"],
+    "targets": {
+      "pack": {
+        "command": "npm pack --workspace=@wintermuted/ui-theme"
+      },
+      "nx-release-publish": {
+        "executor": "@nx/js:release-publish",
+        "options": { "packageRoot": "packages/ui-theme" }
+      }
+    }
+  }
+}

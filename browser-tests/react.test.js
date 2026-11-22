@@ -1,16 +1,25 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdir } from "node:fs/promises";
+import { mkdir, readdir } from "node:fs/promises";
 import { join } from "node:path";
+import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
 
 test("native modal focus containment, keyboard interactions, themes and responsive showcase", { timeout: 90000 }, async () => {
-  const server = await createServer({ configFile: false, server: { host: "127.0.0.1", port: 0 } });
+  const server = await createServer({
+    configFile: fileURLToPath(new URL("../apps/showcase/vite.config.mjs", import.meta.url)),
+    server: { host: "127.0.0.1", port: 0 }
+  });
   let browser;
   try {
     await server.listen();
     const address = server.httpServer.address();
+    for (const file of await readdir(new URL("../apps/showcase/", import.meta.url))) {
+      if (!file.endsWith(".html")) continue;
+      const response = await fetch(`http://127.0.0.1:${address.port}/showcase/${file}`);
+      assert.ok(response.ok, `Missing showcase page: ${file}`);
+    }
     browser = await chromium.launch();
     const context = await browser.newContext({ viewport: { width: 1440, height: 1100 }, colorScheme: "dark" });
     const page = await context.newPage();
@@ -20,6 +29,7 @@ test("native modal focus containment, keyboard interactions, themes and responsi
     await page.goto(`http://127.0.0.1:${address.port}/showcase/react.html`);
     const appearance = page.getByLabel("Appearance", { exact: true });
     await appearance.waitFor();
+    assert.notEqual(await page.evaluate(() => getComputedStyle(document.documentElement).getPropertyValue("--wm-color-text")), "");
     assert.equal(await appearance.inputValue(), "system");
     assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
     await appearance.selectOption("light");

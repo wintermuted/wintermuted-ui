@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { readFile, access } from "node:fs/promises";
 
-const root = new URL("../", import.meta.url);
+const root = new URL("../packages/ui-theme/", import.meta.url);
 const pkg = JSON.parse(await readFile(new URL("package.json", root), "utf8"));
 
 test("all exports exist and legacy CSS entry points remain CSS-only", async () => {

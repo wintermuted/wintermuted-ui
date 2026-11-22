@@ -7,13 +7,14 @@ if [ "$#" -lt 1 ]; then
 fi
 
 repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+invocation_dir="$PWD"
 
-echo "Linking @wintermuted/ui-theme from $repo_root"
+echo "Linking @wintermuted/ui-theme from $repo_root/packages/ui-theme"
 cd "$repo_root"
-npm link
+npm link --workspace=@wintermuted/ui-theme
 
 for target in "$@"; do
-  consumer_dir="$(cd "$target" && pwd)"
+  consumer_dir="$(cd "$invocation_dir" && cd "$target" && pwd)"
   echo "Linking into $consumer_dir"
   cd "$consumer_dir"
   npm link @wintermuted/ui-theme

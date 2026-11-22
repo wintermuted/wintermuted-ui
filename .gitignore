@@ -1,3 +1,5 @@
 node_modules/
 *.tgz
-showcase-dist/
+.nx/
+dist/
+packages/ui-theme/react/

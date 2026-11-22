@@ -20,9 +20,9 @@ HTMLDialogElement.prototype.showModal = function () { this.open = true; this.que
 HTMLDialogElement.prototype.close = function () { this.open = false; this.dispatchEvent(new Event("close")); };
 const { render, screen, cleanup, fireEvent, act } = await import("@testing-library/react");
 const { default: userEvent } = await import("@testing-library/user-event");
-const ui = await import("../react/index.js");
-const { MultiSelect } = await import("../react/select.js");
-const theme = await import("../react/theme.js");
+const ui = await import("@wintermuted/ui-react");
+const { MultiSelect } = await import("@wintermuted/ui-react/select");
+const theme = await import("@wintermuted/ui-react/theme");
 
 beforeEach(() => {
   dark = false;
