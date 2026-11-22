@@ -32,6 +32,7 @@ on:
 # contents: write  — push to gh-pages branch
 # pull-requests: write — post/update preview comment
 permissions:
+  actions: read
   contents: write
   pages: write
   id-token: write
