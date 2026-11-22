@@ -1,0 +1,10 @@
+scripts:
+  - name: Install dependencies
+    command: npm ci --no-audit --no-fund
+    triggers:
+      - session.create
+  - name: Run showcase
+    command: npm run showcase:serve
+
+server_ready_pattern: 'Local:\s+(https?://\S+)'
+auto_open_in_browser: false

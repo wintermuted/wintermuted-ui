@@ -82,6 +82,20 @@ npm run showcase:serve
 
 Then open `http://localhost:4174/showcase/`.
 
+### GitHub Copilot app
+
+Review and accept `.github/github-app.yml` when prompted by the app. Node.js 22
+and npm must be available locally.
+
+The **Install dependencies** script runs `npm ci --no-audit --no-fund` when a
+session is created and can also be rerun manually. **Run showcase** starts the
+existing Vite development server on port 4174.
+
+Open `http://127.0.0.1:4174/showcase/` to view the documentation and React examples.
+Automatic browser opening is disabled because Vite reports the repository root
+URL, while the showcase lives under `/showcase/`. Stop the run script before
+starting the showcase in another session, since the server requires port 4174.
+
 Helpful local viewing scripts:
 
 ```bash
