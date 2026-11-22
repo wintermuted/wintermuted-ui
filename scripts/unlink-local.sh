@@ -7,8 +7,10 @@ if [ "$#" -lt 1 ]; then
   exit 1
 fi
 
+invocation_dir="$PWD"
+
 for target in "$@"; do
-  consumer_dir="$(cd "$target" && pwd)"
+  consumer_dir="$(cd "$invocation_dir" && cd "$target" && pwd)"
   echo "Unlinking in $consumer_dir"
   cd "$consumer_dir"
 

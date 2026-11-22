@@ -15,12 +15,19 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
       - run: npm test
+      - name: Build and typecheck Nx projects
+        run: npx nx run-many -t build typecheck
+      - run: npm run test:showcase-output
+      - name: Preview Nx Release without publishing
+        run: npm run release -- --dry-run
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - run: npm run test:consumers

@@ -6,6 +6,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import assert from "node:assert/strict";
 import { createRequire } from "node:module";
+import { JSDOM } from "jsdom";
 
 const require = createRequire(import.meta.url);
 const root = fileURLToPath(new URL("../", import.meta.url));
@@ -16,7 +17,7 @@ const runNpm = (args, cwd) => execFileSync(process.execPath, [npmCli, ...args], 
   cwd, encoding: "utf8", stdio: ["ignore", "pipe", "inherit"],
 });
 try {
-  const packed = JSON.parse(runNpm(["pack", "--ignore-scripts", "--json", "--pack-destination", temp], root))[0];
+  const packed = JSON.parse(runNpm(["pack", "--workspace=@wintermuted/ui-theme", "--json", "--pack-destination", temp], root))[0];
   const tarball = join(temp, packed.filename);
   const css = join(temp, "css-only");
   const { mkdirSync } = await import("node:fs");
@@ -36,6 +37,13 @@ try {
   runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund",
     "react@18.3.1", "react-dom@18.3.1", "react-select@5",
     "@types/react@18", "@types/react-dom@18"], css);
+  const docs = new JSDOM(readFileSync(join(root, "apps", "showcase", "react.html"), "utf8"));
+  const example = [...docs.window.document.querySelectorAll("pre code")]
+    .map(node => node.textContent).find(code => code.startsWith("import "));
+  assert.ok(example, "Missing external React installation example");
+  execFileSync(process.execPath, ["--input-type=module", "-e",
+    example.replace('import "@wintermuted/ui-theme/index.css";', "")], { cwd: css, stdio: "inherit" });
+  docs.window.close();
   execFileSync(process.execPath, ["--input-type=module", "-e", `
 import assert from "node:assert/strict";
 import React from "react";
@@ -49,12 +57,25 @@ assert.match(renderToString(React.createElement(MultiSelect, {options: []})), /i
 assert.equal(initTheme(), "light");
 assert.ok(getThemeScript().includes("wintermuted:theme"));
 `], { cwd: css, stdio: "inherit" });
+  const reactPacked = JSON.parse(runNpm(["pack", "--workspace=@wintermuted/ui-react", "--json", "--pack-destination", temp], root))[0];
+  runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", join(temp, reactPacked.filename)], css);
+  execFileSync(process.execPath, ["--input-type=module", "-e", `
+import assert from "node:assert/strict";
+import React from "react";
+import {renderToString} from "react-dom/server";
+import {Button} from "@wintermuted/ui-react";
+import {MultiSelect} from "@wintermuted/ui-react/select";
+import {initTheme} from "@wintermuted/ui-react/theme";
+assert.match(renderToString(React.createElement(Button, null, "Standalone")), /Standalone/);
+assert.match(renderToString(React.createElement(MultiSelect, {options: []})), /input/);
+assert.equal(initTheme(), "light");
+`], { cwd: css, stdio: "inherit" });
   if (!process.argv.includes("--package-only")) {
   writeFileSync(join(css, "consumer.tsx"), `
 import * as React from "react";
-import {Button, Card, CardTitle, Input, Select, ListItem, Table, Dialog, Tabs, Menu, ThemeProvider, ThemeSelect} from "@wintermuted/ui-theme/react";
-import {MultiSelect} from "@wintermuted/ui-theme/react/select";
-import {initTheme, getThemeScript} from "@wintermuted/ui-theme/theme";
+import {Button, Card, CardTitle, Input, Select, ListItem, Table, Dialog, Tabs, Menu, ThemeProvider, ThemeSelect} from "@wintermuted/ui-react";
+import {MultiSelect} from "@wintermuted/ui-react/select";
+import {initTheme, getThemeScript} from "@wintermuted/ui-react/theme";
 initTheme(); getThemeScript("test:theme");
 const input = React.createRef<HTMLInputElement>();
 const options = [{value: 1, label: "Main", stop: {id: 1}}];
@@ -83,9 +104,9 @@ export const app = <ThemeProvider><Card as="article"><CardTitle as="h4">Stops</C
 import "@wintermuted/ui-theme/index.css";
 import React from "react";
 import {createRoot} from "react-dom/client";
-import {Button, ThemeProvider, ThemeSelect} from "@wintermuted/ui-theme/react";
-import {MultiSelect} from "@wintermuted/ui-theme/react/select";
-import {initTheme} from "@wintermuted/ui-theme/theme";
+import {Button, ThemeProvider, ThemeSelect} from "@wintermuted/ui-react";
+import {MultiSelect} from "@wintermuted/ui-react/select";
+import {initTheme} from "@wintermuted/ui-react/theme";
 initTheme();
 createRoot(document.getElementById("root")).render(React.createElement(ThemeProvider, null,
 React.createElement(Button, null, "Refresh"), React.createElement(ThemeSelect),
