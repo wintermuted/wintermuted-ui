@@ -32,7 +32,7 @@ scripts/              # Helper shell scripts (link-local, unlink-local)
 - Serve the showcase locally with `npm run showcase:serve` (starts Vite on port 4174, including the React page).
 - Link the package locally for integration testing with `npm run link:local` / `npm run unlink:local`.
 - Run `npm test`, `npm run test:pack`, and `npm run test:browser` for behavioral, package, and native browser checks.
-- Leave lint, type checks, and builds to CI. `test:consumers` checks TS 4.9/node, Vite 5 and Webpack 5 consumers in CI.
+- Leave lint, type checks, and builds to CI. `test:consumers` checks TS 7/bundler, Vite 8 and Webpack 5 consumers in CI.
 - Preserve the CSS-only root export. React entry points are plain JavaScript with `.d.ts` files and `typesVersions` for legacy TypeScript resolution; do not export TSX. Keep react-select isolated to `react/select` and all React-related peers optional.
 
 ## Pull request guidelines

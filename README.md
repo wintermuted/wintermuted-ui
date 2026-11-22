@@ -209,7 +209,7 @@ These are distributable ES modules, not TSX source, with separate declaration fi
 No application compiler needs to transpile JSX inside this package. React is never bundled.
 The `typesVersions` entries support TypeScript 4.9's legacy `moduleResolution: node`;
 conditional exports support newer resolvers. CI checks packed-package React 18,
-TypeScript 4.9, Vite 5 and Webpack 5 consumers, plus CSS-only installation without peers.
+TypeScript 7/bundler, Vite 8 and Webpack 5 consumers, plus CSS-only installation without peers.
 For CRA 5/Jest consumers, allow this ESM package through Babel's dependency transform:
 
 ```json
@@ -287,6 +287,12 @@ Use one document-level ThemeProvider per app. `ThemeSelect` defaults to label Ap
 with System, Light and Dark options and must be inside a provider.
 
 ### Development and release
+
+Development uses React/ReactDOM 19 and matching React 19 types; the optional peer ranges
+and packed-consumer checks retain React 18.3 compatibility.
+TypeScript 7, Vite 8, and JSDOM 31 are the development baseline. Volta pins Node 22.23.5;
+JSDOM and Stylelint 18 require Node 22.22.2+, 24.15+, or 26+. Older TypeScript/Vite
+versions are no longer included in the consumer checks.
 
 Run `npm test` for DOM behavior/package contracts and `npm run test:browser` for native
 Chromium keyboard/focus/theme checks (`npx playwright install chromium` once if needed).
