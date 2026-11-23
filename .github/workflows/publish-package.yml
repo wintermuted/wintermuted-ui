@@ -103,7 +103,8 @@ jobs:
           ATTEMPT_ARTIFACT: ${{ steps.source.outputs.attempts }}
         run: |
           gh run download "$PREPARED_RUN" --repo "$GITHUB_REPOSITORY" --name "$PACKAGE_ARTIFACT" --dir .nx/prepared-release
-          gh run download "$PREPARED_RUN" --repo "$GITHUB_REPOSITORY" --name "$ATTEMPT_ARTIFACT" --dir .nx/prepared-release
+          gh run download "$PREPARED_RUN" --repo "$GITHUB_REPOSITORY" --name "$ATTEMPT_ARTIFACT" --dir .nx/attempt-evidence
+          cp .nx/attempt-evidence/publication-attempts.json .nx/prepared-release/publication-attempts.json
       - name: Preserve recovery evidence before publication
         env:
           SOURCE_REF: ${{ steps.source.outputs.ref }}
@@ -143,10 +144,42 @@ jobs:
         run: |
           printf '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}\n' > "$RUNNER_TEMP/release.npmrc"
           node scripts/release-publication.mjs publish
+      - name: Preserve public registry verification after recovery
+        if: inputs.dry_run == false
+        env:
+          RELEASE_PROJECT: ${{ inputs.project }}
+        run: |
+          node --input-type=module -e '
+            import { existsSync, readFileSync, writeFileSync } from "node:fs";
+            import { isPublished } from "./scripts/release-publication.mjs";
+            const directory = ".nx/prepared-release/";
+            const { packages } = JSON.parse(readFileSync(directory + "publication.json","utf8"));
+            const selected = packages.filter(pkg => pkg.project === process.env.RELEASE_PROJECT);
+            const verified = [];
+            for (const pkg of selected) {
+              if (!await isPublished(pkg)) throw new Error("Selected publication is not publicly visible.");
+              verified.push({ name: pkg.name, version: pkg.version, integrity: pkg.integrity });
+            }
+            const snapshot = directory + "registry-before.json";
+            if (existsSync(snapshot) && process.env.RELEASE_PROJECT === "ui-react") {
+              const theme = JSON.parse(readFileSync(snapshot,"utf8"))["ui-theme"];
+              if (theme.status !== 200 || !await isPublished({ name: theme.name, version: theme.version, integrity: theme.dist?.integrity })) throw new Error("Previously published theme identity could not be verified.");
+              verified.push({ name: theme.name, version: theme.version, integrity: theme.dist.integrity, unchanged: true });
+            }
+            writeFileSync(directory + "registry-after.json", JSON.stringify(verified,null,2));
+            console.log(JSON.stringify(verified,null,2));
+          '
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: recovery-publication-attempts
           path: .nx/prepared-release/publication-attempts.json
           if-no-files-found: warn
+          retention-days: 90
+      - uses: actions/upload-artifact@v4
+        if: success() && inputs.dry_run == false
+        with:
+          name: registry-verification
+          path: .nx/prepared-release/registry-after.json
+          if-no-files-found: error
           retention-days: 90
