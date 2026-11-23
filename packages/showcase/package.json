@@ -5,8 +5,8 @@
   "private": true,
   "type": "module",
   "dependencies": {
-    "@wintermuted/ui-theme": "*",
-    "@wintermuted/ui-react": "*"
+    "@wintermuted/ui-theme": "1.0.0",
+    "@wintermuted/ui-react": "1.0.0"
   },
   "nx": {
     "name": "showcase",
