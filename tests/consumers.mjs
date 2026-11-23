@@ -47,7 +47,7 @@ try {
     "@types/react@18", "@types/react-dom@18"], css);
   const reactPacked = JSON.parse(runNpm(["pack", "--workspace=@wintermuted/ui-react", "--json", "--pack-destination", temp], root))[0];
   runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", join(temp, reactPacked.filename)], css);
-  const docs = new JSDOM(readFileSync(join(root, "apps", "showcase", "react.html"), "utf8"));
+  const docs = new JSDOM(readFileSync(join(root, "packages", "showcase", "react.html"), "utf8"));
   const example = [...docs.window.document.querySelectorAll("pre code")]
     .map(node => node.textContent).find(code => code.startsWith("import "));
   assert.ok(example, "Missing external React installation example");

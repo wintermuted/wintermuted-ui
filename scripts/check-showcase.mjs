@@ -4,8 +4,8 @@ import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { JSDOM } from "jsdom";
 
-const source = fileURLToPath(new URL("../apps/showcase/", import.meta.url));
-const output = fileURLToPath(new URL("../dist/apps/showcase/showcase/", import.meta.url));
+const source = fileURLToPath(new URL("../packages/showcase/", import.meta.url));
+const output = fileURLToPath(new URL("../dist/packages/showcase/showcase/", import.meta.url));
 const pages = readdirSync(source).filter((file) => file.endsWith(".html"));
 
 for (const page of pages) {

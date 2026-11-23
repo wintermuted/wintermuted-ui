@@ -48,18 +48,33 @@ jobs:
         id: release
         run: npm run release -- --prepare
       - name: Stage React package with the prepared release version
-        if: steps.release.outputs.released == 'true'
+        if: steps.release.outputs.projects != ''
         run: npx nx build ui-react
+      - name: Build and check the released showcase
+        if: steps.release.outputs.showcase_released == 'true'
+        run: |
+          npm run showcase:build
+          npm run test:showcase-output
+      - name: Archive the released static site
+        if: steps.release.outputs.showcase_released == 'true'
+        env:
+          SHOWCASE_VERSION: ${{ steps.release.outputs.showcase_version }}
+        run: |
+          touch dist/packages/showcase/.nojekyll
+          tar -czf "dist/showcase-$SHOWCASE_VERSION.tar.gz" -C dist/packages/showcase .nojekyll showcase
+          verify_dir="$(mktemp -d "$RUNNER_TEMP/showcase-archive.XXXXXX")"
+          tar -xzf "dist/showcase-$SHOWCASE_VERSION.tar.gz" -C "$verify_dir"
+          diff -qr dist/packages/showcase "$verify_dir"
       - name: Publish packages with Nx Release (trusted)
         id: publish_trusted
-        if: steps.release.outputs.released == 'true'
+        if: steps.release.outputs.projects != ''
         continue-on-error: true
         run: npm run release:publish -- --projects="$RELEASE_PROJECTS"
         env:
           RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
       - name: Publish packages with Nx Release (token fallback)
         id: publish_token
-        if: steps.release.outputs.released == 'true' && steps.publish_trusted.outcome != 'success'
+        if: steps.release.outputs.projects != '' && steps.publish_trusted.outcome != 'success'
         continue-on-error: true
         run: |
           npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
@@ -68,7 +83,7 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
       - name: Ensure publication succeeded
-        if: steps.release.outputs.released == 'true' && steps.publish_trusted.outcome != 'success' && steps.publish_token.outcome != 'success'
+        if: steps.release.outputs.projects != '' && steps.publish_trusted.outcome != 'success' && steps.publish_token.outcome != 'success'
         run: |
           echo "Nx Release publication failed with both trusted publishing and token authentication."
           exit 1
@@ -84,6 +99,14 @@ jobs:
         run: npm run release -- --finalize
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attach the static site to its GitHub release
+        if: steps.release.outputs.showcase_released == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_REPO: ${{ github.repository }}
+          SHOWCASE_VERSION: ${{ steps.release.outputs.showcase_version }}
+          SHOWCASE_TAG: ${{ steps.release.outputs.showcase_tag }}
+        run: gh release upload "$SHOWCASE_TAG" "dist/showcase-$SHOWCASE_VERSION.tar.gz" --clobber
 
   downstream:
     needs: release

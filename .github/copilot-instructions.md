@@ -6,7 +6,7 @@ This is an Nx monorepo with npm workspaces and one root lockfile.
 
 - `packages/ui-theme`: published `@wintermuted/ui-theme`, with `index.css`, `index.js`, and `styles/`.
 - `packages/ui-react/src`: canonical React JavaScript and hand-authored declarations, including select integration and theme utilities.
-- `apps/showcase`: multipage HTML documentation and React examples using Vite. Shared classic JavaScript is in `public/showcase.js`.
+- `packages/showcase`: private, versioned static HTML documentation and React examples using Vite. Shared classic JavaScript is in `public/showcase.js`.
 - `scripts`: consumer linking, release migration, packaging, and checks.
 
 ## Conventions
@@ -20,7 +20,7 @@ This is an Nx monorepo with npm workspaces and one root lockfile.
 - Keep the CSS-only root export free of React imports and global runtime effects.
 - Declare workspace dependencies in manifests. `ui-react` depends on `ui-theme`, never the reverse; the theme has no React peers.
 - Use conventional commits. Nx Release versions packages independently from changed-file history; do not manually bump the theme version.
-- Both `ui-theme` and `ui-react` are released automatically with independent versions.
+- `ui-theme`, `ui-react`, and private `showcase` are released automatically with independent versions. Showcase releases include static archives and never publish to npm; dependency updates also trigger showcase releases.
 
 ## Development and CI
 

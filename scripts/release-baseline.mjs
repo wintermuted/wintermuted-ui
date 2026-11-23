@@ -32,7 +32,16 @@ export async function withThemeBaseline(run, cwd = process.cwd()) {
       temporaryTags.push(reactBaseline);
       baselines["ui-react"] = initial;
     }
-    return await run({ from, baseline, baselines });
+    const showcase = tags("showcase@*").find((tag) => /^showcase@\d+\.\d+\.\d+$/.test(tag));
+    const firstShowcaseRelease = !showcase;
+    if (showcase) {
+      baselines.showcase = git("rev-list", "-n", "1", showcase);
+    } else {
+      const initial = git("log", "--reverse", "--diff-filter=A", "--format=%H", "--", "packages/showcase/package.json").split("\n")[0];
+      if (!initial) throw new Error("No showcase package history exists. Fetch full release history before running Nx Release.");
+      baselines.showcase = git("rev-list", "--parents", "-n", "1", initial).split(" ")[1] || initial;
+    }
+    return await run({ from, baseline, baselines, firstShowcaseRelease });
   } finally {
     for (const tag of temporaryTags.reverse()) git("tag", "--delete", tag);
   }

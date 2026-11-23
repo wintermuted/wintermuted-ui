@@ -8,14 +8,14 @@ import { createServer } from "vite";
 
 test("native modal focus containment, keyboard interactions, themes and responsive showcase", { timeout: 90000 }, async () => {
   const server = await createServer({
-    configFile: fileURLToPath(new URL("../apps/showcase/vite.config.mjs", import.meta.url)),
+    configFile: fileURLToPath(new URL("../packages/showcase/vite.config.mjs", import.meta.url)),
     server: { host: "127.0.0.1", port: 0 }
   });
   let browser;
   try {
     await server.listen();
     const address = server.httpServer.address();
-    for (const file of await readdir(new URL("../apps/showcase/", import.meta.url))) {
+    for (const file of await readdir(new URL("../packages/showcase/", import.meta.url))) {
       if (!file.endsWith(".html")) continue;
       const response = await fetch(`http://127.0.0.1:${address.port}/showcase/${file}`);
       assert.ok(response.ok, `Missing showcase page: ${file}`);

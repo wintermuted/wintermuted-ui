@@ -1,6 +1,6 @@
 # Release runbook
 
-Nx Release owns package versions, dependency-range updates, changelogs, npm publication, and GitHub releases. The checked-in workflow publishes `ui-theme` and `ui-react` independently after compatibility checks. It does not publish the private root or showcase.
+Nx Release owns package versions, dependency-range updates, changelogs, npm publication, and GitHub releases. The checked-in workflow releases `ui-theme`, `ui-react`, and `showcase` independently after compatibility checks. It publishes only the public theme and React packages to npm; the private root and showcase are never published to npm.
 
 This guide describes the 1.0 release configuration. A manifest version or successful Pages deployment is not evidence that a package has been published.
 
@@ -10,8 +10,11 @@ This guide describes the 1.0 release configuration. A manifest version or succes
 | --- | --- | --- | --- |
 | `@wintermuted/ui-theme` | `packages/ui-theme/package.json` | CSS, the CSS-loading root, README, and license | `ui-theme@X.Y.Z` |
 | `@wintermuted/ui-react` | `packages/ui-react/package.json` | Staged ESM, declarations, manifest, README, and license | `ui-react@X.Y.Z` |
+| `@wintermuted/showcase` (private) | `packages/showcase/package.json` | GitHub release archive `showcase-X.Y.Z.tar.gz` containing `.nojekyll` and the static `showcase/` site | `showcase@X.Y.Z` |
 
 Versions are independent: a React-only change need not bump the theme. When the theme changes, Nx may also update the dependent React package and its required theme range. `preserveMatchingDependencyRanges` is disabled so an out-of-range major dependency update can be written instead of blocking release preparation.
+
+Showcase versions advance for direct releasable changes and declared theme/React dependency updates. Its initial release is explicitly `0.1.0`, independent of the introducing commit's conventional type. No artificial historical showcase release tag is created. Subsequent releases use the latest reachable showcase tag as their baseline.
 
 Legacy `vX.Y.Z` theme tags are retained. Do not rewrite them, move an existing package tag, or reuse an npm version for different content.
 
@@ -23,7 +26,7 @@ Legacy `vX.Y.Z` theme tags are retained. Do not rewrite them, move an existing p
 | `packages/*/package.json` | Public exports, package files, dependencies, pack/publish targets |
 | `scripts/release.mjs` | Dry run, preparation state, and GitHub release finalization |
 | `scripts/release-changelog.mjs` | Finalize each changed project's notes from its own pre-release baseline |
-| `scripts/release-baseline.mjs` | Temporary legacy and first-React baselines |
+| `scripts/release-baseline.mjs` | Temporary legacy/first-React baselines and initial showcase release detection |
 | `scripts/stage-react.mjs` | Assemble the React package without bundling peers |
 | `.github/workflows/react-package.yml` | Compatibility workflow reused as the release gate |
 | `.github/workflows/auto-release.yml` | Publication, atomic Git push, finalization, and theme downstream dispatch |
@@ -77,8 +80,10 @@ flowchart TD
     Checks --> Prepare["Nx preparation: versions, ranges, changelogs, local commit + tags"]
     Prepare --> Changes{"Any package changed?"}
     Changes -->|"No"| Stop["Finish without publication"]
-    Changes -->|"Yes"| Stage["Stage React using prepared manifest"]
-    Stage --> Trusted["Publish only prepared projects with provenance / trusted publishing"]
+    Changes -->|"Yes"| Stage["Stage public packages; build/check/archive released showcase"]
+    Stage --> Public{"Public packages released?"}
+    Public -->|"No"| Push
+    Public -->|"Yes"| Trusted["Publish only prepared public projects with provenance / trusted publishing"]
     Trusted --> Result{"Publication succeeded?"}
     Result -->|"No"| Token["Retry with NPM_TOKEN fallback"]
     Token --> Retry{"Publication succeeded?"}
@@ -86,9 +91,10 @@ flowchart TD
     Result -->|"Yes"| Push["Atomically push release commit + package tags"]
     Retry -->|"Yes"| Push
     Push --> Finalize["Create GitHub package releases"]
-    Finalize --> Theme{"Theme released?"}
+    Finalize --> Archive["Attach any showcase static archive"]
+    Archive --> Theme{"Theme released?"}
     Theme -->|"Yes"| Notify["Dispatch downstream theme update"]
-    Theme -->|"No"| Done["Finish React-only release"]
+    Theme -->|"No"| Done["Finish without theme dispatch"]
 ```
 
 Auto Release runs on pushes to `main` and serializes releases through its concurrency group. The release job uses the GitHub environment `wintermuted-ui-theme` for both packages.
@@ -101,11 +107,13 @@ The wrapper has three modes:
 | `--prepare` | Require a clean checkout, run Nx version/changelog preparation, create local commit/tags, save state |
 | `--finalize` | Require saved state matching HEAD; create GitHub releases without re-versioning or pushing |
 
-Preparation writes `.nx/release-state.json` with each project's pre-release baseline commit, project version data, and prepared commit. Workflow outputs distinguish any release (`released`) from a theme release (`theme_released`), and include the changed project names and package tags to push. Both npm publication attempts pass that project filter, so a React-only release does not attempt to republish the unchanged theme.
+Preparation writes `.nx/release-state.json` with each project's pre-release baseline commit, project version data, and prepared commit. Workflow outputs distinguish any release (`released`), a theme release (`theme_released`), and a showcase release (`showcase_released`). `projects` contains only changed npm-publishable project names; `tags` contains all release tags, including showcase. Both npm attempts use the public project filter and are skipped when it is empty. Showcase outputs also include its version and tag.
 
 Finalization generates notes separately for each changed project, from its saved baseline to the prepared commit. The React baseline advances independently of the theme, preventing earlier React-only changes from appearing again in later releases. Finalization depends on that state; a fresh tagged checkout alone cannot reconstruct it.
 
 React is staged **after** version preparation so `dist/packages/ui-react/package.json` contains the released version and current dependency ranges, not stale compatibility-build metadata.
+
+When showcase releases, CI builds it after version preparation, checks all built pages and relative assets, and creates `dist/showcase-X.Y.Z.tar.gz` from `dist/packages/showcase`. It extracts the archive into a fresh temporary directory and compares its complete contents with the built site before publication. The archive retains the `showcase/` directory for existing URLs. After finalization, `gh release upload --clobber` attaches it to the corresponding showcase release. Build/check/archive/upload errors fail the workflow. Showcase-only releases do not invoke npm publication or need npm publishing credentials.
 
 The release commit and all selected package tags are pushed together with `git push --atomic`. This protects Git references only. npm publication is a separate external operation and is not transactional across packages.
 
@@ -149,6 +157,7 @@ Identify the failed stage and inspect npm and GitHub before retrying. Never infe
 | Both npm attempts | One package may have published; Git refs have not been pushed by this run | Correct permissions/content problems, then recover the failed release run. Do not reuse a published version with different content. |
 | Atomic Git push | npm packages may exist; release Git refs were not updated by that push | Resolve remote advancement/access issues and verify the exact published content before retrying. Do not force-push main. |
 | GitHub finalization | npm packages and Git tags exist | Recover GitHub release creation using the prepared state from the same release context or deliberate maintainer recovery; do not republish just to create a release page. |
+| Showcase archive upload | Git tags and GitHub releases exist; the static asset may be absent | Recover the exact tagged site's checked static archive and upload it to the matching showcase release. Do not bump versions or republish npm packages. |
 | Downstream dispatch | Packages, tags, and GitHub releases exist | Retry the dispatch for the existing theme version; do not create another package release. |
 
 If main advanced after a failed run, do not blindly rerun an older preparation and publish different content under an existing npm version. Compare the release logs, manifests, tags, and registry first. A published npm version is immutable.
