@@ -24,7 +24,7 @@ export default defineConfig(({ command }) => ({
     strictPort: true
   },
   build: {
-    outDir: resolve(root, "../../dist/apps/showcase/showcase"),
+    outDir: resolve(root, "../../dist/packages/showcase/showcase"),
     emptyOutDir: true,
     rolldownOptions: { input }
   }

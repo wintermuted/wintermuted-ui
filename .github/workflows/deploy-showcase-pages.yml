@@ -11,7 +11,7 @@ on:
     branches:
       - main
     paths:
-      - "apps/showcase/**"
+      - "packages/showcase/**"
       - "packages/ui-theme/**"
       - "packages/ui-react/**"
       - "nx.json"
@@ -22,7 +22,7 @@ on:
     branches:
       - main
     paths:
-      - "apps/showcase/**"
+      - "packages/showcase/**"
       - "packages/ui-theme/**"
       - "packages/ui-react/**"
       - "nx.json"
@@ -63,7 +63,7 @@ jobs:
 
       - name: Build site
         run: |
-          touch dist/apps/showcase/.nojekyll
+          touch dist/packages/showcase/.nojekyll
 
       - name: Configure git identity
         run: |
@@ -102,11 +102,11 @@ jobs:
             preview_dir="gh-pages-out/previews/pr-${{ github.event.pull_request.number }}"
             rm -rf "$preview_dir"
             mkdir -p "$preview_dir"
-            cp -R dist/apps/showcase/. "$preview_dir/"
+            cp -R dist/packages/showcase/. "$preview_dir/"
           else
             # Replace root content but preserve previews so PR links remain valid.
             find gh-pages-out -mindepth 1 -maxdepth 1 ! -name '.git' ! -name 'previews' -exec rm -rf {} +
-            cp -R dist/apps/showcase/. gh-pages-out/
+            cp -R dist/packages/showcase/. gh-pages-out/
           fi
 
           cd gh-pages-out

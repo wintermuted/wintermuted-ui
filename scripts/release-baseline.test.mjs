@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { withThemeBaseline } from "./release-baseline.mjs";
 
-function fixture(t) {
+function fixture(t, includeShowcase = true) {
   const cwd = mkdtempSync(join(tmpdir(), "wm-release-"));
   t.after(() => rmSync(cwd, { recursive: true, force: true }));
   const git = (...args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
@@ -16,6 +16,10 @@ function fixture(t) {
   writeFileSync(join(cwd, "package.json"), "{}");
   mkdirSync(join(cwd, "packages", "ui-react"), { recursive: true });
   writeFileSync(join(cwd, "packages", "ui-react", "package.json"), '{"version":"0.0.0"}');
+  if (includeShowcase) {
+    mkdirSync(join(cwd, "packages", "showcase"), { recursive: true });
+    writeFileSync(join(cwd, "packages", "showcase", "package.json"), '{"version":"0.1.0","private":true}');
+  }
   git("add", ".");
   git("commit", "--quiet", "-m", "chore: initialize");
   return { cwd, git };
@@ -60,4 +64,30 @@ test("existing Nx baseline is preserved; temporary baselines are cleaned up on f
 test("missing history fails instead of resetting to a first release", async (t) => {
   const { cwd } = fixture(t);
   await assert.rejects(withThemeBaseline(async () => assert.fail("must not release"), cwd), /Fetch full release history/);
+});
+
+test("showcase bootstrap has no fabricated tag and later releases use their own baseline", async (t) => {
+  const { cwd, git } = fixture(t);
+  git("tag", "ui-theme@1.0.0");
+  git("tag", "ui-react@1.0.0");
+  const initial = git("rev-parse", "HEAD");
+  await withThemeBaseline(async ({ baselines, firstShowcaseRelease }) => {
+    assert.equal(firstShowcaseRelease, true);
+    assert.equal(baselines.showcase, initial);
+    assert.equal(git("tag", "--list", "showcase@*"), "");
+  }, cwd);
+  git("tag", "showcase@0.1.0");
+  git("commit", "--quiet", "--allow-empty", "-m", "fix: later showcase change");
+  await withThemeBaseline(async ({ baselines, firstShowcaseRelease }) => {
+    assert.equal(firstShowcaseRelease, false);
+    assert.equal(baselines.showcase, initial);
+  }, cwd);
+});
+
+test("missing showcase history rejects preparation and cleans up temporary public package tags", async (t) => {
+  const { cwd, git } = fixture(t, false);
+  git("tag", "v0.21.7");
+  await assert.rejects(withThemeBaseline(async () => assert.fail("must not release"), cwd), /No showcase package history/);
+  assert.equal(git("tag", "--list", "ui-theme@*"), "");
+  assert.equal(git("tag", "--list", "ui-react@*"), "");
 });

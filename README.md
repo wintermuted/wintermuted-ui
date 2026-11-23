@@ -6,7 +6,7 @@ Nx-powered design-system monorepo using npm workspaces and one root lockfile.
 | --- | --- | --- |
 | `packages/ui-theme` | `ui-theme` | Published `@wintermuted/ui-theme` CSS/JS package |
 | `packages/ui-react` | `ui-react` | Existing React components and declarations, extracted into a separate package |
-| `apps/showcase` | `showcase` | Multipage HTML documentation and React examples powered by Vite |
+| `packages/showcase` | `showcase` | Private, versioned static documentation and React examples powered by Vite |
 
 ## Documentation
 
@@ -61,7 +61,7 @@ npx nx pack ui-theme
 npx nx pack ui-react
 ```
 
-The theme needs no CSS compilation. React's build stages its existing ESM and declarations into `dist/packages/ui-react`, without bundling peers. Vite builds every showcase HTML page into `dist/apps/showcase/showcase`, using relative URLs compatible with nested previews. Workspace dependencies and shared configuration participate in Nx cache invalidation.
+The theme needs no CSS compilation. React's build stages its existing ESM and declarations into `dist/packages/ui-react`, without bundling peers. Vite builds every showcase HTML page into `dist/packages/showcase/showcase`, using relative URLs compatible with nested previews. Workspace dependencies and shared configuration participate in Nx cache invalidation.
 
 CI owns lint, typecheck, and build validation. Behavioral and package checks are available locally:
 
@@ -90,7 +90,9 @@ Production documentation remains under `/showcase/`. Pull requests deploy to `/p
 
 See the [release runbook](docs/releases.md) for the full workflow, authentication boundaries, first-publication checklist, and failure-stage recovery.
 
-Nx Release manages independent versions, conventional-commit version selection, project changelogs, npm publication, and GitHub releases for `ui-theme` and `ui-react`. The private showcase is excluded.
+Nx Release manages independent versions, conventional-commit version selection, project changelogs, and GitHub releases for `ui-theme`, `ui-react`, and `showcase`. Only the public theme and React packages are published to npm.
+
+The private showcase starts at `0.1.0` and uses `showcase@X.Y.Z` tags. Its own releasable changes and updates to declared theme/React dependencies produce new showcase versions. Each showcase GitHub release includes `showcase-X.Y.Z.tar.gz`, containing `.nojekyll` and the built `showcase/` site directory. See the [showcase package guide](packages/showcase/README.md). Reusable documentation-framework extraction is deferred.
 
 ```sh
 npm run release -- --dry-run
@@ -100,7 +102,7 @@ npm run release -- --dry-run
 
 For migration, the wrapper temporarily maps the latest reachable legacy `vX.Y.Z` tag to `ui-theme@X.Y.Z`, preserving the existing version baseline and avoiding replay of historical commits. Before the first standalone React release, it also establishes a temporary React baseline from the commit that introduced its package manifest and that manifest's initial version. Temporary tags are removed even if Nx fails. New releases use `ui-theme@X.Y.Z` and `ui-react@X.Y.Z`; legacy tags are untouched.
 
-The main workflow validates compatibility, prepares Nx version/changelog changes, stages React with the prepared version, publishes only changed projects with provenance using trusted publishing or the `NPM_TOKEN` fallback, and only then pushes the release commit/package tags and creates GitHub releases. Each project's release notes use its own saved pre-release baseline. Theme releases call downstream dispatch explicitly, since releases created with `GITHUB_TOKEN` do not trigger another release-event workflow. React-only releases do not republish the unchanged theme or dispatch a theme bump.
+The main workflow validates compatibility, prepares Nx version/changelog changes, stages React when public packages release, and builds/checks any released showcase before archiving it. It publishes only changed public projects with provenance using trusted publishing or the `NPM_TOKEN` fallback, then pushes the release commit/package tags, creates GitHub releases, and attaches the static-site archive. Showcase-only releases skip npm publication entirely. Each project's release notes use its own saved pre-release baseline. Theme releases call downstream dispatch explicitly, since releases created with `GITHUB_TOKEN` do not trigger another release-event workflow. React-only and showcase-only releases do not republish the unchanged theme or dispatch a theme bump.
 
 The manual publish workflow is recovery-only and defaults to a dry run. It never bumps versions.
 

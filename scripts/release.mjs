@@ -13,7 +13,7 @@ for (const arg of args) {
 if (args.size > 1) throw new Error("Choose one of --dry-run, --prepare, or --finalize.");
 const dryRun = !args.has("--prepare") && !args.has("--finalize");
 const statePath = new URL("../.nx/release-state.json", import.meta.url);
-const projects = ["ui-theme", "ui-react"];
+const projects = ["ui-theme", "ui-react", "showcase"];
 const git = (...command) => execFileSync("git", command, { encoding: "utf8" }).trim();
 
 if (args.has("--finalize")) {
@@ -40,28 +40,62 @@ if (args.has("--finalize")) {
     changelog: { projectChangelogs: { createRelease: false } },
     git: { push: false }
   });
-  const { projectsVersionData } = await client.release({ projects, dryRun, skipPublish: true, yes: true });
+  const firstShowcaseRelease = process.env.WM_FIRST_SHOWCASE_RELEASE === "true";
+  const versionOptions = { dryRun, stageChanges: !dryRun, gitCommit: false, gitTag: false };
+  const { projectsVersionData } = await client.releaseVersion({
+    ...versionOptions,
+    projects: firstShowcaseRelease ? projects.filter((project) => project !== "showcase") : projects
+  });
+  if (firstShowcaseRelease) {
+    const initial = await client.releaseVersion({
+      ...versionOptions,
+      projects: ["showcase"],
+      firstRelease: true,
+      specifier: "0.1.0"
+    });
+    Object.assign(projectsVersionData, initial.projectsVersionData);
+  }
   const version = projectsVersionData["ui-theme"]?.newVersion;
   const releases = Object.entries(projectsVersionData).filter(([, data]) => data.newVersion);
   const tags = releases.map(([name, data]) => `${name}@${data.newVersion}`);
+  const publishProjects = releases.filter(([name]) => name !== "showcase").map(([name]) => name);
+  const showcaseVersion = projectsVersionData.showcase?.newVersion;
+  for (const [project, data] of releases) {
+    await client.releaseChangelog({
+      projects: [project],
+      versionData: { [project]: data },
+      from: baselines[project],
+      firstRelease: project === "showcase" && firstShowcaseRelease,
+      dryRun,
+      stageChanges: !dryRun,
+      gitCommit: false,
+      gitTag: false,
+      gitPush: false,
+      createRelease: false
+    });
+  }
+  console.log("Skipped publishing packages; CI publishes only public release projects.");
   if (!tags.length) {
     console.log("No releasable package changes.");
     if (!dryRun && process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, "released=false\n");
   } else if (!dryRun) {
+    const { release } = JSON.parse(readFileSync(new URL("../nx.json", import.meta.url), "utf8"));
+    git("commit", "-m", release.git.commitMessage, ...release.git.commitArgs);
+    for (const tag of tags) git("tag", tag);
     const state = { baselines, projectsVersionData, commit: git("rev-parse", "HEAD") };
     mkdirSync(new URL("../.nx/", import.meta.url), { recursive: true });
     writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`);
     if (process.env.GITHUB_OUTPUT) {
       appendFileSync(process.env.GITHUB_OUTPUT,
-        `released=true\ntheme_released=${Boolean(version)}\nversion=${version || ""}\ntag=${version ? `ui-theme@${version}` : ""}\ntags=${tags.join(" ")}\nprojects=${releases.map(([name]) => name).join(",")}\n`);
+        `released=true\ntheme_released=${Boolean(version)}\nversion=${version || ""}\ntag=${version ? `ui-theme@${version}` : ""}\ntags=${tags.join(" ")}\nprojects=${publishProjects.join(",")}\nshowcase_released=${Boolean(showcaseVersion)}\nshowcase_version=${showcaseVersion || ""}\nshowcase_tag=${showcaseVersion ? `showcase@${showcaseVersion}` : ""}\n`);
     }
   }
 } else {
   // Nx can exit on configuration errors; isolate it so baseline cleanup still runs.
-  await withThemeBaseline(async ({ baselines }) => {
+  await withThemeBaseline(async ({ baselines, firstShowcaseRelease }) => {
     execFileSync(process.execPath, [fileURLToPath(import.meta.url), ...args], {
       stdio: "inherit",
-      env: { ...process.env, WM_RELEASE_WORKER: "true", WM_RELEASE_BASELINES: JSON.stringify(baselines) }
+      env: { ...process.env, WM_RELEASE_WORKER: "true", WM_RELEASE_BASELINES: JSON.stringify(baselines), WM_FIRST_SHOWCASE_RELEASE: String(firstShowcaseRelease) }
     });
   });
 }
