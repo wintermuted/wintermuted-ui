@@ -23,7 +23,7 @@ try {
   const { mkdirSync } = await import("node:fs");
   mkdirSync(css);
   writeFileSync(join(css, "package.json"), JSON.stringify({ private: true, type: "module" }));
-  runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", "--omit=optional", tarball], css);
+  runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", tarball], css);
   for (const peer of ["react", "react-dom", "react-select"]) {
     assert.equal(existsSync(join(css, "node_modules", peer)), false, `CSS consumer unexpectedly installed ${peer}`);
   }
@@ -31,12 +31,22 @@ try {
   const manifest = JSON.parse(readFileSync(join(installed, "package.json"), "utf8"));
   const legacyExports = [".", "./index.css", "./styles/tokens.css", "./styles/base.css", "./styles/components.css"];
   for (const key of legacyExports) assert.ok(existsSync(resolve(installed, manifest.exports[key])));
-  assert.ok(existsSync(join(installed, "react", "index.js")));
+  assert.equal(manifest.peerDependencies, undefined);
+  assert.equal(manifest.dependencies, undefined);
+  assert.ok(!existsSync(join(installed, "react")));
+  for (const entry of ["./react", "./react/select", "./theme"]) assert.equal(manifest.exports[entry], undefined);
+  const resolveInstalled = createRequire(join(css, "package.json"));
+  for (const entry of ["react", "react/select", "theme"]) {
+    assert.throws(() => resolveInstalled.resolve(`@wintermuted/ui-theme/${entry}`),
+      { code: "ERR_PACKAGE_PATH_NOT_EXPORTED" });
+  }
   assert.ok(!existsSync(join(installed, "node_modules", "react")));
 
   runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund",
     "react@18.3.1", "react-dom@18.3.1", "react-select@5",
     "@types/react@18", "@types/react-dom@18"], css);
+  const reactPacked = JSON.parse(runNpm(["pack", "--workspace=@wintermuted/ui-react", "--json", "--pack-destination", temp], root))[0];
+  runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", join(temp, reactPacked.filename)], css);
   const docs = new JSDOM(readFileSync(join(root, "apps", "showcase", "react.html"), "utf8"));
   const example = [...docs.window.document.querySelectorAll("pre code")]
     .map(node => node.textContent).find(code => code.startsWith("import "));
@@ -48,17 +58,15 @@ try {
 import assert from "node:assert/strict";
 import React from "react";
 import {renderToString} from "react-dom/server";
-import {Button, Card, ThemeProvider} from "@wintermuted/ui-theme/react";
-import {MultiSelect} from "@wintermuted/ui-theme/react/select";
-import {initTheme, getThemeScript} from "@wintermuted/ui-theme/theme";
+import {Button, Card, ThemeProvider} from "@wintermuted/ui-react";
+import {MultiSelect} from "@wintermuted/ui-react/select";
+import {initTheme, getThemeScript} from "@wintermuted/ui-react/theme";
 assert.match(renderToString(React.createElement(ThemeProvider, null, React.createElement(Card, null,
   React.createElement(Button, null, "Refresh")))), /Refresh/);
 assert.match(renderToString(React.createElement(MultiSelect, {options: []})), /input/);
 assert.equal(initTheme(), "light");
 assert.ok(getThemeScript().includes("wintermuted:theme"));
 `], { cwd: css, stdio: "inherit" });
-  const reactPacked = JSON.parse(runNpm(["pack", "--workspace=@wintermuted/ui-react", "--json", "--pack-destination", temp], root))[0];
-  runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", join(temp, reactPacked.filename)], css);
   execFileSync(process.execPath, ["--input-type=module", "-e", `
 import assert from "node:assert/strict";
 import React from "react";

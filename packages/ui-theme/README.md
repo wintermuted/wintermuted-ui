@@ -2,6 +2,8 @@
 
 Shared plain-CSS design tokens, resets, component styles, and light/dark themes for Wintermuted projects.
 
+See the [theme architecture guide](https://github.com/wintermuted/wintermuted-ui/blob/main/packages/ui-theme/docs/architecture.md) for CSS layers, token ownership, public-path registration, and extension rules.
+
 ## Install
 
 ```sh
@@ -28,16 +30,17 @@ The package exports `index.css`, `styles/tokens.css`, `styles/base.css`, `styles
 
 This package lives in `packages/ui-theme` within the [Wintermuted UI monorepo](https://github.com/wintermuted/wintermuted-ui). New monorepo tags are not directly installable as the theme through a GitHub-source npm dependency; use npm releases or a tarball produced by `npm pack --workspace=@wintermuted/ui-theme`.
 
-## Existing React entry points
+## Migrating to 1.0
 
-The optional React API remains available for existing consumers:
+Version 1.0.0 removes the legacy `react`, `react/select`, and `theme` entry points, their TypeScript mappings, and all React-related peer dependencies. CSS imports and `--wm-*` tokens are unchanged. CSS-only consumers need no React packages.
+
+React components and theme runtime helpers now come exclusively from `@wintermuted/ui-react`:
 
 ```js
-import { Button, ThemeProvider } from "@wintermuted/ui-theme/react";
-import { MultiSelect } from "@wintermuted/ui-theme/react/select";
-import { initTheme } from "@wintermuted/ui-theme/theme";
+import "@wintermuted/ui-theme/index.css";
+import { Button, ThemeProvider } from "@wintermuted/ui-react";
+import { MultiSelect } from "@wintermuted/ui-react/select";
+import { initTheme } from "@wintermuted/ui-react/theme";
 ```
 
-Install React/React DOM 18.3 or 19 for the React API, and react-select 5.8 or newer only for the select adapter. These peers remain optional for CSS-only consumers.
-
-The canonical implementation lives in the separate `@wintermuted/ui-react` workspace. Theme packaging includes compatibility copies, preserving runtime exports and legacy TypeScript declaration mappings without maintaining two implementations. Standalone React publication is deferred.
+Install `@wintermuted/ui-react` and React/React DOM 18.3 or 19; add react-select 5.8 or newer only for the select adapter. See the [1.0 migration guide](https://github.com/wintermuted/wintermuted-ui/blob/main/docs/migration-to-v1.md) for installation, import mappings, test tooling, and release ordering.

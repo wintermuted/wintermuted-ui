@@ -4,8 +4,13 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: "Existing theme tag to republish (ui-theme@X.Y.Z)"
+        description: "Existing package tag to republish (ui-theme@X.Y.Z or ui-react@X.Y.Z)"
         required: true
+      project:
+        description: "Package to republish"
+        type: choice
+        options: [ui-theme, ui-react]
+        default: ui-theme
       dry_run:
         description: "Preview publication without publishing"
         type: boolean
@@ -39,22 +44,27 @@ jobs:
       - name: Install npm with trusted publishing support
         run: npm install --global npm@11.5.1 --registry=https://registry.npmjs.org
       - run: npm ci --no-audit --no-fund
-      - name: Verify theme release identity
+      - name: Verify package release identity
         env:
           RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_PROJECT: ${{ inputs.project }}
         run: |
-          VERSION=$(node -p "require('./packages/ui-theme/package.json').version")
-          if [ "$RELEASE_TAG" != "ui-theme@$VERSION" ]; then
-            echo "The requested tag does not match the theme package version."
+          VERSION=$(node -p "require('./packages/' + process.env.RELEASE_PROJECT + '/package.json').version")
+          if [ "$RELEASE_TAG" != "$RELEASE_PROJECT@$VERSION" ]; then
+            echo "The requested tag does not match the package version."
             exit 1
           fi
-      - name: Publish theme through Nx Release
+      - name: Stage React package
+        if: inputs.project == 'ui-react'
+        run: npx nx build ui-react
+      - name: Publish package through Nx Release
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run }}
+          RELEASE_PROJECT: ${{ inputs.project }}
         run: |
           if [ "$DRY_RUN" = "true" ]; then
-            npm run release:publish -- --dry-run
+            npm run release:publish -- --projects="$RELEASE_PROJECT" --dry-run
           else
-            npm run release:publish
+            npm run release:publish -- --projects="$RELEASE_PROJECT"
           fi

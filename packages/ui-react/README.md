@@ -2,6 +2,8 @@
 
 React components extracted from Wintermuted UI: native primitives, accessible interactions, theme helpers, and an optional react-select integration. The existing JavaScript implementation and hand-authored TypeScript declarations are preserved.
 
+See the [React architecture guide](https://github.com/wintermuted/wintermuted-ui/blob/main/packages/ui-react/docs/architecture.md) for entry-point isolation, interaction ownership, theme synchronization, declarations, and packaging.
+
 ```js
 import "@wintermuted/ui-theme";
 import { Button, ThemeProvider } from "@wintermuted/ui-react";
@@ -11,13 +13,17 @@ import { initTheme } from "@wintermuted/ui-react/theme";
 
 Consumers load the theme explicitly; React components do not inject global styles. React/React DOM 18.3 or 19 are peers. Install react-select only when using the `select` entry point.
 
-The package is workspace-linked locally and publish-ready, but its initial standalone publication is deferred. Nx Release currently selects only `ui-theme`.
+Starting with 1.0.0, this is the standalone home for all Wintermuted React components and theme runtime helpers. It depends on `@wintermuted/ui-theme` 1.x; the CSS-only theme has no dependency on this package or React. Nx Release publishes both packages with independent versions.
 
 The `build` target stages the already-valid ESM, declarations, manifest, README, and license in `dist/packages/ui-react`, without bundling React or introducing a compilation step. `npx nx pack ui-react` packs that output. CI checks declarations and packed consumers.
 
-The theme package retains its existing `react`, `react/select`, and `theme` exports for compatibility. Its prepack step copies this package's canonical sources; no second React implementation is maintained.
+The old theme package's `react`, `react/select`, and `theme` exports were removed in 1.0.0. See the [migration guide](https://github.com/wintermuted/wintermuted-ui/blob/main/docs/migration-to-v1.md).
 
-To enable the first standalone release, add `ui-react` to `release.projects` in `nx.json` and establish its independent release baseline. Publishing already targets the staged package.
+```sh
+npm install @wintermuted/ui-react@^1.0.0 @wintermuted/ui-theme@^1.0.0 react react-dom
+# Only for MultiSelect:
+npm install react-select
+```
 
 ## Usage
 

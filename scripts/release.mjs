@@ -12,7 +12,7 @@ for (const arg of args) {
 if (args.size > 1) throw new Error("Choose one of --dry-run, --prepare, or --finalize.");
 const dryRun = !args.has("--prepare") && !args.has("--finalize");
 const statePath = new URL("../.nx/release-state.json", import.meta.url);
-const projects = ["ui-theme"];
+const projects = ["ui-theme", "ui-react"];
 const git = (...command) => execFileSync("git", command, { encoding: "utf8" }).trim();
 
 if (args.has("--finalize")) {
@@ -47,15 +47,19 @@ if (args.has("--finalize")) {
   });
   const { projectsVersionData } = await client.release({ projects, dryRun, skipPublish: true, yes: true });
   const version = projectsVersionData["ui-theme"]?.newVersion;
-  if (!version) {
-    console.log("No releasable theme changes.");
+  const tags = Object.entries(projectsVersionData)
+    .filter(([, data]) => data.newVersion)
+    .map(([name, data]) => `${name}@${data.newVersion}`);
+  if (!tags.length) {
+    console.log("No releasable package changes.");
     if (!dryRun && process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, "released=false\n");
   } else if (!dryRun) {
     const state = { from, projectsVersionData, commit: git("rev-parse", "HEAD") };
     mkdirSync(new URL("../.nx/", import.meta.url), { recursive: true });
     writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`);
     if (process.env.GITHUB_OUTPUT) {
-      appendFileSync(process.env.GITHUB_OUTPUT, `released=true\nversion=${version}\ntag=ui-theme@${version}\n`);
+      appendFileSync(process.env.GITHUB_OUTPUT,
+        `released=true\ntheme_released=${Boolean(version)}\nversion=${version || ""}\ntag=${version ? `ui-theme@${version}` : ""}\ntags=${tags.join(" ")}\n`);
     }
   }
 } else {
