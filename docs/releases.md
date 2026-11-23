@@ -1,6 +1,6 @@
 # Release runbook
 
-Nx Release owns package versions, dependency-range updates, changelogs, npm publication, and GitHub releases. The checked-in workflow publishes `ui-theme` and `ui-react` independently after compatibility checks. It does not publish the private root or showcase.
+Nx Release owns package versions, dependency-range updates, changelogs, and GitHub releases. The publication wrapper packs Nx-selected projects once and publishes those immutable tarballs with npm, so retries cannot rebuild different bytes or blindly retry a successful package. The checked-in workflow publishes `ui-theme` and `ui-react` independently after compatibility checks. It does not publish the private root or showcase.
 
 This guide describes the 1.0 release configuration. A manifest version or successful Pages deployment is not evidence that a package has been published.
 
@@ -24,10 +24,12 @@ Legacy `vX.Y.Z` theme tags are retained. Do not rewrite them, move an existing p
 | `scripts/release.mjs` | Dry run, preparation state, and GitHub release finalization |
 | `scripts/release-changelog.mjs` | Finalize each changed project's notes from its own pre-release baseline |
 | `scripts/release-baseline.mjs` | Temporary legacy and first-React baselines |
+| `scripts/release-publication.mjs` | Immutable tarballs, exact registry verification, and per-package publication attempts |
+| `scripts/release-recovery.mjs` | Validate tagged, preserved-artifact, or bounded legacy recovery sources |
 | `scripts/stage-react.mjs` | Assemble the React package without bundling peers |
 | `.github/workflows/react-package.yml` | Compatibility workflow reused as the release gate |
 | `.github/workflows/auto-release.yml` | Publication, atomic Git push, finalization, and theme downstream dispatch |
-| `.github/workflows/publish-package.yml` | Republish an existing tagged package without changing versions |
+| `.github/workflows/publish-package.yml` | Recover one selected package without changing versions or inventing tags |
 | `.github/workflows/bump-downstream.yml` | Notify configured downstream theme consumers |
 
 ## Version selection
@@ -78,9 +80,10 @@ flowchart TD
     Prepare --> Changes{"Any package changed?"}
     Changes -->|"No"| Stop["Finish without publication"]
     Changes -->|"Yes"| Stage["Stage React using prepared manifest"]
-    Stage --> Trusted["Publish only prepared projects with provenance / trusted publishing"]
+    Stage --> Save["Preserve immutable tarballs, release state, and Git bundle"]
+    Save --> Trusted["Publish only prepared projects with provenance / trusted publishing"]
     Trusted --> Result{"Publication succeeded?"}
-    Result -->|"No"| Token["Retry with NPM_TOKEN fallback"]
+    Result -->|"No"| Token["Verify registry identity and retry only missing, auth-failed packages with NPM_TOKEN"]
     Token --> Retry{"Publication succeeded?"}
     Retry -->|"No"| Block["Fail: do not push release commit or tags"]
     Result -->|"Yes"| Push["Atomically push release commit + package tags"]
@@ -101,7 +104,9 @@ The wrapper has three modes:
 | `--prepare` | Require a clean checkout, run Nx version/changelog preparation, create local commit/tags, save state |
 | `--finalize` | Require saved state matching HEAD; create GitHub releases without re-versioning or pushing |
 
-Preparation writes `.nx/release-state.json` with each project's pre-release baseline commit, project version data, and prepared commit. Workflow outputs distinguish any release (`released`) from a theme release (`theme_released`), and include the changed project names and package tags to push. Both npm publication attempts pass that project filter, so a React-only release does not attempt to republish the unchanged theme.
+Preparation writes `.nx/release-state.json` with each project's pre-release baseline commit, project version data, and prepared commit. Workflow outputs distinguish any release (`released`) from a theme release (`theme_released`), and include the changed project names and package tags to push. Only those projects are packed into `.nx/prepared-release/publication.json`; the workflow preserves their tarballs, SHA-512 integrity, release state, and full Git bundle in the `prepared-release` artifact before the first npm write (90-day retention).
+
+Both publication attempts read the same tarballs. An already-published package is skipped only when the public registry matches its exact name, version, and tarball integrity. Explicit npm-registry 404 absence permits initial publication; HTTP/auth/network errors, malformed responses, and content mismatches fail rather than becoming absence. The `publication-attempts` artifact records accepted, verified, auth-failed, or unresolved writes without credentials. An accepted-but-not-visible or unknown-network outcome cannot be retried automatically. Only an explicit authentication failure with verified registry absence is eligible for token fallback. A React-only release never publishes the unchanged theme.
 
 Finalization generates notes separately for each changed project, from its saved baseline to the prepared commit. The React baseline advances independently of the theme, preventing earlier React-only changes from appearing again in later releases. Finalization depends on that state; a fresh tagged checkout alone cannot reconstruct it.
 
@@ -113,9 +118,9 @@ The release commit and all selected package tags are pushed together with `git p
 
 Both packages publish publicly to npm. The release runner installs npm 11.5.1, enables provenance, and grants `id-token: write` for trusted publishing.
 
-Configure npm trusted publishing separately for each package, using the repository and Auto Release workflow identity and matching environment where required. The new React package needs its own configuration; the theme's configuration does not authorize it automatically. If the initial package cannot yet use trusted publishing, provide an authorized `NPM_TOKEN` fallback for the first publication.
+Configure npm trusted publishing separately for each package, using repository `wintermuted/wintermuted-ui`, workflow filename `auto-release.yml`, and environment `wintermuted-ui-theme`. The new React package needs its own configuration; the theme's configuration does not authorize it automatically. If the initial package cannot yet use trusted publishing, provide an authorized `NPM_TOKEN` fallback for the first publication.
 
-Keep `NPM_TOKEN` and `DOWNSTREAM_PAT` in GitHub secrets with the required package/repository permissions. Do not put credentials in manifests, logs, examples, or release state. GitHub's workflow token supplies Git pushes and GitHub release creation; npm authorization is separate.
+Keep `NPM_TOKEN` and `DOWNSTREAM_PAT` in GitHub secrets with the required package/repository permissions. The npm secret must be named **NPM_TOKEN**, not `NPM`, in `wintermuted-ui-theme`. Never retrieve or print its value. Do not put credentials in manifests, logs, examples, or release state. GitHub's workflow token supplies Git pushes and GitHub release creation; npm authorization is separate.
 
 For terminal GitHub operations on wintermuted-owned repositories, use wintermuted's authorized credentials. Copilot account selection is separate from repository publication identity.
 
@@ -155,7 +160,7 @@ If main advanced after a failed run, do not blindly rerun an older preparation a
 
 ### Existing-tag publication recovery
 
-The manual **Publish package (recovery)** workflow accepts an existing matching package tag and a package selection. It checks out that tag, verifies the manifest version, stages React when selected, and publishes only that project through Nx. It defaults to a dry run and never bumps versions.
+The manual **Publish package (recovery)** workflow accepts exactly one source: an existing matching package tag, a `prepared_run` with preserved artifacts, or the narrowly bounded legacy `source_run` described below. It defaults to React and a dry run. Tag recovery checks out the tag, verifies the manifest version, and stages React when selected; artifact recovery publishes the original tarball without rebuilding. Both verify exact registry identity/integrity and publish only the selected missing package. Neither bumps versions.
 
 Preview a tagged React publication:
 
@@ -165,7 +170,27 @@ gh workflow run publish-package.yml --repo wintermuted/wintermuted-ui -f release
 
 After inspecting the preview, a maintainer can deliberately invoke it with `dry_run=false`. A theme recovery uses `project=ui-theme` and a matching theme tag.
 
-This workflow cannot recover a tag that was never pushed, create missing GitHub releases, or dispatch downstream updates. Those are different failure stages. It uses the npm token path with provenance, so verify that the recovery environment has valid publication authorization.
+Recovery uses the **token** path with provenance. Its OIDC workflow identity is `publish-package.yml`, not `auto-release.yml`: an Auto Release trusted publisher binding does not authorize this workflow. Bootstrap React with an npm token authorized to create the public scoped package, then configure React's own Auto Release trusted publisher.
+
+### Interrupted-release artifacts and missing tags
+
+For a failed Auto Release run that preserved `prepared-release` and `publication-attempts`, preview one exact package without re-running version preparation:
+
+```sh
+gh workflow run publish-package.yml --repo wintermuted/wintermuted-ui -f prepared_run=RUN_ID -f project=ui-react -f version=1.0.0 -f dry_run=true
+```
+
+Use `dry_run=false` only after reviewing the preview and authorization. Missing artifacts or unresolved prior attempts fail explicitly; do not discard attempt evidence to bypass uncertainty. The recovery run also preserves `recovery-packages` and `recovery-publication-attempts`.
+
+The original interrupted 1.0 run `45091280105` predates these artifacts. Its source was inspected at commit `b051c09020072f2224d38a31bc89c9c42a3d6155`, with both manifests already at 1.0.0 and successful compatibility checks. The legacy exception permits **only ui-react@1.0.0** from that exact failed Auto Release run, preserving a newly packed React tarball before any write:
+
+```sh
+gh workflow run publish-package.yml --repo wintermuted/wintermuted-ui --ref FEATURE_BRANCH -f source_run=45091280105 -f project=ui-react -f version=1.0.0 -f dry_run=true
+```
+
+It does not republish theme, reconstruct the lost original release commit, or claim that the newly packed artifact is the lost original tarball. No missing tags or release commits are fabricated. The existing workflow can be dispatched from an authorized feature ref; environment branch protection may require landing changes first.
+
+Publication recovery does not push Git references, create missing GitHub releases, or dispatch downstream updates. For future runs, the preserved Git bundle contains the exact prepared commit/tags and the saved state needed for finalization. A maintainer must validate the bundle/state and current remote ancestry before completing Git finalization; do not force-push main if it advanced. The legacy 1.0 run has no such bundle/state, so missing 1.0 tags and release finalization remain a separate maintainer decision even after React publication succeeds.
 
 ### Downstream dispatch recovery
 

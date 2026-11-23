@@ -50,28 +50,51 @@ jobs:
       - name: Stage React package with the prepared release version
         if: steps.release.outputs.released == 'true'
         run: npx nx build ui-react
-      - name: Publish packages with Nx Release (trusted)
+      - name: Preserve immutable packages and interrupted-release state
+        if: steps.release.outputs.released == 'true'
+        env:
+          RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
+          RELEASE_TAGS: ${{ steps.release.outputs.tags }}
+        run: |
+          node scripts/release-publication.mjs prepare
+          cp .nx/release-state.json .nx/prepared-release/release-state.json
+          read -r -a tags <<< "$RELEASE_TAGS"
+          git bundle create .nx/prepared-release/release.bundle HEAD "${tags[@]}"
+      - uses: actions/upload-artifact@v4
+        if: steps.release.outputs.released == 'true'
+        with:
+          name: prepared-release
+          path: .nx/prepared-release/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Publish prepared packages (trusted)
         id: publish_trusted
         if: steps.release.outputs.released == 'true'
         continue-on-error: true
-        run: npm run release:publish -- --projects="$RELEASE_PROJECTS"
-        env:
-          RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
-      - name: Publish packages with Nx Release (token fallback)
+        run: node scripts/release-publication.mjs publish
+      - name: Publish only verified missing packages (token fallback)
         id: publish_token
         if: steps.release.outputs.released == 'true' && steps.publish_trusted.outcome != 'success'
         continue-on-error: true
         run: |
-          npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
-          npm run release:publish -- --projects="$RELEASE_PROJECTS"
+          printf '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}\n' > "$RUNNER_TEMP/release.npmrc"
+          node scripts/release-publication.mjs publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
+          NPM_CONFIG_USERCONFIG: ${{ runner.temp }}/release.npmrc
+          RELEASE_AUTH: token
       - name: Ensure publication succeeded
         if: steps.release.outputs.released == 'true' && steps.publish_trusted.outcome != 'success' && steps.publish_token.outcome != 'success'
         run: |
-          echo "Nx Release publication failed with both trusted publishing and token authentication."
+          echo "Package publication or registry verification failed. Recover from the prepared-release artifact; do not rerun version preparation blindly."
           exit 1
+      - uses: actions/upload-artifact@v4
+        if: always() && steps.release.outputs.released == 'true'
+        with:
+          name: publication-attempts
+          path: .nx/prepared-release/publication-attempts.json
+          if-no-files-found: warn
+          retention-days: 90
       - name: Push the release commit and package tags atomically
         if: steps.release.outputs.released == 'true'
         env:

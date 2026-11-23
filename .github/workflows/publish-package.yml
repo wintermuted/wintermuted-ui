@@ -4,19 +4,29 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: "Existing package tag to republish (ui-theme@X.Y.Z or ui-react@X.Y.Z)"
-        required: true
+        description: "Existing matching package tag (choose exactly one recovery source)"
+        required: false
+      prepared_run:
+        description: "Auto Release run containing the immutable prepared-release artifact"
+        required: false
+      source_run:
+        description: "Legacy artifact-free recovery: only run 45091280105, React 1.0.0"
+        required: false
+      version:
+        description: "Exact expected version (required for run recovery)"
+        required: false
       project:
-        description: "Package to republish"
+        description: "Only package to recover"
         type: choice
         options: [ui-theme, ui-react]
-        default: ui-theme
+        default: ui-react
       dry_run:
         description: "Preview publication without publishing"
         type: boolean
         default: true
 
 permissions:
+  actions: read
   contents: read
   id-token: write
 
@@ -34,37 +44,92 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.release_tag }}
+          fetch-depth: 0
+      - name: Verify recovery source without preparing new versions
+        id: source
+        run: node scripts/release-recovery.mjs
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          PREPARED_RUN: ${{ inputs.prepared_run }}
+          SOURCE_RUN: ${{ inputs.source_run }}
+          RELEASE_VERSION: ${{ inputs.version }}
+          RELEASE_PROJECT: ${{ inputs.project }}
+      - uses: actions/checkout@v4
+        if: steps.source.outputs.mode != 'artifact'
+        with:
+          ref: ${{ steps.source.outputs.ref }}
+          path: release-source
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          registry-url: https://registry.npmjs.org
           cache: npm
       - name: Install npm with trusted publishing support
         run: npm install --global npm@11.5.1 --registry=https://registry.npmjs.org
+      - name: Verify recovery and selective-publication regressions
+        run: node --test scripts/release-publication.test.mjs scripts/release-recovery.test.mjs
       - run: npm ci --no-audit --no-fund
+        if: steps.source.outputs.mode != 'artifact'
+        working-directory: release-source
       - name: Verify package release identity
+        if: steps.source.outputs.mode != 'artifact'
+        working-directory: release-source
         env:
-          RELEASE_TAG: ${{ inputs.release_tag }}
+          RELEASE_VERSION: ${{ steps.source.outputs.version }}
           RELEASE_PROJECT: ${{ inputs.project }}
         run: |
           VERSION=$(node -p "require('./packages/' + process.env.RELEASE_PROJECT + '/package.json').version")
-          if [ "$RELEASE_TAG" != "$RELEASE_PROJECT@$VERSION" ]; then
-            echo "The requested tag does not match the package version."
+          if [ "$RELEASE_VERSION" != "$VERSION" ]; then
+            echo "The recovery source does not match the requested package version."
             exit 1
           fi
       - name: Stage React package
-        if: inputs.project == 'ui-react'
+        if: inputs.project == 'ui-react' && steps.source.outputs.mode != 'artifact'
+        working-directory: release-source
         run: npx nx build ui-react
-      - name: Publish package through Nx Release
+      - name: Pack only the selected source package
+        if: steps.source.outputs.mode != 'artifact'
+        run: node scripts/release-publication.mjs prepare
+        env:
+          RELEASE_SOURCE_DIR: release-source
+          RELEASE_PROJECTS: ${{ inputs.project }}
+      - name: Download the original prepared release
+        if: steps.source.outputs.mode == 'artifact'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PREPARED_RUN: ${{ inputs.prepared_run }}
+        run: |
+          gh run download "$PREPARED_RUN" --repo "$GITHUB_REPOSITORY" --name prepared-release --dir .nx/prepared-release
+          gh run download "$PREPARED_RUN" --repo "$GITHUB_REPOSITORY" --name publication-attempts --dir .nx/prepared-release
+      - name: Preserve recovery evidence before publication
+        env:
+          SOURCE_REF: ${{ steps.source.outputs.ref }}
+          SOURCE_MODE: ${{ steps.source.outputs.mode }}
+          SOURCE_RUN: ${{ inputs.source_run || inputs.prepared_run }}
+        run: |
+          node -e 'require("node:fs").writeFileSync(".nx/prepared-release/recovery-source.json", JSON.stringify({ref:process.env.SOURCE_REF,mode:process.env.SOURCE_MODE,run:process.env.SOURCE_RUN},null,2))'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: recovery-packages
+          path: .nx/prepared-release/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Publish only the selected missing package and verify integrity
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run }}
-          RELEASE_PROJECT: ${{ inputs.project }}
+          RELEASE_PROJECTS: ${{ inputs.project }}
+          RELEASE_VERSION: ${{ steps.source.outputs.version }}
+          RELEASE_AUTH: token
+          NPM_CONFIG_USERCONFIG: ${{ runner.temp }}/release.npmrc
         run: |
-          if [ "$DRY_RUN" = "true" ]; then
-            npm run release:publish -- --projects="$RELEASE_PROJECT" --dry-run
-          else
-            npm run release:publish -- --projects="$RELEASE_PROJECT"
-          fi
+          printf '//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}\n' > "$RUNNER_TEMP/release.npmrc"
+          node scripts/release-publication.mjs publish
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: recovery-publication-attempts
+          path: .nx/prepared-release/publication-attempts.json
+          if-no-files-found: warn
+          retention-days: 90
