@@ -1,3 +1,14 @@
+## 0.2.0 (2026-11-23)
+
+### 🚀 Features
+
+- **showcase:** shared static layouts and organized sources ([#37](https://github.com/wintermuted/wintermuted-ui/pull/37))
+
+### ❤️ Thank You
+
+- Jameson Nyeholt @wintermuted
+- wintermuted @wintermuted
+
 ## 0.1.0 (2026-11-23)
 
 ### 🚀 Features
