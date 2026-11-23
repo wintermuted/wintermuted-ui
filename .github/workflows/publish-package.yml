@@ -7,7 +7,7 @@ on:
         description: "Existing matching package tag (choose exactly one recovery source)"
         required: false
       prepared_run:
-        description: "Auto Release run containing the immutable prepared-release artifact"
+        description: "Auto Release or recovery preview run containing immutable packages"
         required: false
       source_run:
         description: "Legacy artifact-free recovery: only run 45091280105, React 1.0.0"
@@ -99,16 +99,18 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PREPARED_RUN: ${{ inputs.prepared_run }}
+          PACKAGE_ARTIFACT: ${{ steps.source.outputs.artifact }}
+          ATTEMPT_ARTIFACT: ${{ steps.source.outputs.attempts }}
         run: |
-          gh run download "$PREPARED_RUN" --repo "$GITHUB_REPOSITORY" --name prepared-release --dir .nx/prepared-release
-          gh run download "$PREPARED_RUN" --repo "$GITHUB_REPOSITORY" --name publication-attempts --dir .nx/prepared-release
+          gh run download "$PREPARED_RUN" --repo "$GITHUB_REPOSITORY" --name "$PACKAGE_ARTIFACT" --dir .nx/prepared-release
+          gh run download "$PREPARED_RUN" --repo "$GITHUB_REPOSITORY" --name "$ATTEMPT_ARTIFACT" --dir .nx/prepared-release
       - name: Preserve recovery evidence before publication
         env:
           SOURCE_REF: ${{ steps.source.outputs.ref }}
           SOURCE_MODE: ${{ steps.source.outputs.mode }}
           SOURCE_RUN: ${{ inputs.source_run || inputs.prepared_run }}
         run: |
-          node -e 'require("node:fs").writeFileSync(".nx/prepared-release/recovery-source.json", JSON.stringify({ref:process.env.SOURCE_REF,mode:process.env.SOURCE_MODE,run:process.env.SOURCE_RUN},null,2))'
+          node -e 'require("node:fs").writeFileSync(`.nx/prepared-release/recovery-context-${process.env.GITHUB_RUN_ID}.json`, JSON.stringify({ref:process.env.SOURCE_REF,mode:process.env.SOURCE_MODE,run:process.env.SOURCE_RUN},null,2))'
       - name: Record read-only legacy 1.0 registry evidence
         if: steps.source.outputs.mode == 'legacy'
         run: |

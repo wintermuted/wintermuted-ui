@@ -160,7 +160,7 @@ If main advanced after a failed run, do not blindly rerun an older preparation a
 
 ### Existing-tag publication recovery
 
-The manual **Publish package (recovery)** workflow accepts exactly one source: an existing matching package tag, a `prepared_run` with preserved artifacts, or the narrowly bounded legacy `source_run` described below. It defaults to React and a dry run. Tag recovery checks out the tag, verifies the manifest version, and stages React when selected; artifact recovery publishes the original tarball without rebuilding. Both verify exact registry identity/integrity and publish only the selected missing package. Neither bumps versions.
+The manual **Publish package (recovery)** workflow accepts exactly one source: an existing matching package tag, a `prepared_run` with preserved Auto Release or recovery-preview artifacts, or the narrowly bounded legacy `source_run` described below. It defaults to React and a dry run. Tag recovery checks out the tag, verifies the manifest version, and stages React when selected; artifact recovery publishes the original tarball without rebuilding. Both verify exact registry identity/integrity and publish only the selected missing package. Neither bumps versions.
 
 Preview a tagged React publication:
 
@@ -181,6 +181,8 @@ gh workflow run publish-package.yml --repo wintermuted/wintermuted-ui -f prepare
 ```
 
 Use `dry_run=false` only after reviewing the preview and authorization. Missing artifacts or unresolved prior attempts fail explicitly; do not discard attempt evidence to bypass uncertainty. The recovery run also preserves `recovery-packages` and `recovery-publication-attempts`.
+
+To publish exactly the bytes reviewed in a successful recovery preview, set `prepared_run` to that preview's run ID and `dry_run=false`. Recovery downloads its immutable package and attempt artifacts instead of packing again.
 
 The original interrupted 1.0 run `45091280105` predates these artifacts. Its source was inspected at commit `b051c09020072f2224d38a31bc89c9c42a3d6155`, with both manifests already at 1.0.0 and successful compatibility checks. The legacy exception permits **only ui-react@1.0.0** from that exact failed Auto Release run, preserving a newly packed React tarball before any write:
 

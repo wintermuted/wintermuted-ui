@@ -9,7 +9,7 @@ const legacy = { sourceRun: "45091280105", project: "ui-react", version: "1.0.0"
 
 test("interrupted artifact recovery preserves the original source and requested version", () => {
   assert.deepEqual(recoverySource({ preparedRun: "123", project: "ui-react", version: "1.0.0" }, run),
-    { ref: run.head_sha, version: "1.0.0", mode: "artifact" });
+    { ref: run.head_sha, version: "1.0.0", mode: "artifact", artifact: "prepared-release", attempts: "publication-attempts" });
   assert.deepEqual(recoverySource(legacy, run), { ref: run.head_sha, version: "1.0.0", mode: "legacy" });
 });
 
@@ -22,6 +22,14 @@ test("artifact-free bootstrap cannot publish theme, bump versions, or use uninsp
     { ...run, head_sha: "a".repeat(40) }, { ...run, path: ".github/workflows/other.yml" },
     { ...run, head_repository: { full_name: "other/repo" } }, { ...run, status: "in_progress" }
   ]) assert.throws(() => recoverySource(legacy, changed), /limited|completed Auto Release/);
+});
+
+test("publication can reuse exact reviewed preview tarballs without rebuilding or preparing versions", () => {
+  assert.deepEqual(recoverySource({ preparedRun: "456", project: "ui-react", version: "1.0.0" }, {
+    ...run, path: ".github/workflows/publish-package.yml", event: "workflow_dispatch",
+    head_branch: "publication-fix", conclusion: "success"
+  }), { ref: run.head_sha, version: "1.0.0", mode: "artifact",
+    artifact: "recovery-packages", attempts: "recovery-publication-attempts" });
 });
 
 test("tag recovery rejects ambiguous or mismatched identities", () => {

@@ -19,17 +19,23 @@ export function recoverySource({ tag = "", preparedRun = "", sourceRun = "", pro
   if (!/^\d+$/.test(preparedRun || sourceRun) || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
     throw new Error("Run recovery requires a numeric run ID and an exact version.");
   }
-  if (!run || run.path !== ".github/workflows/auto-release.yml" ||
-      run.event !== "push" || run.head_branch !== "main" ||
+  const autoRelease = run?.path === ".github/workflows/auto-release.yml" &&
+    run.event === "push" && run.head_branch === "main";
+  const recovery = run?.path === ".github/workflows/publish-package.yml" &&
+    run.event === "workflow_dispatch";
+  if (!run || (!autoRelease && !(preparedRun && recovery)) ||
       run.head_repository?.full_name !== "wintermuted/wintermuted-ui" ||
       run.status !== "completed" || !/^[0-9a-f]{40}$/.test(run.head_sha)) {
-    throw new Error("Recovery must reference a completed Auto Release run from this repository's main branch.");
+    throw new Error("Recovery must reference a completed Auto Release or package recovery run from this repository.");
   }
   if (sourceRun && (sourceRun !== legacyRun || run.head_sha !== legacyCommit ||
       run.conclusion !== "failure" || project !== "ui-react" || version !== "1.0.0")) {
     throw new Error("Artifact-free recovery is limited to the inspected React 1.0.0 interrupted release.");
   }
-  return { ref: run.head_sha, version, mode: sourceRun ? "legacy" : "artifact" };
+  if (sourceRun) return { ref: run.head_sha, version, mode: "legacy" };
+  return { ref: run.head_sha, version, mode: "artifact",
+    artifact: recovery ? "recovery-packages" : "prepared-release",
+    attempts: recovery ? "recovery-publication-attempts" : "publication-attempts" };
 }
 
 function main() {
@@ -44,6 +50,9 @@ function main() {
     project: process.env.RELEASE_PROJECT, version: process.env.RELEASE_VERSION
   }, run);
   appendFileSync(process.env.GITHUB_OUTPUT, `ref=${source.ref}\nversion=${source.version}\nmode=${source.mode}\n`);
+  if (source.mode === "artifact") {
+    appendFileSync(process.env.GITHUB_OUTPUT, `artifact=${source.artifact}\nattempts=${source.attempts}\n`);
+  }
 }
 
 if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1])).href) main();
