@@ -33,7 +33,7 @@ export async function isPublished(pkg, fetchRegistry = fetch) {
   const metadata = await response.json();
   if (response.status === 404 &&
       ["Not found", "No match found for version"].includes(metadata.error)) return false;
-  if (!response.ok) throw new Error(`Registry lookup failed for ${pkg.name}@${pkg.version}: HTTP ${response.status}`);
+  if (!response.ok) throw new Error(`Registry lookup failed for ${pkg.name}@${pkg.version}: HTTP ${response.status}, ${JSON.stringify(metadata.error)}`);
   if (metadata.name !== pkg.name || metadata.version !== pkg.version ||
       metadata.dist?.integrity !== pkg.integrity) {
     throw new Error(`Registry identity/integrity mismatch for ${pkg.name}@${pkg.version}`);

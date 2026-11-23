@@ -109,6 +109,20 @@ jobs:
           SOURCE_RUN: ${{ inputs.source_run || inputs.prepared_run }}
         run: |
           node -e 'require("node:fs").writeFileSync(".nx/prepared-release/recovery-source.json", JSON.stringify({ref:process.env.SOURCE_REF,mode:process.env.SOURCE_MODE,run:process.env.SOURCE_RUN},null,2))'
+      - name: Record read-only legacy 1.0 registry evidence
+        if: steps.source.outputs.mode == 'legacy'
+        run: |
+          node --input-type=module -e '
+            import { writeFileSync } from "node:fs";
+            const evidence = {};
+            for (const project of ["ui-theme", "ui-react"]) {
+              const response = await fetch(`https://registry.npmjs.org/${encodeURIComponent(`@wintermuted/${project}`)}/1.0.0`, { signal: AbortSignal.timeout(30000) });
+              const metadata = await response.json();
+              evidence[project] = { status: response.status, name: metadata.name, version: metadata.version, dist: metadata.dist, error: metadata.error };
+            }
+            writeFileSync(".nx/prepared-release/registry-before.json", JSON.stringify(evidence,null,2));
+            console.log(JSON.stringify(evidence,null,2));
+          '
       - uses: actions/upload-artifact@v4
         with:
           name: recovery-packages
