@@ -23,7 +23,7 @@ An installed dependency is not the same as a runtime import. `ui-react` declares
 | --- | --- | --- |
 | `packages/ui-theme` | Tokens, base styles, component CSS, stylesheet exports | React code, theme preference JavaScript, or React peers |
 | `packages/ui-react/src` | React components, declarations, optional select adapter, theme runtime helpers | A second CSS implementation, bundled React, or implicit global CSS loading |
-| `packages/showcase` | Versioned static HTML documentation, runnable React examples, documentation-specific presentation | A public npm package, reusable docs framework, or an alternative component implementation |
+| `packages/showcase` | Versioned static HTML documentation, internal shared site layouts, runnable React examples, documentation-specific presentation | A public npm package, external site framework, or an alternative component implementation |
 | `scripts` | Staging, consumer linking, release baselines, and output checks | Hand-maintained copies of public component code |
 
 The repository root is private. Consumers install a published workspace package, not the entire monorepo. See the [migration guide](migration-to-v1.md) for the removed 0.x exports.
@@ -113,7 +113,7 @@ The graph supports cache invalidation, task ordering, and independent release de
 
 ## Showcase and deployment
 
-The showcase uses both workspaces locally. Vite discovers every top-level HTML file in `packages/showcase` as a build input; adding a page must not require maintaining a second hard-coded page list.
+The showcase uses both workspaces locally. Categorized HTML sources live under `packages/showcase/src/pages`, shared layouts and the Vite plugin under `src/templates`, CSS under `src/styles`, and the React example entry under `src/examples`. `src/site.config.mjs` is the single page/navigation registry: each page maps a nested `source` to a stable public `file`. Vite derives build inputs from that registry and recursively validates that every HTML source is registered, rather than maintaining a separate entry list.
 
 | Surface | Location |
 | --- | --- |
@@ -122,9 +122,9 @@ The showcase uses both workspaces locally. Vite discovers every top-level HTML f
 | Production | `https://wintermuted.github.io/wintermuted-ui/showcase/` |
 | PR preview | `/wintermuted-ui/previews/pr-<number>/showcase/` on the Pages host |
 
-Development uses `/showcase/`; production builds use relative asset URLs so the same output works under nested previews. The shared classic script is `packages/showcase/public/showcase.js`. Preserve its runtime assets, including the logo, as well as page-local scripts and styles.
+Development uses `/showcase/`; the site plugin maps flat public page requests to nested sources and preserves canonical hot-reload URLs. Production emits the same flat HTML filenames with relative asset URLs so the same output works under nested previews. Source asset URLs resolve from Vite's `src` root, not each page's category folder. The shared classic script is `packages/showcase/public/showcase.js`. Preserve its runtime assets, including the logo, as well as page-local scripts and styles.
 
-The private package is release-managed by Nx, starting at `0.1.0`, with independent changelogs and `showcase@X.Y.Z` tags. Its own releasable changes and declared dependency updates trigger releases. Each GitHub release includes a static archive containing `.nojekyll` and the `showcase/` directory, not an npm package. Framework extraction is deferred; the current pages and presentation remain intact.
+The private package is release-managed by Nx, starting at `0.1.0`, with independent changelogs and `showcase@X.Y.Z` tags. Its own releasable changes and declared dependency updates trigger releases. Each GitHub release includes a static archive containing `.nojekyll` and the `showcase/` directory, not an npm package. External framework distribution is deferred; internal templates share document metadata, assets, header, sidebar, and shell while preserving plain HTML content and presentation.
 
 `scripts/check-showcase.mjs` checks that all source HTML pages exist in the build and that referenced local assets resolve without root-relative URLs. Pages deployments publish Vite output, preserve existing preview directories when replacing production content, and remove a preview when its PR closes.
 

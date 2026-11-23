@@ -92,7 +92,7 @@ See the [release runbook](docs/releases.md) for the full workflow, authenticatio
 
 Nx Release manages independent versions, conventional-commit version selection, project changelogs, and GitHub releases for `ui-theme`, `ui-react`, and `showcase`. Only the public theme and React packages are published to npm.
 
-The private showcase starts at `0.1.0` and uses `showcase@X.Y.Z` tags. Its own releasable changes and updates to declared theme/React dependencies produce new showcase versions. Each showcase GitHub release includes `showcase-X.Y.Z.tar.gz`, containing `.nojekyll` and the built `showcase/` site directory. See the [showcase package guide](packages/showcase/README.md). Reusable documentation-framework extraction is deferred.
+The private showcase starts at `0.1.0` and uses `showcase@X.Y.Z` tags. Its own releasable changes and updates to declared theme/React dependencies produce new showcase versions. Each showcase GitHub release includes `showcase-X.Y.Z.tar.gz`, containing `.nojekyll` and the built `showcase/` site directory. Nested page sources and shared templates live under its `src` directory, with stable public page URLs. See the [showcase package guide](packages/showcase/README.md). External documentation-framework distribution is deferred.
 
 ```sh
 npm run release -- --dry-run

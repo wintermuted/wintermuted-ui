@@ -1,78 +1,10 @@
 (function () {
-  const key = "wm-showcase-theme";
-  const repo = "wintermuted/wintermuted-ui";
-
-  const NAV_STRUCTURE = [
-    {
-      sectionLabel: "Foundations",
-      items: [
-        { page: "index.html", label: "Introduction" },
-        { page: "installation.html", label: "Installation" },
-        { page: "react.html", label: "React Components" },
-        { page: "typography.html", label: "Typography" },
-        { page: "cards.html", label: "Cards" },
-      ],
-    },
-    {
-      sectionLabel: "Inputs and Actions",
-      items: [
-        { page: "buttons.html", label: "Buttons" },
-        { page: "tags.html", label: "Tags" },
-        { page: "forms.html", label: "Forms" },
-        { page: "toggle.html", label: "Toggle Switch" },
-        { page: "slider.html", label: "Slider" },
-        { page: "toggle-group.html", label: "Toggle Group" },
-      ],
-    },
-    {
-      sectionLabel: "Navigation and Structure",
-      items: [
-        { page: "navigation.html", label: "Navigation" },
-        { page: "modal.html", label: "Modal" },
-        {
-          label: "Layout",
-          disclosure: [
-            { page: "layout.html", label: "Overview" },
-            { page: "layout-topnav.html", label: "Top Nav" },
-            { page: "layout-app-shell.html", label: "App Shell" },
-            { page: "layout-sidebar.html", label: "Sidebar Layout" },
-            { page: "layout-utilities.html", label: "Layout Utilities" },
-            { page: "layout-entry-header.html", label: "Entry Header" },
-            { page: "layout-content-grid.html", label: "Content Grid" },
-          ],
-        },
-      ],
-    },
-    {
-      sectionLabel: "Visual Data",
-      items: [
-        { page: "code-block.html", label: "Code Block" },
-        { page: "mermaid.html", label: "Mermaid" },
-        { page: "data-display.html", label: "Data Display Overview" },
-        { page: "sample-data.html", label: "Sample Data Showcase" },
-        { page: "tables.html", label: "Tables" },
-        { page: "charts.html", label: "Charts" },
-        { page: "gallery.html", label: "Gallery" },
-      ],
-    },
-    {
-      sectionLabel: "Status and Messaging",
-      items: [
-        { page: "feedback.html", label: "Feedback" },
-        { page: "toast.html", label: "Toast" },
-      ],
-    },
-    {
-      sectionLabel: "Utilities",
-      items: [
-        { page: "icons.html", label: "Icons" },
-      ],
-    },
-  ];
-
-
+  const topbar = document.querySelector(".docs-topbar-global");
+  const key = topbar.dataset.siteThemeKey;
+  const repo = topbar.dataset.siteRepository;
+  const versionSelect = topbar.querySelector(".docs-topbar-version");
   const releaseApiUrl = `https://api.github.com/repos/${repo}/releases?per_page=20`;
-  const fallbackTags = ["v0.1.1", "v0.1.0"];
+  const fallbackTags = Array.from(versionSelect.options, (option) => option.textContent);
   const root = document.documentElement;
   const fontStatusNodes = document.querySelectorAll("[data-font-status]");
 
@@ -115,61 +47,7 @@
     }
   }
 
-  function getCurrentPage() {
-    const rawPath = window.location.pathname;
-    return rawPath.endsWith("/") || rawPath.endsWith("/showcase")
-      ? "index.html"
-      : rawPath.split("/").pop() || "index.html";
-  }
-
-  function getPageLabel(page) {
-    for (const section of NAV_STRUCTURE) {
-      for (const item of section.items) {
-        if (item.page === page) return item.label;
-        if (item.disclosure) {
-          for (const subItem of item.disclosure) {
-            if (subItem.page === page) return subItem.label;
-          }
-        }
-      }
-    }
-    return null;
-  }
-
-  function buildTopNav() {
-    const docsShell = document.querySelector(".docs-shell");
-
-    if (!docsShell || document.querySelector(".docs-topbar-global")) {
-      return;
-    }
-
-    const topbar = document.createElement("header");
-    topbar.className = "docs-topbar docs-topbar-global";
-
-    const inner = document.createElement("div");
-    inner.className = "docs-topbar-inner";
-
-    const brand = document.createElement("a");
-    brand.className = "docs-topbar-brand";
-    brand.href = "./index.html";
-    brand.innerHTML = '<img class="docs-topbar-brand-icon" src="./logo.png" alt="" width="20" height="20" aria-hidden="true" /><span>Wintermuted UI Docs</span>';
-
-    const actions = document.createElement("div");
-    actions.className = "docs-topbar-actions";
-
-    const sidebarToggle = document.createElement("button");
-    sidebarToggle.className = "docs-topbar-menu";
-    sidebarToggle.type = "button";
-    sidebarToggle.setAttribute("data-docs-sidebar-toggle", "");
-    sidebarToggle.setAttribute("aria-label", "Toggle page navigation");
-    sidebarToggle.setAttribute("aria-expanded", "false");
-    sidebarToggle.innerHTML = '<i data-lucide="panel-left" aria-hidden="true"></i><span>Menu</span>';
-
-    const versionSelect = document.createElement("select");
-    versionSelect.className = "docs-topbar-version";
-    versionSelect.setAttribute("aria-label", "Select version");
-    setVersionOptions(versionSelect, fallbackTags);
-
+  function wireVersionSelect() {
     versionSelect.addEventListener("change", () => {
       window.open(versionSelect.value, "_blank", "noopener");
       versionSelect.selectedIndex = 0;
@@ -178,87 +56,6 @@
     loadReleaseTags().then((tags) => {
       setVersionOptions(versionSelect, tags);
     });
-
-    const githubLink = document.createElement("a");
-    githubLink.className = "docs-topbar-github";
-    githubLink.href = "https://github.com/wintermuted/wintermuted-ui";
-    githubLink.target = "_blank";
-    githubLink.rel = "noopener noreferrer";
-    githubLink.setAttribute("aria-label", "View on GitHub");
-    githubLink.innerHTML = '<i data-lucide="github" aria-hidden="true"></i>';
-    if (getCurrentPage() === "react.html") githubLink.textContent = "GitHub";
-
-    const toggleBtn = document.createElement("button");
-    toggleBtn.className = "docs-topbar-toggle";
-    toggleBtn.setAttribute("data-theme-toggle", "");
-    toggleBtn.setAttribute("aria-label", "Toggle theme");
-    toggleBtn.textContent = "Toggle Dark";
-
-    const pageTitle = document.createElement("span");
-    pageTitle.className = "docs-topbar-page-title";
-    const currentLabel = getPageLabel(getCurrentPage());
-    if (currentLabel) pageTitle.textContent = currentLabel;
-
-    actions.append(versionSelect, githubLink);
-    if (getCurrentPage() !== "react.html") actions.append(toggleBtn);
-
-    inner.append(sidebarToggle, brand, pageTitle, actions);
-    topbar.appendChild(inner);
-    document.body.insertBefore(topbar, docsShell);
-  }
-
-  function buildSidebar() {
-    const sidebar = document.querySelector(".docs-sidebar");
-    if (!sidebar || sidebar.querySelector(".docs-nav-group")) {
-      return;
-    }
-
-    const nav = document.createElement("nav");
-    nav.className = "docs-nav-group";
-    nav.setAttribute("aria-label", "Showcase pages");
-
-    const chevronSvg = '<svg class="docs-nav-disclosure-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg>';
-
-    NAV_STRUCTURE.forEach((section) => {
-      const label = document.createElement("p");
-      label.className = "docs-nav-label";
-      label.textContent = section.sectionLabel;
-      nav.appendChild(label);
-
-      section.items.forEach((item) => {
-        if (item.disclosure) {
-          const details = document.createElement("details");
-          details.className = "docs-nav-disclosure";
-
-          const summary = document.createElement("summary");
-          summary.innerHTML = item.label + chevronSvg;
-
-          const body = document.createElement("div");
-          body.className = "docs-nav-disclosure-body";
-
-          item.disclosure.forEach((subItem) => {
-            const a = document.createElement("a");
-            a.className = "docs-nav-sub-link";
-            a.setAttribute("data-page", subItem.page);
-            a.href = "./" + subItem.page;
-            a.textContent = subItem.label;
-            body.appendChild(a);
-          });
-
-          details.append(summary, body);
-          nav.appendChild(details);
-        } else {
-          const a = document.createElement("a");
-          a.className = "docs-nav-link";
-          a.setAttribute("data-page", item.page);
-          a.href = "./" + item.page;
-          a.textContent = item.label;
-          nav.appendChild(a);
-        }
-      });
-    });
-
-    sidebar.appendChild(nav);
   }
 
   function slugify(text) {
@@ -423,6 +220,7 @@
     } else if (typeof mobile.addListener === "function") {
       mobile.addListener(closeOnDesktop);
     }
+    document.body.classList.add("docs-sidebar-enhanced");
   }
 
   function getToggleButtons() {
@@ -451,39 +249,8 @@
     }
   }
 
-  function setActiveNavLink() {
-    const page = getCurrentPage();
-
-    document.querySelectorAll(".docs-nav-link, .docs-topbar-link").forEach((link) => {
-      const isActive = link.getAttribute("data-page") === page;
-      link.classList.toggle("is-active", isActive);
-      if (isActive) {
-        link.setAttribute("aria-current", "page");
-      } else {
-        link.removeAttribute("aria-current");
-      }
-    });
-
-    // Handle disclosure sub-links
-    document.querySelectorAll(".docs-nav-sub-link").forEach((link) => {
-      const isActive = link.getAttribute("data-page") === page;
-      link.classList.toggle("is-active", isActive);
-      if (isActive) {
-        link.setAttribute("aria-current", "page");
-        // Auto-open parent disclosure and mark it as having an active child
-        const disclosure = link.closest(".docs-nav-disclosure");
-        if (disclosure) {
-          disclosure.open = true;
-          disclosure.classList.add("has-active");
-        }
-      } else {
-        link.removeAttribute("aria-current");
-      }
-    });
-  }
-
   function wireThemeToggle() {
-    if (getCurrentPage() === "react.html") return;
+    if (topbar.dataset.siteThemeOwner === "react") return;
     const saved = localStorage.getItem(key);
     const initial = saved === "dark" ? "dark" : "light";
     applyTheme(initial);
@@ -599,10 +366,8 @@
     }
   }
 
-  buildSidebar();
-  buildTopNav();
+  wireVersionSelect();
   buildPageOutline();
-  setActiveNavLink();
   wireSidebarToggle();
   wireThemeToggle();
   updateFontStatus();
