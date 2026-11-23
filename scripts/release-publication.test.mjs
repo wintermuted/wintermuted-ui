@@ -13,9 +13,12 @@ const react = { project: "ui-react", name: "@wintermuted/ui-react", version: "1.
 const response = (status, metadata) => async () => ({ status, ok: status === 200, async json() { return metadata; } });
 
 test("registry checks require exact identity and integrity; only explicit absence permits publication", async () => {
-  assert.equal(await isPublished(theme, response(200, { name: theme.name, version: theme.version, dist: { integrity: theme.integrity } })), true);
+  assert.equal(await isPublished(theme, response(200, { name: theme.name, versions: {
+    [theme.version]: { name: theme.name, version: theme.version, dist: { integrity: theme.integrity } }
+  } })), true);
+  assert.equal(await isPublished(react, response(200, { name: react.name, versions: {} })), false);
   assert.equal(await isPublished(react, response(404, { error: "Not found" })), false);
-  assert.equal(await isPublished(react, response(404, { error: "No match found for version" })), false);
+  await assert.rejects(isPublished(react, response(404, { error: "No match found for version" })), /Registry lookup failed/);
   for (const status of [401, 403, 404, 429, 500]) {
     await assert.rejects(isPublished(react, response(status, { error: "unauthorized or unavailable" })), /Registry lookup failed/);
   }
@@ -23,7 +26,9 @@ test("registry checks require exact identity and integrity; only explicit absenc
     { name: react.name, version: theme.version, dist: { integrity: theme.integrity } },
     { name: theme.name, version: "1.0.1", dist: { integrity: theme.integrity } },
     { name: theme.name, version: theme.version, dist: { integrity: react.integrity } }
-  ]) await assert.rejects(isPublished(theme, response(200, metadata)), /mismatch/);
+  ]) await assert.rejects(isPublished(theme, response(200, { name: theme.name, versions: { [theme.version]: metadata } })), /mismatch/);
+  await assert.rejects(isPublished(react, response(404, {})), /Registry lookup failed/);
+  await assert.rejects(isPublished(react, response(200, {})), /metadata mismatch/);
   await assert.rejects(isPublished(react, async () => { throw new Error("network unavailable"); }), /network unavailable/);
   await assert.rejects(isPublished(react, async () => ({ status: 404, async json() { throw new SyntaxError("invalid JSON"); } })), /invalid JSON/);
 });
@@ -105,6 +110,7 @@ test("React-only preparation retains the staged identity and rejects tampered re
     return JSON.stringify([{ name: react.name, version: react.version, filename: react.file, integrity: react.integrity }]);
   });
   assert.deepEqual(packages, [react]);
+  assert.throws(() => preparePackages(source, destination, "ui-react"), /already prepared/);
   assert.equal(readFileSync(join(staged, "package.json"), "utf8"), manifest);
   writeFileSync(join(destination, react.file), "changed bytes");
   assert.throws(() => execFileSync(process.execPath, ["scripts/release-publication.mjs", "publish"], {

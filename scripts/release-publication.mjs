@@ -26,16 +26,20 @@ export function validatePackages(packages) {
 }
 
 export async function isPublished(pkg, fetchRegistry = fetch) {
-  const response = await fetchRegistry(`${registry}/${encodeURIComponent(pkg.name)}/${pkg.version}`, {
+  const response = await fetchRegistry(`${registry}/${encodeURIComponent(pkg.name)}`, {
     signal: AbortSignal.timeout(30000),
     headers: { accept: "application/json", "cache-control": "no-cache" }
   });
   const metadata = await response.json();
-  if (response.status === 404 &&
-      ["Not found", "No match found for version"].includes(metadata.error)) return false;
+  if (response.status === 404 && metadata.error === "Not found") return false;
   if (!response.ok) throw new Error(`Registry lookup failed for ${pkg.name}@${pkg.version}: HTTP ${response.status}, ${JSON.stringify(metadata.error)}`);
-  if (metadata.name !== pkg.name || metadata.version !== pkg.version ||
-      metadata.dist?.integrity !== pkg.integrity) {
+  if (metadata.name !== pkg.name || !metadata.versions || typeof metadata.versions !== "object" || Array.isArray(metadata.versions)) {
+    throw new Error(`Registry package metadata mismatch for ${pkg.name}`);
+  }
+  const version = metadata.versions[pkg.version];
+  if (version === undefined) return false;
+  if (version.name !== pkg.name || version.version !== pkg.version ||
+      version.dist?.integrity !== pkg.integrity) {
     throw new Error(`Registry identity/integrity mismatch for ${pkg.name}@${pkg.version}`);
   }
   return true;
@@ -83,6 +87,7 @@ export async function publishPackages(packages, { lookup = isPublished, publish,
 }
 
 export function preparePackages(source, destination, selected, run = execFileSync) {
+  if (existsSync(join(destination, "publication.json"))) throw new Error("Publication is already prepared; preserve its packages and attempt evidence.");
   const selection = selected.split(",");
   if (!selection.length || new Set(selection).size !== selection.length ||
       selection.some((project) => !projects.includes(project))) throw new Error("Invalid release project selection.");
@@ -103,6 +108,7 @@ export function preparePackages(source, destination, selected, run = execFileSyn
   });
   validatePackages(packages);
   writeFileSync(join(destination, "publication.json"), `${JSON.stringify({ packages }, null, 2)}\n`);
+  writeFileSync(join(destination, "publication-attempts.json"), "{}\n");
   return packages;
 }
 
