@@ -108,6 +108,8 @@ Preparation writes `.nx/release-state.json` with each project's pre-release base
 
 Both publication attempts read the same tarballs. An already-published package is skipped only when the public registry matches its exact name, version, and tarball integrity. Explicit npm-registry 404 absence permits initial publication; HTTP/auth/network errors, malformed responses, and content mismatches fail rather than becoming absence. The `publication-attempts` artifact records accepted, verified, auth-failed, or unresolved writes without credentials. An accepted-but-not-visible or unknown-network outcome cannot be retried automatically. Only an explicit authentication failure with verified registry absence is eligible for token fallback. A React-only release never publishes the unchanged theme.
 
+After npm accepts a write, verification allows a bounded set of read-only registry checks for propagation (12 reads, five seconds apart). Network/auth/integrity uncertainty still fails immediately. Recovery of an accepted attempt can wait for visibility but never repeats the npm write.
+
 Finalization generates notes separately for each changed project, from its saved baseline to the prepared commit. The React baseline advances independently of the theme, preventing earlier React-only changes from appearing again in later releases. Finalization depends on that state; a fresh tagged checkout alone cannot reconstruct it.
 
 React is staged **after** version preparation so `dist/packages/ui-react/package.json` contains the released version and current dependency ranges, not stale compatibility-build metadata.

@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { basename, join, resolve } from "node:path";
+import { setTimeout } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 
 export const registry = "https://registry.npmjs.org";
@@ -45,12 +46,26 @@ export async function isPublished(pkg, fetchRegistry = fetch) {
   return true;
 }
 
-export async function publishPackages(packages, { lookup = isPublished, publish, dryRun = false, attempts = {}, saveAttempts = () => {} } = {}) {
+export async function waitForPublication(pkg, { lookup = isPublished, retries = 12, pause = () => setTimeout(5000) } = {}) {
+  for (let attempt = 0; attempt < retries; attempt++) {
+    if (await lookup(pkg)) return true;
+    if (attempt < retries - 1) await pause();
+  }
+  return false;
+}
+
+export async function publishPackages(packages, { lookup = isPublished, verify = lookup, publish, dryRun = false, attempts = {}, saveAttempts = () => {} } = {}) {
   validatePackages(packages);
   // Check the complete selection before any write; uncertainty is not absence.
   const pending = [];
   for (const pkg of packages) {
-    if (await lookup(pkg)) console.log(`Verified already published: ${pkg.name}@${pkg.version}`);
+    if (await lookup(pkg) || (attempts[pkg.project] === "accepted" && await verify(pkg))) {
+      if (!dryRun) {
+        attempts[pkg.project] = "verified";
+        saveAttempts(attempts);
+      }
+      console.log(`Verified already published: ${pkg.name}@${pkg.version}`);
+    }
     else {
       if (attempts[pkg.project] && attempts[pkg.project] !== "auth-failed") {
         throw new Error(`Prior publication is unresolved for ${pkg.name}@${pkg.version}; do not retry while registry visibility is uncertain.`);
@@ -79,7 +94,7 @@ export async function publishPackages(packages, { lookup = isPublished, publish,
         throw error;
       }
     }
-    if (!await lookup(pkg)) throw new Error(`Publication not visible for ${pkg.name}@${pkg.version}; retry only after registry verification.`);
+    if (!await verify(pkg)) throw new Error(`Publication not visible for ${pkg.name}@${pkg.version}; retry only after registry verification.`);
     attempts[pkg.project] = "verified";
     saveAttempts(attempts);
     console.log(`Verified publication: ${pkg.name}@${pkg.version}`);
@@ -132,6 +147,7 @@ async function main() {
     if (process.env.RELEASE_VERSION && pkg.version !== process.env.RELEASE_VERSION) throw new Error("Prepared version does not match the requested recovery.");
   }
   await publishPackages(packages, {
+    verify: waitForPublication,
     dryRun: process.env.DRY_RUN === "true",
     attempts: existsSync(join(destination, "publication-attempts.json")) ?
       JSON.parse(readFileSync(join(destination, "publication-attempts.json"), "utf8")) : {},
@@ -140,7 +156,7 @@ async function main() {
     },
     publish(pkg) {
       if (process.env.RELEASE_AUTH === "token" && !process.env.NODE_AUTH_TOKEN) {
-        throw new Error("NPM_TOKEN is missing from the wintermuted-ui-theme environment.");
+        throw Object.assign(new Error("NPM_TOKEN is missing from the wintermuted-ui-theme environment."), { retryableAuth: true });
       }
       try {
         execFileSync("npm", ["publish", join(destination, pkg.file), "--access", "public", "--provenance", "--ignore-scripts", `--registry=${registry}`], {

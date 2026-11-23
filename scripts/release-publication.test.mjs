@@ -4,7 +4,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "nod
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
-import { integrity, isPublished, preparePackages, publishPackages, validatePackages } from "./release-publication.mjs";
+import { integrity, isPublished, preparePackages, publishPackages, validatePackages, waitForPublication } from "./release-publication.mjs";
 
 const theme = { project: "ui-theme", name: "@wintermuted/ui-theme", version: "1.0.0",
   file: "wintermuted-ui-theme-1.0.0.tgz", integrity: integrity(Buffer.from("theme")) };
@@ -85,6 +85,28 @@ test("unknown network failures are not converted into token retries", async () =
     publish: async () => { throw new Error("connection lost"); } }), /connection lost/);
   await assert.rejects(publishPackages([react], { lookup: async () => false, attempts,
     publish: async () => { assert.fail("must not retry"); } }), /unresolved/);
+});
+
+test("registry propagation waits use reads only and never hide network failures", async () => {
+  let reads = 0;
+  let pauses = 0;
+  assert.equal(await waitForPublication(react, {
+    lookup: async () => ++reads === 3, pause: async () => { pauses++; }
+  }), true);
+  assert.equal(reads, 3);
+  assert.equal(pauses, 2);
+  assert.equal(await waitForPublication(react, { lookup: async () => false, retries: 2, pause: async () => {} }), false);
+  await assert.rejects(waitForPublication(react, { lookup: async () => { throw new Error("HTTP 503"); },
+    pause: async () => assert.fail("must not swallow registry failures") }), /HTTP 503/);
+});
+
+test("accepted prior publication is visibility-verified without another npm write", async () => {
+  let writes = 0;
+  await publishPackages([react], {
+    lookup: async () => false, verify: async () => true, attempts: { "ui-react": "accepted" },
+    publish: async () => { writes++; }
+  });
+  assert.equal(writes, 0);
 });
 
 test("prepared manifests reject duplicate projects, unknown identities, and escaping tarball paths", () => {
