@@ -79,6 +79,10 @@ test("independent releases filter publication, advance changelog baselines, and 
   const currentReact = readFileSync(reactPath, "utf8");
   writeFileSync(themePath, JSON.stringify({ ...JSON.parse(currentTheme), version: "0.22.0" }));
   writeFileSync(reactPath, JSON.stringify({ ...JSON.parse(currentReact), version: "0.0.0" }));
+  // Historical fixtures must not contain changelogs for releases they have not created.
+  for (const project of ["ui-theme", "ui-react", "showcase"]) {
+    writeFileSync(join(cwd, "packages", project, "CHANGELOG.md"), "# Changelog\n");
+  }
   git("add", ".");
   git("commit", "--quiet", "-m", "chore: monorepo baseline");
   git("tag", "ui-theme@0.22.0");
@@ -185,6 +189,7 @@ test("showcase bootstraps at 0.1.0, releases independently, and follows dependen
   git("config", "user.name", "Release test");
   git("config", "user.email", "release-test@example.invalid");
   git("remote", "add", "origin", "https://github.com/wintermuted/wintermuted-ui.git");
+  writeFileSync(join(cwd, "packages", "showcase", "CHANGELOG.md"), "# Changelog\n");
   git("add", ".");
   git("commit", "--quiet", "-m", "chore: package baseline");
   const baseline = git("rev-parse", "HEAD");
@@ -193,7 +198,7 @@ test("showcase bootstraps at 0.1.0, releases independently, and follows dependen
     git("tag", `${project}@${manifest.version}`);
   }
   const showcasePath = join(cwd, "packages", "showcase", "package.json");
-  const page = join(cwd, "packages", "showcase", "index.html");
+  const page = join(cwd, "packages", "showcase", "src", "pages", "foundations", "index.html");
   writeFileSync(page, `${readFileSync(page, "utf8")}\n<!-- new docs feature -->\n`);
   git("add", ".");
   git("commit", "--quiet", "-m", "feat: version the showcase");

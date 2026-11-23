@@ -171,8 +171,14 @@ test("nested sources keep flat release filenames and deployment-relative asset U
   ]));
   const chunk = { type: "chunk", fileName: "assets/react.js", code: "export {};" };
   bundle[chunk.fileName] = chunk;
-  const context = { error(message) { throw new Error(message); } };
-  plugin.generateBundle.handler.call(context, {}, bundle);
+  const context = {
+    error(message) { throw new Error(message); },
+    emitFile(asset) { bundle[asset.fileName] = asset; },
+  };
+  const readOnlyAssignments = new Proxy(bundle, {
+    set() { throw new Error("Rolldown does not support assigning bundle entries"); },
+  });
+  plugin.generateBundle.handler.call(context, {}, readOnlyAssignments);
   for (const page of site.pages) {
     assert.ok(config.build.rolldownOptions.input[page.file.slice(0, -5)].endsWith(page.source.replaceAll("/", process.platform === "win32" ? "\\" : "/")));
     assert.ok(!Object.hasOwn(bundle, sourceName(page)));

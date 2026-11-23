@@ -64,9 +64,8 @@ export function showcaseSite(site, pagesRoot) {
           const asset = bundle[sourceName];
           if (!asset || asset.type !== "asset") this.error(`Showcase site: Missing generated page: ${sourceName}`);
           if (bundle[page.file]) this.error(`Showcase site: Output filename collision: ${page.file}`);
+          this.emitFile({ type: "asset", fileName: page.file, source: asset.source });
           delete bundle[sourceName];
-          asset.fileName = page.file;
-          bundle[page.file] = asset;
         }
       },
     },
