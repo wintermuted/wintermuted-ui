@@ -2,6 +2,7 @@ import { execFileSync } from "node:child_process";
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { withThemeBaseline } from "./release-baseline.mjs";
+import { finalizeChangelogs } from "./release-changelog.mjs";
 
 const args = new Set(process.argv.slice(2));
 for (const arg of args) {
@@ -23,23 +24,17 @@ if (args.has("--finalize")) {
   const client = new ReleaseClient({
     changelog: { projectChangelogs: { file: false, createRelease: "github" } }
   });
-  await client.releaseChangelog({
-    projects,
-    versionData: state.projectsVersionData,
-    from: state.from,
-    to: state.commit,
-    stageChanges: false,
-    gitCommit: false,
-    gitTag: false,
-    gitPush: false
-  });
+  await finalizeChangelogs(client, state);
 } else if (process.env.WM_RELEASE_WORKER === "true") {
   const { ReleaseClient } = await import("nx/release");
   if (!dryRun && git("status", "--porcelain")) {
     throw new Error("Release preparation requires a clean checkout.");
   }
-  const from = process.env.WM_RELEASE_BASELINE_FROM;
-  if (!from) throw new Error("The release worker requires a baseline commit.");
+  if (!process.env.WM_RELEASE_BASELINES) throw new Error("The release worker requires project baselines.");
+  const baselines = JSON.parse(process.env.WM_RELEASE_BASELINES);
+  for (const project of projects) {
+    if (!baselines[project]) throw new Error(`The release worker requires a baseline for ${project}.`);
+  }
   // Publish must succeed before the workflow pushes tags or creates a remote release.
   const client = new ReleaseClient({
     changelog: { projectChangelogs: { createRelease: false } },
@@ -47,27 +42,26 @@ if (args.has("--finalize")) {
   });
   const { projectsVersionData } = await client.release({ projects, dryRun, skipPublish: true, yes: true });
   const version = projectsVersionData["ui-theme"]?.newVersion;
-  const tags = Object.entries(projectsVersionData)
-    .filter(([, data]) => data.newVersion)
-    .map(([name, data]) => `${name}@${data.newVersion}`);
+  const releases = Object.entries(projectsVersionData).filter(([, data]) => data.newVersion);
+  const tags = releases.map(([name, data]) => `${name}@${data.newVersion}`);
   if (!tags.length) {
     console.log("No releasable package changes.");
     if (!dryRun && process.env.GITHUB_OUTPUT) appendFileSync(process.env.GITHUB_OUTPUT, "released=false\n");
   } else if (!dryRun) {
-    const state = { from, projectsVersionData, commit: git("rev-parse", "HEAD") };
+    const state = { baselines, projectsVersionData, commit: git("rev-parse", "HEAD") };
     mkdirSync(new URL("../.nx/", import.meta.url), { recursive: true });
     writeFileSync(statePath, `${JSON.stringify(state, null, 2)}\n`);
     if (process.env.GITHUB_OUTPUT) {
       appendFileSync(process.env.GITHUB_OUTPUT,
-        `released=true\ntheme_released=${Boolean(version)}\nversion=${version || ""}\ntag=${version ? `ui-theme@${version}` : ""}\ntags=${tags.join(" ")}\n`);
+        `released=true\ntheme_released=${Boolean(version)}\nversion=${version || ""}\ntag=${version ? `ui-theme@${version}` : ""}\ntags=${tags.join(" ")}\nprojects=${releases.map(([name]) => name).join(",")}\n`);
     }
   }
 } else {
   // Nx can exit on configuration errors; isolate it so baseline cleanup still runs.
-  await withThemeBaseline(async ({ from }) => {
+  await withThemeBaseline(async ({ baselines }) => {
     execFileSync(process.execPath, [fileURLToPath(import.meta.url), ...args], {
       stdio: "inherit",
-      env: { ...process.env, WM_RELEASE_WORKER: "true", WM_RELEASE_BASELINE_FROM: from }
+      env: { ...process.env, WM_RELEASE_WORKER: "true", WM_RELEASE_BASELINES: JSON.stringify(baselines) }
     });
   });
 }

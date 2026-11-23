@@ -54,16 +54,19 @@ jobs:
         id: publish_trusted
         if: steps.release.outputs.released == 'true'
         continue-on-error: true
-        run: npm run release:publish
+        run: npm run release:publish -- --projects="$RELEASE_PROJECTS"
+        env:
+          RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
       - name: Publish packages with Nx Release (token fallback)
         id: publish_token
         if: steps.release.outputs.released == 'true' && steps.publish_trusted.outcome != 'success'
         continue-on-error: true
         run: |
           npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
-          npm run release:publish
+          npm run release:publish -- --projects="$RELEASE_PROJECTS"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
       - name: Ensure publication succeeded
         if: steps.release.outputs.released == 'true' && steps.publish_trusted.outcome != 'success' && steps.publish_token.outcome != 'success'
         run: |

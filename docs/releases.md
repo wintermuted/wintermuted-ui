@@ -22,6 +22,7 @@ Legacy `vX.Y.Z` theme tags are retained. Do not rewrite them, move an existing p
 | `nx.json` | Released projects, independent versions, tag format, conventional commits, dependency updates, changelogs |
 | `packages/*/package.json` | Public exports, package files, dependencies, pack/publish targets |
 | `scripts/release.mjs` | Dry run, preparation state, and GitHub release finalization |
+| `scripts/release-changelog.mjs` | Finalize each changed project's notes from its own pre-release baseline |
 | `scripts/release-baseline.mjs` | Temporary legacy and first-React baselines |
 | `scripts/stage-react.mjs` | Assemble the React package without bundling peers |
 | `.github/workflows/react-package.yml` | Compatibility workflow reused as the release gate |
@@ -77,7 +78,7 @@ flowchart TD
     Prepare --> Changes{"Any package changed?"}
     Changes -->|"No"| Stop["Finish without publication"]
     Changes -->|"Yes"| Stage["Stage React using prepared manifest"]
-    Stage --> Trusted["Publish selected packages with provenance / trusted publishing"]
+    Stage --> Trusted["Publish only prepared projects with provenance / trusted publishing"]
     Trusted --> Result{"Publication succeeded?"}
     Result -->|"No"| Token["Retry with NPM_TOKEN fallback"]
     Token --> Retry{"Publication succeeded?"}
@@ -100,7 +101,9 @@ The wrapper has three modes:
 | `--prepare` | Require a clean checkout, run Nx version/changelog preparation, create local commit/tags, save state |
 | `--finalize` | Require saved state matching HEAD; create GitHub releases without re-versioning or pushing |
 
-Preparation writes `.nx/release-state.json` with the baseline commit, project version data, and prepared commit. Workflow outputs distinguish any release (`released`) from a theme release (`theme_released`), and include the package tags to push. Finalization depends on that state; a fresh tagged checkout alone cannot reconstruct it.
+Preparation writes `.nx/release-state.json` with each project's pre-release baseline commit, project version data, and prepared commit. Workflow outputs distinguish any release (`released`) from a theme release (`theme_released`), and include the changed project names and package tags to push. Both npm publication attempts pass that project filter, so a React-only release does not attempt to republish the unchanged theme.
+
+Finalization generates notes separately for each changed project, from its saved baseline to the prepared commit. The React baseline advances independently of the theme, preventing earlier React-only changes from appearing again in later releases. Finalization depends on that state; a fresh tagged checkout alone cannot reconstruct it.
 
 React is staged **after** version preparation so `dist/packages/ui-react/package.json` contains the released version and current dependency ranges, not stale compatibility-build metadata.
 

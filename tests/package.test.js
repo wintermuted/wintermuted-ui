@@ -36,7 +36,7 @@ test("every component stylesheet is publicly exported and registered", async () 
 
 test("React integration depends on the theme, not the reverse", async () => {
   const react = JSON.parse(await readFile(new URL("../ui-react/package.json", root), "utf8"));
-  assert.equal(react.dependencies["@wintermuted/ui-theme"], "^1.0.0");
+  assert.equal(react.dependencies["@wintermuted/ui-theme"], `^${pkg.version}`);
   assert.ok(react.peerDependencies.react);
   assert.ok(react.peerDependencies["react-dom"]);
   assert.equal(react.peerDependenciesMeta["react-select"].optional, true);

@@ -11,6 +11,7 @@ export async function withThemeBaseline(run, cwd = process.cwd()) {
   }
   const baseline = current || `ui-theme@${legacy.slice(1)}`;
   const from = git("rev-list", "-n", "1", current || legacy);
+  const baselines = { "ui-theme": from };
   const temporaryTags = [];
   try {
     if (!current) {
@@ -18,7 +19,9 @@ export async function withThemeBaseline(run, cwd = process.cwd()) {
       temporaryTags.push(baseline);
     }
     const react = tags("ui-react@*").find((tag) => /^ui-react@\d+\.\d+\.\d+$/.test(tag));
-    if (!react) {
+    if (react) {
+      baselines["ui-react"] = git("rev-list", "-n", "1", react);
+    } else {
       const manifestPath = "packages/ui-react/package.json";
       const initial = git("log", "--reverse", "--diff-filter=A", "--format=%H", "--", manifestPath).split("\n")[0];
       if (!initial) throw new Error("No React package history exists. Fetch full release history before running Nx Release.");
@@ -27,8 +30,9 @@ export async function withThemeBaseline(run, cwd = process.cwd()) {
       const reactBaseline = `ui-react@${version}`;
       git("tag", reactBaseline, initial);
       temporaryTags.push(reactBaseline);
+      baselines["ui-react"] = initial;
     }
-    return await run({ from, baseline });
+    return await run({ from, baseline, baselines });
   } finally {
     for (const tag of temporaryTags.reverse()) git("tag", "--delete", tag);
   }

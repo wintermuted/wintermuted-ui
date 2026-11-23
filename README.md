@@ -100,7 +100,7 @@ npm run release -- --dry-run
 
 For migration, the wrapper temporarily maps the latest reachable legacy `vX.Y.Z` tag to `ui-theme@X.Y.Z`, preserving the existing version baseline and avoiding replay of historical commits. Before the first standalone React release, it also establishes a temporary React baseline from the commit that introduced its package manifest and that manifest's initial version. Temporary tags are removed even if Nx fails. New releases use `ui-theme@X.Y.Z` and `ui-react@X.Y.Z`; legacy tags are untouched.
 
-The main workflow validates compatibility, prepares Nx version/changelog changes, stages React with the prepared version, publishes with provenance using trusted publishing or the `NPM_TOKEN` fallback, and only then pushes the release commit/package tags and creates GitHub releases. Theme releases call downstream dispatch explicitly, since releases created with `GITHUB_TOKEN` do not trigger another release-event workflow. React-only releases do not dispatch a theme bump.
+The main workflow validates compatibility, prepares Nx version/changelog changes, stages React with the prepared version, publishes only changed projects with provenance using trusted publishing or the `NPM_TOKEN` fallback, and only then pushes the release commit/package tags and creates GitHub releases. Each project's release notes use its own saved pre-release baseline. Theme releases call downstream dispatch explicitly, since releases created with `GITHUB_TOKEN` do not trigger another release-event workflow. React-only releases do not republish the unchanged theme or dispatch a theme bump.
 
 The manual publish workflow is recovery-only and defaults to a dry run. It never bumps versions.
 
