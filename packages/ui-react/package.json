@@ -1,6 +1,6 @@
 {
   "name": "@wintermuted/ui-react",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "React components and theme utilities for Wintermuted UI.",
   "type": "module",
   "license": "MIT",
@@ -25,6 +25,9 @@
     "directory": "packages/ui-react"
   },
   "publishConfig": { "registry": "https://registry.npmjs.org", "access": "public" },
+  "dependencies": {
+    "@wintermuted/ui-theme": "^1.0.0"
+  },
   "peerDependencies": {
     "react": "^18.3.0 || ^19.0.0",
     "react-dom": "^18.3.0 || ^19.0.0",
@@ -33,7 +36,7 @@
   "peerDependenciesMeta": { "react-select": { "optional": true } },
   "nx": {
     "name": "ui-react",
-    "tags": ["type:library", "release:deferred"],
+    "tags": ["type:library"],
     "targets": {
       "build": {
         "command": "node scripts/stage-react.mjs",

@@ -17,7 +17,6 @@
       "{workspaceRoot}/package.json",
       "{workspaceRoot}/package-lock.json",
       "{workspaceRoot}/nx.json",
-      "{workspaceRoot}/scripts/prepare-theme-react.mjs",
       "{workspaceRoot}/scripts/stage-react.mjs"
     ]
   },
@@ -37,13 +36,14 @@
     }
   },
   "release": {
-    "projects": ["ui-theme"],
+    "projects": ["ui-theme", "ui-react"],
     "projectsRelationship": "independent",
     "releaseTag": {
       "pattern": "{projectName}@{version}"
     },
     "version": {
       "conventionalCommits": true,
+      "preserveMatchingDependencyRanges": false,
       "adjustSemverBumpsForZeroMajorVersion": false
     },
     "changelog": {

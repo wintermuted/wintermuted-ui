@@ -22,6 +22,7 @@ jobs:
     environment: wintermuted-ui-theme
     outputs:
       released: ${{ steps.release.outputs.released }}
+      theme_released: ${{ steps.release.outputs.theme_released }}
       version: ${{ steps.release.outputs.version }}
       tag: ${{ steps.release.outputs.tag }}
     env:
@@ -46,30 +47,38 @@ jobs:
       - name: Prepare versions, changelogs, commit and tags with Nx Release
         id: release
         run: npm run release -- --prepare
-      - name: Publish theme with Nx Release (trusted)
+      - name: Stage React package with the prepared release version
+        if: steps.release.outputs.released == 'true'
+        run: npx nx build ui-react
+      - name: Publish packages with Nx Release (trusted)
         id: publish_trusted
         if: steps.release.outputs.released == 'true'
         continue-on-error: true
-        run: npm run release:publish
-      - name: Publish theme with Nx Release (token fallback)
+        run: npm run release:publish -- --projects="$RELEASE_PROJECTS"
+        env:
+          RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
+      - name: Publish packages with Nx Release (token fallback)
         id: publish_token
         if: steps.release.outputs.released == 'true' && steps.publish_trusted.outcome != 'success'
         continue-on-error: true
         run: |
           npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
-          npm run release:publish
+          npm run release:publish -- --projects="$RELEASE_PROJECTS"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
       - name: Ensure publication succeeded
         if: steps.release.outputs.released == 'true' && steps.publish_trusted.outcome != 'success' && steps.publish_token.outcome != 'success'
         run: |
           echo "Nx Release publication failed with both trusted publishing and token authentication."
           exit 1
-      - name: Push the release commit and tag atomically
+      - name: Push the release commit and package tags atomically
         if: steps.release.outputs.released == 'true'
         env:
-          RELEASE_TAG: ${{ steps.release.outputs.tag }}
-        run: git push --atomic origin HEAD:main "$RELEASE_TAG"
+          RELEASE_TAGS: ${{ steps.release.outputs.tags }}
+        run: |
+          read -r -a tags <<< "$RELEASE_TAGS"
+          git push --atomic origin HEAD:main "${tags[@]}"
       - name: Create the GitHub release with Nx Release
         if: steps.release.outputs.released == 'true'
         run: npm run release -- --finalize
@@ -78,7 +87,7 @@ jobs:
 
   downstream:
     needs: release
-    if: needs.release.outputs.released == 'true'
+    if: needs.release.outputs.theme_released == 'true'
     uses: ./.github/workflows/bump-downstream.yml
     with:
       version: ${{ needs.release.outputs.version }}

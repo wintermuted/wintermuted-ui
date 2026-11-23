@@ -8,6 +8,10 @@ Nx-powered design-system monorepo using npm workspaces and one root lockfile.
 | `packages/ui-react` | `ui-react` | Existing React components and declarations, extracted into a separate package |
 | `apps/showcase` | `showcase` | Multipage HTML documentation and React examples powered by Vite |
 
+## Documentation
+
+Start with the [documentation index](docs/README.md) for package selection and upgrade paths. The [architecture guide](docs/architecture.md) explains source ownership, dependency direction, styling, React boundaries, SSR, and showcase deployment. The [release runbook](docs/releases.md) covers version selection, publication prerequisites, the 1.0 launch, and recovery.
+
 ## Setup
 
 Use Node.js 22.23.5 or newer and npm 10 or newer. Volta pins the development runtime.
@@ -42,7 +46,7 @@ import { MultiSelect } from "@wintermuted/ui-react/select";
 import { initTheme } from "@wintermuted/ui-react/theme";
 ```
 
-Standalone React publication is deferred. Existing external consumers can continue using `@wintermuted/ui-theme/react`, `@wintermuted/ui-theme/react/select`, and `@wintermuted/ui-theme/theme`: theme packaging copies the canonical React sources for compatibility. Its React-related peers remain optional, so CSS-only consumers do not install React. See [React package guidance](packages/ui-react/README.md).
+Starting with 1.0.0, `ui-theme` is CSS-only: it has no React dependencies, React exports, or compatibility copies. React consumers install `@wintermuted/ui-react`, which depends on `ui-theme` and declares the React peers. See the [1.0 migration guide](docs/migration-to-v1.md), [documentation index](docs/README.md), and [React package guidance](packages/ui-react/README.md).
 
 The root is now private. New monorepo tags are not a drop-in GitHub-source npm install of the theme; use npm releases or a packed theme tarball.
 
@@ -76,7 +80,7 @@ npm run link:local -- ../sub-killer ../cv
 npm run unlink:local -- ../sub-killer ../cv
 ```
 
-These Bash helpers prepare the legacy React/theme entry points, resolve relative paths from the invoking directory, and link the theme workspace, not the private root. Internal npm workspaces are linked automatically during installation.
+These Bash helpers resolve relative paths from the invoking directory and link the CSS-only theme workspace, not the private root. Internal npm workspaces are linked automatically during installation. For React consumer linking, see the migration guide.
 
 ## Pages deployments
 
@@ -84,7 +88,9 @@ Production documentation remains under `/showcase/`. Pull requests deploy to `/p
 
 ## Nx Release
 
-Nx Release manages independent versions, conventional-commit version selection, project changelogs, npm publication, and GitHub releases. Only `ui-theme` is explicitly selected; the showcase and initial standalone React release are excluded.
+See the [release runbook](docs/releases.md) for the full workflow, authentication boundaries, first-publication checklist, and failure-stage recovery.
+
+Nx Release manages independent versions, conventional-commit version selection, project changelogs, npm publication, and GitHub releases for `ui-theme` and `ui-react`. The private showcase is excluded.
 
 ```sh
 npm run release -- --dry-run
@@ -92,10 +98,10 @@ npm run release -- --dry-run
 
 `fix:` yields patch releases, `feat:` minor releases, and breaking changes major releases, including before version 1.0. A merge without releasable changes does not force a bump. Nx determines affected projects from changed files.
 
-For migration, the wrapper temporarily maps the latest reachable legacy `vX.Y.Z` tag to `ui-theme@X.Y.Z`, preserving the existing version baseline and avoiding replay of historical commits. It removes the temporary tag even if Nx fails. New theme releases use `ui-theme@X.Y.Z`; legacy tags are untouched.
+For migration, the wrapper temporarily maps the latest reachable legacy `vX.Y.Z` tag to `ui-theme@X.Y.Z`, preserving the existing version baseline and avoiding replay of historical commits. Before the first standalone React release, it also establishes a temporary React baseline from the commit that introduced its package manifest and that manifest's initial version. Temporary tags are removed even if Nx fails. New releases use `ui-theme@X.Y.Z` and `ui-react@X.Y.Z`; legacy tags are untouched.
 
-The main workflow validates compatibility, prepares Nx version/changelog changes, publishes with provenance using trusted publishing or the `NPM_TOKEN` fallback, and only then pushes the release commit/tag and creates the GitHub release. It calls downstream dispatch explicitly, since releases created with `GITHUB_TOKEN` do not trigger another release-event workflow.
+The main workflow validates compatibility, prepares Nx version/changelog changes, stages React with the prepared version, publishes only changed projects with provenance using trusted publishing or the `NPM_TOKEN` fallback, and only then pushes the release commit/package tags and creates GitHub releases. Each project's release notes use its own saved pre-release baseline. Theme releases call downstream dispatch explicitly, since releases created with `GITHUB_TOKEN` do not trigger another release-event workflow. React-only releases do not republish the unchanged theme or dispatch a theme bump.
 
 The manual publish workflow is recovery-only and defaults to a dry run. It never bumps versions.
 
-When standalone React publication is ready, add `ui-react` to `release.projects` and establish its independent baseline. Its publish target already points to the staged output. Until then, React-only commits do not independently publish a new package.
+The 1.0 split is a breaking release for both packages. Preserve the breaking-change marker in the merge commit (`feat!: separate CSS theme from React integration`) so automatic version selection resolves 1.0.0 from the existing baselines. Configure trusted publishing for `@wintermuted/ui-react` on the Auto Release workflow, or ensure the `NPM_TOKEN` fallback can publish both packages. Do not migrate external React consumers until both 1.0.0 packages are available on npm.

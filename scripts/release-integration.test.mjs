@@ -5,6 +5,7 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { test } from "node:test";
+import { finalizeChangelogs } from "./release-changelog.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const version = JSON.parse(readFileSync(join(root, "packages", "ui-theme", "package.json"), "utf8")).version;
@@ -22,6 +23,7 @@ for (const [type, expected] of [
     for (const path of ["package.json", "package-lock.json", "nx.json", ".gitignore", "packages", "apps", "scripts"]) {
       cpSync(join(root, path), join(cwd, path), { recursive: true });
     }
+
     symlinkSync(join(root, "node_modules"), join(cwd, "node_modules"), process.platform === "win32" ? "junction" : "dir");
     const git = (...args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
     git("init", "--quiet");
@@ -31,6 +33,8 @@ for (const [type, expected] of [
     git("add", ".");
     git("commit", "--quiet", "-m", "chore: release fixture baseline");
     git("tag", `v${version}`);
+    const reactVersion = JSON.parse(readFileSync(join(cwd, "packages", "ui-react", "package.json"), "utf8")).version;
+    git("tag", `ui-react@${reactVersion}`);
     const tokens = join(cwd, "packages", "ui-theme", "styles", "tokens.css");
     writeFileSync(tokens, `${readFileSync(tokens, "utf8")}\n/* release fixture change */\n`);
     git("add", ".");
@@ -48,11 +52,121 @@ for (const [type, expected] of [
       assert.ok(output.includes(expected), output);
       assert.match(output, /CHANGELOG\.md/);
     } else {
-      assert.match(output, /No releasable theme changes/);
+      assert.match(output, /No releasable package changes/);
     }
     assert.match(output, /Skipped publishing packages/);
-    assert.doesNotMatch(output, /Running release version for project: ui-react/);
     assert.deepEqual([readFileSync(manifest, "utf8"), readFileSync(lock, "utf8")], before);
     assert.equal(git("tag", "--list", "ui-theme@*"), "");
   });
 }
+
+test("independent releases filter publication, advance changelog baselines, and preserve valid dependencies", { timeout: 180000 }, async (t) => {
+  const cwd = mkdtempSync(join(tmpdir(), "wm-nx-split-"));
+  t.after(() => rmSync(cwd, { recursive: true, force: true }));
+  for (const path of ["package.json", "package-lock.json", "nx.json", ".gitignore", "packages", "apps", "scripts", "tests"]) {
+    cpSync(join(root, path), join(cwd, path), { recursive: true });
+  }
+  symlinkSync(join(root, "node_modules"), join(cwd, "node_modules"), process.platform === "win32" ? "junction" : "dir");
+  const git = (...args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  git("init", "--quiet");
+  git("config", "user.name", "Release test");
+  git("config", "user.email", "release-test@example.invalid");
+  git("remote", "add", "origin", "https://github.com/wintermuted/wintermuted-ui.git");
+  const themePath = join(cwd, "packages", "ui-theme", "package.json");
+  const reactPath = join(cwd, "packages", "ui-react", "package.json");
+  const currentTheme = readFileSync(themePath, "utf8");
+  const currentReact = readFileSync(reactPath, "utf8");
+  writeFileSync(themePath, JSON.stringify({ ...JSON.parse(currentTheme), version: "0.22.0" }));
+  writeFileSync(reactPath, JSON.stringify({ ...JSON.parse(currentReact), version: "0.0.0" }));
+  git("add", ".");
+  git("commit", "--quiet", "-m", "chore: monorepo baseline");
+  git("tag", "ui-theme@0.22.0");
+  const initialBaseline = git("rev-parse", "HEAD");
+  writeFileSync(themePath, currentTheme);
+  writeFileSync(reactPath, currentReact);
+  git("add", ".");
+  git("commit", "--quiet", "-m", "feat!: separate CSS theme from React integration");
+  const outputPath = join(cwd, ".nx", "release-output.txt");
+  const output = execFileSync(process.execPath, ["scripts/release.mjs", "--prepare"], {
+    cwd, encoding: "utf8",
+    env: { ...process.env, NX_DAEMON: "false", NX_INTERACTIVE: "false", GITHUB_OUTPUT: outputPath },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  const state = JSON.parse(readFileSync(join(cwd, ".nx", "release-state.json"), "utf8"));
+  assert.equal(state.projectsVersionData["ui-theme"].newVersion, "1.0.0");
+  assert.equal(state.projectsVersionData["ui-react"].newVersion, "1.0.0");
+  assert.deepEqual(state.baselines, { "ui-theme": initialBaseline, "ui-react": initialBaseline });
+  const outputs = readFileSync(outputPath, "utf8");
+  assert.match(outputs, /^theme_released=true$/m);
+  assert.match(outputs, /^projects=ui-theme,ui-react$/m);
+  assert.match(outputs, /^tags=.*ui-theme@1\.0\.0.*ui-react@1\.0\.0$/m);
+  assert.equal(git("tag", "--list", "ui-react@0.0.0"), "");
+  assert.equal(git("rev-list", "-n", "1", "ui-theme@1.0.0"), state.commit);
+  assert.equal(git("rev-list", "-n", "1", "ui-react@1.0.0"), state.commit);
+  assert.match(output, /Skipped publishing packages/);
+  const reactSource = join(cwd, "packages", "ui-react", "src", "index.js");
+  writeFileSync(reactSource, `${readFileSync(reactSource, "utf8")}\n// React-only release fixture\n`);
+  git("add", ".");
+  git("commit", "--quiet", "-m", "fix: update React integration");
+  execFileSync(process.execPath, ["scripts/release.mjs", "--prepare"], {
+    cwd, encoding: "utf8",
+    env: { ...process.env, NX_DAEMON: "false", NX_INTERACTIVE: "false", GITHUB_OUTPUT: outputPath },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  const reactOutputs = readFileSync(outputPath, "utf8").slice(outputs.length);
+  assert.match(reactOutputs, /^theme_released=false$/m);
+  assert.match(reactOutputs, /^tags=ui-react@1\.0\.1$/m);
+  assert.match(reactOutputs, /^projects=ui-react$/m);
+  assert.equal(JSON.parse(readFileSync(themePath, "utf8")).version, "1.0.0");
+  const firstReactState = JSON.parse(readFileSync(join(cwd, ".nx", "release-state.json"), "utf8"));
+  assert.deepEqual(firstReactState.baselines, { "ui-theme": state.commit, "ui-react": state.commit });
+
+  writeFileSync(reactSource, `${readFileSync(reactSource, "utf8")}\n// Second React-only release fixture\n`);
+  git("add", ".");
+  git("commit", "--quiet", "-m", "fix: second React-only update");
+  execFileSync(process.execPath, ["scripts/release.mjs", "--prepare"], {
+    cwd, encoding: "utf8",
+    env: { ...process.env, NX_DAEMON: "false", NX_INTERACTIVE: "false", GITHUB_OUTPUT: outputPath },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  const secondReactState = JSON.parse(readFileSync(join(cwd, ".nx", "release-state.json"), "utf8"));
+  assert.equal(secondReactState.baselines["ui-theme"], state.commit);
+  assert.equal(secondReactState.baselines["ui-react"], firstReactState.commit);
+  const finalized = [];
+  await finalizeChangelogs({
+    async releaseChangelog({ projects, versionData, from, to }) {
+      assert.deepEqual(projects, ["ui-react"]);
+      assert.deepEqual(Object.keys(versionData), ["ui-react"]);
+      finalized.push(git("log", "--format=%s", `${from}..${to}`));
+    }
+  }, secondReactState);
+  assert.equal(finalized.length, 1);
+  assert.match(finalized[0], /fix: second React-only update/);
+  assert.doesNotMatch(finalized[0], /fix: update React integration/);
+
+  const tokens = join(cwd, "packages", "ui-theme", "styles", "tokens.css");
+  writeFileSync(tokens, `${readFileSync(tokens, "utf8")}\n/* Future theme release fixture */\n`);
+  git("add", ".");
+  git("commit", "--quiet", "-m", "fix: update theme tokens");
+  execFileSync(process.execPath, ["scripts/release.mjs", "--prepare"], {
+    cwd, encoding: "utf8",
+    env: { ...process.env, NX_DAEMON: "false", NX_INTERACTIVE: "false", GITHUB_OUTPUT: outputPath },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  assert.equal(JSON.parse(readFileSync(themePath, "utf8")).version, "1.0.1");
+  execFileSync(process.execPath, ["--test", "tests/package.test.js"], {
+    cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"]
+  });
+});
+
+test("changelog finalization rejects incomplete baselines before creating any release", async () => {
+  let calls = 0;
+  await assert.rejects(finalizeChangelogs({
+    async releaseChangelog() { calls += 1; }
+  }, {
+    projectsVersionData: { "ui-theme": { newVersion: "1.0.1" }, "ui-react": { newVersion: "1.0.2" } },
+    baselines: { "ui-theme": "theme-baseline" },
+    commit: "release-commit"
+  }), /Missing prepared baseline for ui-react/);
+  assert.equal(calls, 0);
+});

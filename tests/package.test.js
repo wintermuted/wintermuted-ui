@@ -14,9 +14,15 @@ test("all exports exist and legacy CSS entry points remain CSS-only", async () =
   }
   assert.equal(pkg.exports["."], "./index.js");
   assert.doesNotMatch(await readFile(new URL("index.js", root), "utf8"), /react/);
-  assert.doesNotMatch(await readFile(new URL("react/index.js", root), "utf8"), /react-select/);
-  assert.deepEqual(Object.keys(pkg.peerDependenciesMeta).sort(), ["react", "react-dom", "react-select"]);
-  for (const name of Object.keys(pkg.peerDependencies)) assert.equal(pkg.peerDependenciesMeta[name].optional, true);
+  assert.equal(pkg.peerDependencies, undefined);
+  assert.equal(pkg.peerDependenciesMeta, undefined);
+  assert.equal(pkg.dependencies, undefined);
+  assert.equal(pkg.typesVersions, undefined);
+  assert.equal(pkg.scripts.prepack, undefined);
+  assert.equal(pkg.nx.implicitDependencies, undefined);
+  for (const name of ["./react", "./react/select", "./theme"]) {
+    assert.equal(pkg.exports[name], undefined);
+  }
 });
 
 test("every component stylesheet is publicly exported and registered", async () => {
@@ -28,12 +34,16 @@ test("every component stylesheet is publicly exported and registered", async () 
   }
 });
 
-test("legacy TypeScript resolution points to public declarations", () => {
-  assert.deepEqual(pkg.typesVersions["*"].react, ["react/index.d.ts"]);
-  assert.deepEqual(pkg.typesVersions["*"]["react/select"], ["react/select.d.ts"]);
+test("React integration depends on the theme, not the reverse", async () => {
+  const react = JSON.parse(await readFile(new URL("../ui-react/package.json", root), "utf8"));
+  assert.equal(react.dependencies["@wintermuted/ui-theme"], `^${pkg.version}`);
+  assert.ok(react.peerDependencies.react);
+  assert.ok(react.peerDependencies["react-dom"]);
+  assert.equal(react.peerDependenciesMeta["react-select"].optional, true);
+  assert.doesNotMatch(await readFile(new URL("../ui-react/src/index.js", root), "utf8"), /react-select/);
 });
 
-test("local linking prepares legacy React exports before linking fresh consumers", async () => {
+test("local linking links CSS-only theme without preparing React sources", async () => {
   const { mkdtemp, mkdir, cp, writeFile, rm } = await import("node:fs/promises");
   const { execFileSync } = await import("node:child_process");
   const { tmpdir } = await import("node:os");
@@ -44,19 +54,14 @@ test("local linking prepares legacy React exports before linking fresh consumers
     const bin = join(temp, "bin");
     await mkdir(join(repo, "scripts"), { recursive: true });
     await mkdir(join(repo, "packages", "ui-theme"), { recursive: true });
-    await mkdir(join(repo, "packages", "ui-react"), { recursive: true });
     await mkdir(bin);
-    for (const file of ["link-local.sh", "prepare-theme-react.mjs"]) {
-      await cp(new URL(`../scripts/${file}`, import.meta.url), join(repo, "scripts", file));
-    }
+    await cp(new URL("../scripts/link-local.sh", import.meta.url), join(repo, "scripts", "link-local.sh"));
     await cp(new URL("package.json", root), join(repo, "packages", "ui-theme", "package.json"));
-    await cp(new URL("../packages/ui-react/src/", import.meta.url),
-      join(repo, "packages", "ui-react", "src"), { recursive: true });
     for (const consumer of ["consumer one", "consumer two"]) await mkdir(join(temp, consumer));
     await writeFile(join(bin, "npm"), `#!/usr/bin/env bash
 set -euo pipefail
 if [ "$2" = "--workspace=@wintermuted/ui-theme" ]; then
-  node -e 'const fs = require("node:fs"); const pkg = require("./packages/ui-theme/package.json"); for (const key of ["./react", "./react/select", "./theme"]) { for (const target of Object.values(pkg.exports[key])) fs.accessSync("packages/ui-theme/" + target); }'
+  node -e 'const assert = require("node:assert/strict"); const pkg = require("./packages/ui-theme/package.json"); assert.equal(pkg.peerDependencies, undefined); assert.equal(pkg.exports["./react"], undefined);'
 fi
 echo "npm $*"
 `, { mode: 0o755 });

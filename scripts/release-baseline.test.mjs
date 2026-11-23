@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { test } from "node:test";
@@ -14,7 +14,9 @@ function fixture(t) {
   git("config", "user.name", "Release test");
   git("config", "user.email", "release-test@example.invalid");
   writeFileSync(join(cwd, "package.json"), "{}");
-  git("add", "package.json");
+  mkdirSync(join(cwd, "packages", "ui-react"), { recursive: true });
+  writeFileSync(join(cwd, "packages", "ui-react", "package.json"), '{"version":"0.0.0"}');
+  git("add", ".");
   git("commit", "--quiet", "-m", "chore: initialize");
   return { cwd, git };
 }
@@ -33,8 +35,10 @@ test("legacy baseline uses the latest reachable semver release and is removed af
     assert.equal(baseline, "ui-theme@0.21.7");
     assert.equal(from, head);
     assert.equal(git("rev-parse", baseline), head);
+    assert.equal(git("rev-parse", "ui-react@0.0.0"), head);
   }, cwd);
   assert.equal(git("tag", "--list", "ui-theme@*"), "");
+  assert.equal(git("tag", "--list", "ui-react@*"), "");
   assert.equal(git("rev-parse", "v0.21.7"), head);
 });
 
@@ -45,9 +49,12 @@ test("existing Nx baseline is preserved; temporary baselines are cleaned up on f
     execFileSync(process.execPath, ["-e", "process.exit(1)"]);
   }, cwd));
   assert.equal(git("tag", "--list", "ui-theme@*"), "");
+  assert.equal(git("tag", "--list", "ui-react@*"), "");
   git("tag", "ui-theme@0.22.0");
+  git("tag", "ui-react@1.0.0");
   await withThemeBaseline(async ({ baseline }) => assert.equal(baseline, "ui-theme@0.22.0"), cwd);
   assert.equal(git("tag", "--list", "ui-theme@*"), "ui-theme@0.22.0");
+  assert.equal(git("tag", "--list", "ui-react@*"), "ui-react@1.0.0");
 });
 
 test("missing history fails instead of resetting to a first release", async (t) => {

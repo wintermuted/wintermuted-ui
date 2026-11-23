@@ -1,6 +1,6 @@
 {
   "name": "@wintermuted/ui-theme",
-  "version": "0.22.0",
+  "version": "1.0.0",
   "description": "Shared Wintermuted UI theme (design tokens, base resets, and component styles) derived from the CV styling language.",
   "type": "module",
   "volta": {
@@ -18,8 +18,6 @@
     "index.js",
     "index.css",
     "styles/**/*.css",
-    "react/**/*.js",
-    "react/**/*.d.ts",
     "README.md",
     "LICENSE"
   ],
@@ -38,18 +36,6 @@
   },
   "exports": {
     ".": "./index.js",
-    "./react": {
-      "types": "./react/index.d.ts",
-      "default": "./react/index.js"
-    },
-    "./react/select": {
-      "types": "./react/select.d.ts",
-      "default": "./react/select.js"
-    },
-    "./theme": {
-      "types": "./react/theme.d.ts",
-      "default": "./react/theme.js"
-    },
     "./index.css": "./index.css",
     "./styles/tokens.css": "./styles/tokens.css",
     "./styles/base.css": "./styles/base.css",
@@ -90,43 +76,12 @@
     "./styles/components/dialog.css": "./styles/components/dialog.css",
     "./styles/components/search-select.css": "./styles/components/search-select.css"
   },
-  "typesVersions": {
-    "*": {
-      "react": [
-        "react/index.d.ts"
-      ],
-      "react/select": [
-        "react/select.d.ts"
-      ],
-      "theme": [
-        "react/theme.d.ts"
-      ]
-    }
-  },
-  "peerDependencies": {
-    "react": "^18.3.0 || ^19.0.0",
-    "react-dom": "^18.3.0 || ^19.0.0",
-    "react-select": "^5.8.0"
-  },
-  "peerDependenciesMeta": {
-    "react": {
-      "optional": true
-    },
-    "react-dom": {
-      "optional": true
-    },
-    "react-select": {
-      "optional": true
-    }
-  },
   "scripts": {
-    "prepack": "node ../../scripts/prepare-theme-react.mjs",
     "lint": "stylelint \"styles/**/*.css\" \"index.css\""
   },
   "nx": {
     "name": "ui-theme",
     "tags": ["type:library"],
-    "implicitDependencies": ["ui-react"],
     "targets": {
       "pack": {
         "command": "npm pack --workspace=@wintermuted/ui-theme"
