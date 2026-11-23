@@ -6,7 +6,7 @@ This is an Nx monorepo with npm workspaces and one root lockfile.
 
 - `packages/ui-theme`: published `@wintermuted/ui-theme`, with `index.css`, `index.js`, and `styles/`.
 - `packages/ui-react/src`: canonical React JavaScript and hand-authored declarations, including select integration and theme utilities.
-- `packages/showcase`: private, versioned static HTML documentation and React examples using Vite. Shared classic JavaScript is in `public/showcase.js`.
+- `packages/showcase`: private, versioned static HTML documentation using Vite. Categorized page sources live in `src/pages`, shared layouts/plugin in `src/templates`, styles in `src/styles`, and React examples in `src/examples`. `src/site.config.mjs` maps nested sources to stable public filenames. Shared classic JavaScript remains in `public/showcase.js`.
 - `scripts`: consumer linking, release migration, packaging, and checks.
 
 ## Conventions

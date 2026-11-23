@@ -1,10 +1,77 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdir, readdir } from "node:fs/promises";
+import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright";
 import { createServer } from "vite";
+import { site } from "../packages/showcase/src/site.config.mjs";
+
+test("static layouts work without JavaScript and enhance navigation without duplicating chrome", { timeout: 90000 }, async () => {
+  const server = await createServer({
+    configFile: fileURLToPath(new URL("../packages/showcase/vite.config.mjs", import.meta.url)),
+    server: { host: "127.0.0.1", port: 0 }
+  });
+  let browser;
+  try {
+    await server.listen();
+    const base = `http://127.0.0.1:${server.httpServer.address().port}/showcase/`;
+    browser = await chromium.launch();
+    const noScript = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 1440, height: 1100 } });
+    await noScript.route("https://**", route => route.fulfill({ body: "", contentType: "text/plain" }));
+    const staticPage = await noScript.newPage();
+    for (const file of ["cards.html", "layout-topnav.html", "react.html"]) {
+      await staticPage.goto(`${base}${file}`);
+      assert.equal(await staticPage.locator(".docs-topbar-global").count(), 1);
+      const active = staticPage.locator(".docs-sidebar [aria-current=page]");
+      assert.equal(await active.getAttribute("href"), `./${file}`);
+      assert.ok(await active.isVisible());
+    }
+    await staticPage.setViewportSize({ width: 390, height: 844 });
+    assert.ok(await staticPage.locator('.docs-sidebar [data-page="react.html"]').isVisible());
+    assert.equal(await staticPage.getByRole("button", { name: "Toggle page navigation" }).isVisible(), false);
+    await staticPage.goto(`${base}layout-example-sidebar.html`);
+    assert.equal(await staticPage.locator(".docs-topbar-global, .docs-sidebar").count(), 0);
+    assert.ok(await staticPage.locator(".layout-mock-banner").isVisible());
+    await noScript.close();
+
+    const context = await browser.newContext({ viewport: { width: 1440, height: 1100 } });
+    await context.route("https://**", route => route.fulfill({ body: "", contentType: "text/plain" }));
+    await context.route("https://api.github.com/**", route => route.fulfill({ json: [{ tag_name: "ui-theme@1.0.0" }] }));
+    const page = await context.newPage();
+    const failures = [];
+    page.on("pageerror", error => failures.push(error.message));
+    await page.goto(`${base}cards.html`);
+    await page.waitForFunction(() => document.querySelector(".docs-topbar-version").options[0].textContent === "ui-theme@1.0.0");
+    assert.equal(await page.locator(".docs-topbar-global").count(), 1);
+    assert.equal(await page.locator(".docs-sidebar .docs-nav-group").count(), 1);
+    assert.ok(await page.locator(".docs-outline-link").count() > 0);
+    await page.getByRole("button", { name: "Switch to dark theme" }).click();
+    await page.reload();
+    assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
+    await page.setViewportSize({ width: 390, height: 844 });
+    assert.ok(await page.locator(".docs-topbar-global").evaluate(node => node.getBoundingClientRect().right <= window.innerWidth));
+    const menu = page.getByRole("button", { name: "Toggle page navigation" });
+    await menu.click();
+    assert.equal(await menu.getAttribute("aria-expanded"), "true");
+    await page.keyboard.press("Escape");
+    assert.equal(await menu.getAttribute("aria-expanded"), "false");
+    await menu.click();
+    await page.locator(".docs-nav-disclosure > summary").click();
+    await page.locator('.docs-sidebar [data-page="layout-topnav.html"]').click();
+    await page.waitForURL(`${base}layout-topnav.html`);
+    assert.equal(await page.locator(".docs-nav-disclosure").getAttribute("open"), "");
+    assert.equal(await page.locator(".docs-sidebar [aria-current=page]").getAttribute("href"), "./layout-topnav.html");
+    assert.equal(await page.locator(".docs-topbar-global").count(), 1);
+    await page.goto(`${base}sample-data.html`);
+    assert.equal(await page.locator("[data-sample-stats] .stat-card").count(), 3);
+    assert.deepEqual(failures, []);
+    await context.close();
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
 
 test("native modal focus containment, keyboard interactions, themes and responsive showcase", { timeout: 90000 }, async () => {
   const server = await createServer({
@@ -15,8 +82,7 @@ test("native modal focus containment, keyboard interactions, themes and responsi
   try {
     await server.listen();
     const address = server.httpServer.address();
-    for (const file of await readdir(new URL("../packages/showcase/", import.meta.url))) {
-      if (!file.endsWith(".html")) continue;
+    for (const { file } of site.pages) {
       const response = await fetch(`http://127.0.0.1:${address.port}/showcase/${file}`);
       assert.ok(response.ok, `Missing showcase page: ${file}`);
     }
