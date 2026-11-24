@@ -3,7 +3,8 @@ import { createRoot } from "react-dom/client";
 import {
   Accordion, Alert, Badge, Button, Card, CardHeader, CardBody, CardTitle, CardText, CardFooter,
   Dialog, FieldGroup, Input, Select, ListGroup, ListItem, Menu, Nav, ProgressBar, Spinner,
-  Table, Tabs, ThemeProvider, ThemeSelect, Tooltip,
+  Table, Tabs, ThemeProvider, ThemeSelect, Tooltip, ToggleGroup, FacetFilter, SortableTableHeader,
+  StatCard, RankedBarList, Toast, ColorPicker, NumberStepper, LanguageSelector,
 } from "@wintermuted/ui-react";
 import { MultiSelect } from "@wintermuted/ui-react/select";
 import { initTheme } from "@wintermuted/ui-react/theme";
@@ -12,12 +13,67 @@ const storageKey = "wintermuted:react-showcase:theme";
 initTheme({ storageKey });
 const section = (title, ...children) => h("section", { className: "react-doc-section" }, h("h3", null, title), ...children);
 
+function ReusableControls() {
+  const [view, setView] = useState("orders");
+  const [palette, setPalette] = useState("blue");
+  const [departments, setDepartments] = useState(["all"]);
+  const [quantity, setQuantity] = useState(0.5);
+  const [color, setColor] = useState("#2a4a8a");
+  const [draft, setDraft] = useState(color);
+  const [language, setLanguage] = useState("ja");
+  const [notice, setNotice] = useState(false);
+  const [column, setColumn] = useState("amount");
+  const [direction, setDirection] = useState("asc");
+  const languages = [{ value: "ja", label: "Japanese" }, { value: "sv", label: "Swedish", disabled: true },
+    { value: "de", label: "German" }];
+  return section("Reusable controls and metrics",
+    h("p", null, "Supply values, labels and callbacks. Your application owns filtering, formatting, locale changes and notification timing."),
+    h("div", { className: "react-demo-actions" },
+      h(ToggleGroup, { label: "Documents", value: view, onChange: setView, appearance: "outline", options: [
+        { value: "orders", label: "Orders" }, { value: "returns", label: "Returns" },
+        { value: "archive", label: "Archive", disabled: true }] }),
+      h(ToggleGroup, { label: "Ink palette", value: palette, onChange: setPalette, appearance: "swatches", options: [
+        { value: "blue", label: "Blue ink", swatchColor: "#2a4a8a" },
+        { value: "green", label: "Green ink", swatchColor: "#137333" }] }),
+      h(NumberStepper, { label: "Quantity", value: quantity, min: 0, max: 1, step: 0.1, onChange: setQuantity,
+        decreaseLabel: "Decrease quantity", increaseLabel: "Increase quantity", valueLabel: "Current quantity",
+        decreaseIcon: "-", increaseIcon: "+" }),
+      h(ColorPicker, { label: "Ink", inputLabel: "Pick ink", hexLabel: "Ink hex", invalidLabel: "Use six hexadecimal digits",
+        value: color, draftValue: draft, onDraftChange: setDraft, onChange: setColor,
+        onSelect: value => setColor(value), onCommit: () => setNotice(true),
+        groups: [{ id: "brand", label: "Brand", choices: [
+          { value: "#2a4a8a", label: "Blue ink" }, { value: "#137333", label: "Green ink" }] }] }),
+      h(LanguageSelector, { options: languages, value: language, onChange: setLanguage, label: "Native locale" }),
+      h(LanguageSelector, { options: languages, value: language, onChange: setLanguage, label: "Popup locale", variant: "dropup" })),
+    h("div", { className: "react-demo-fields" },
+      h(FacetFilter, { label: "Departments", selected: departments, onChange: setDepartments, available: true,
+        emptyLabel: "No departments", moreLabel: "More departments", fewerLabel: "Fewer departments",
+        reset: { label: "Any department", count: 4, selected: departments.length === 0, onSelect: () => setDepartments([]) },
+        options: [{ value: "all", label: "All Services", count: 0, disabled: !departments.includes("all") },
+          { value: "support", label: "Support", count: 4 }, { value: "closed", label: "Closed", count: 0, hidden: true, disabled: true }] }),
+      h(StatCard, { label: "Quarterly orders", value: 0, variant: "compact", tone: "success" },
+        h(RankedBarList, { label: "Department ranking", maximum: 100, minimumWidthPercent: 6, empty: "No departments",
+          items: [{ id: "shipping", label: "Shipping", value: 50, valueLabel: "50 orders", color },
+            { id: "returns", label: "Returns", value: 1, valueLabel: "1 order" }] }))),
+    h(Table, { responsive: true, "aria-label": "Sortable invoices" },
+      h("caption", null, `Sort requested: ${column}, ${direction}. Applications supply the sorted rows.`),
+      h("thead", null, h("tr", null, ...[["vendor", "Vendor"], ["amount", "Amount"]].map(([key, label]) =>
+        h(SortableTableHeader, { key, column: key, label, active: column === key, direction,
+          onSort: setColumn, onDirection: key => { setColumn(key); setDirection(direction === "asc" ? "desc" : "asc"); },
+          directionLabel: `Reverse ${label.toLowerCase()}`, directionIcon: direction === "asc" ? "^" : "v" })))),
+      h("tbody", null, h("tr", null, h("td", null, "Shipping"), h("td", null, "50")))),
+    h(Button, { variant: "secondary", onClick: () => setNotice(true) }, "Show notice"),
+    h(Toast, { open: notice, message: "Preferences saved", dismissLabel: "Dismiss notice", onDismiss: () => setNotice(false),
+      action: h("a", { href: "#react-showcase", onClick: () => setNotice(false) }, "View controls") }));
+}
+
 function Showcase() {
   const [dialog, setDialog] = useState(false);
   const [message, setMessage] = useState("Choose an action to see feedback.");
   const [stops, setStops] = useState([]);
   return h(ThemeProvider, { storageKey },
     section("Appearance", h(ThemeSelect)),
+    h(ReusableControls),
     section("Actions and feedback",
       h("div", { className: "react-demo-actions" },
         h(Button, { onClick: () => setMessage("Arrivals refreshed.") }, "Refresh arrivals"),

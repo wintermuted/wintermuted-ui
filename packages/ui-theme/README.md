@@ -30,6 +30,16 @@ import "@wintermuted/ui-theme/styles/components/button.css";
 
 The package exports `index.css`, `styles/tokens.css`, `styles/base.css`, `styles/components.css`, and individual component stylesheets. Use `--wm-*` custom properties in application styles. Set `data-theme="dark"` on the document root to select the dark theme.
 
+Context-free React controls reuse the existing `toggle-group.css`, `stat-card.css`,
+`checkbox-filter.css`, `table.css`, `toast.css`, `button.css` and `tooltip.css`.
+Additive treatments are `.wm-toggle-group-outline`, `.wm-stat-card-compact` and
+`.wm-tooltip-right`; existing defaults and legacy aliases remain intact.
+New public component sheets are `color-picker.css`, `number-stepper.css`,
+`language-selector.css` and `ranked-bar-list.css` under `styles/components/`.
+They are also included in the aggregate theme and use the existing tokens.
+NumberStepper needs button and tooltip CSS when loading sheets individually.
+Color-picker and selector styles never depend on application toolbar or game selectors.
+
 This package lives in `packages/ui-theme` within the [Wintermuted UI monorepo](https://github.com/wintermuted/wintermuted-ui). New monorepo tags are not directly installable as the theme through a GitHub-source npm dependency; use npm releases or a tarball produced by `npm pack --workspace=@wintermuted/ui-theme`.
 
 ## Migrating to 1.0

@@ -29,3 +29,13 @@ export type {
   TabsProps, MenuItem, ThemeContextValue,
 } from "./interfaces.js";
 export type { ThemePreference, ResolvedTheme } from "./theme.js";
+export { ToggleGroup } from "./components/ToggleGroup.js";
+export { FacetFilter } from "./components/FacetFilter.js";
+export { SortableTableHeader } from "./components/SortableTableHeader.js";
+export { StatCard } from "./components/StatCard.js";
+export { RankedBarList } from "./components/RankedBarList.js";
+export { Toast } from "./components/Toast.js";
+export { ColorPicker } from "./components/ColorPicker.js";
+export { NumberStepper } from "./components/NumberStepper.js";
+export { LanguageSelector } from "./components/LanguageSelector.js";
+export type { ToggleOption, ToggleGroupProps, FacetOption, FacetFilterProps, SortableTableHeaderProps, StatCardProps, RankedBarItem, RankedBarListProps, ToastProps, ColorChoice, ColorGroup, ColorPickerProps, NumberStepperProps, LanguageOption, LanguageSelectorProps } from "./interfaces.js";

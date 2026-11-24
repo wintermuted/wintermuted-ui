@@ -239,6 +239,9 @@ test("showcase bootstraps at 0.1.0, releases independently, and follows dependen
   git("add", ".");
   git("commit", "--quiet", "-m", "chore: package baseline");
   const baseline = git("rev-parse", "HEAD");
+  const [reactMajor, reactMinor, reactPatch] = JSON.parse(
+    readFileSync(join(cwd, "packages", "ui-react", "package.json"), "utf8")
+  ).version.split(".").map(Number);
   for (const project of ["ui-theme", "ui-react"]) {
     const manifest = JSON.parse(readFileSync(join(cwd, "packages", project, "package.json"), "utf8"));
     git("tag", `${project}@${manifest.version}`);
@@ -299,7 +302,7 @@ test("showcase bootstraps at 0.1.0, releases independently, and follows dependen
   const third = prepare();
   assert.equal(third.projectsVersionData.showcase.newVersion, "0.1.2");
   assert.equal(third.projectsVersionData["ui-theme"].newVersion, null);
-  assert.equal(third.projectsVersionData["ui-react"].newVersion, "1.0.1");
+  assert.equal(third.projectsVersionData["ui-react"].newVersion, `${reactMajor}.${reactMinor}.${reactPatch + 1}`);
   assert.match(readFileSync(outputPath, "utf8"), /^projects=ui-react$/m);
   assert.equal(third.baselines.showcase, second.commit);
 });

@@ -3,7 +3,7 @@ import type * as React from "react";
 import type { TooltipProps } from "../interfaces.js";
 import { cx } from "../utils.js";
 
-export function Tooltip({ text, children }: TooltipProps) {
+export function Tooltip({ text, children, placement = "above" }: TooltipProps) {
   const id = useId();
   const [hovered, setHovered] = useState(false);
   const [focused, setFocused] = useState(false);
@@ -22,6 +22,6 @@ export function Tooltip({ text, children }: TooltipProps) {
     onFocus={() => { setFocused(true); setDismissed(false); }}
     onBlur={event => { if (!event.currentTarget.contains(event.relatedTarget)) setFocused(false); }}>
     {cloneElement(child, { "aria-describedby": cx(child.props["aria-describedby"], visible && id) || undefined })}
-    {visible && <span id={id} role="tooltip" className="wm-tooltip">{text}</span>}
+    {visible && <span id={id} role="tooltip" className={cx("wm-tooltip", placement === "right" && "wm-tooltip-right")}>{text}</span>}
   </span>;
 }

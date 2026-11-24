@@ -13,6 +13,18 @@
         </header>
         <div id="react-showcase"></div>
         <section class="react-doc-section">
+          <h3>Context-free controls</h3>
+          <p><code>ToggleGroup</code>, <code>FacetFilter</code>, <code>SortableTableHeader</code>,
+            <code>StatCard</code>, <code>RankedBarList</code>, <code>Toast</code>,
+            <code>ColorPicker</code>, <code>NumberStepper</code> and <code>LanguageSelector</code>
+            accept application-supplied data and copy. Load the theme explicitly; no router,
+            translation provider, storage or notification timer is required.</p>
+          <p>Choose <code>StatCard variant="compact"</code> for label-first metrics and
+            <code>ToggleGroup appearance="outline"</code> for an outlined selector.
+            Facet reset is independent of values named <code>all</code>. Sortable headers
+            render their own <code>th</code>; sort and direction callbacks are separate.</p>
+        </section>
+        <section class="react-doc-section">
           <h3>Install only what you use</h3>
           <pre><code>npm install @wintermuted/ui-theme@^1.0.0 @wintermuted/ui-react@^1.0.0 react react-dom
 # Optional searchable multi-select:

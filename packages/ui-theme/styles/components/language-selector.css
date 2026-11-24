@@ -1,0 +1,67 @@
+.wm-language {
+  position: relative;
+}
+
+.wm-language-trigger {
+  min-width: 6.25rem;
+  min-height: 1.8rem;
+  padding: 0.15rem 0.5rem;
+  border: none;
+  outline: none;
+  box-shadow: none;
+  border-radius: var(--wm-radius-sm);
+  background: color-mix(in srgb, var(--wm-color-surface-muted) 68%, transparent);
+  color: var(--wm-color-text-secondary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+
+.wm-language-menu {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 0.35rem);
+  min-width: 100%;
+  border: 1px solid var(--wm-color-border);
+  border-radius: var(--wm-radius-sm);
+  background: var(--wm-color-surface-solid);
+  box-shadow: 0 8px 18px color-mix(in srgb, var(--wm-color-text) 14%, transparent);
+  display: grid;
+  padding: 0.2rem;
+  z-index: var(--wm-layer-popup);
+}
+
+.wm-language-option {
+  appearance: none;
+  border: none;
+  background: transparent;
+  color: var(--wm-color-text-secondary);
+  text-align: left;
+  padding: 0.35rem 0.45rem;
+  border-radius: calc(var(--wm-radius-sm) - 2px);
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.wm-language-option:hover,
+.wm-language-option.is-active {
+  background: color-mix(in srgb, var(--wm-color-surface-muted) 78%, transparent);
+  color: var(--wm-color-text);
+}
+
+
+.wm-language-trigger:focus-visible,
+.wm-language-option:focus-visible {
+  outline: 2px solid var(--wm-color-accent);
+  outline-offset: 2px;
+}
+
+.wm-language-option:disabled,
+.wm-language-trigger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
