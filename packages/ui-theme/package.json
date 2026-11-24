@@ -74,7 +74,11 @@
     "./styles/components/menu.css": "./styles/components/menu.css",
     "./styles/components/tooltip.css": "./styles/components/tooltip.css",
     "./styles/components/dialog.css": "./styles/components/dialog.css",
-    "./styles/components/search-select.css": "./styles/components/search-select.css"
+    "./styles/components/search-select.css": "./styles/components/search-select.css",
+    "./styles/components/color-picker.css": "./styles/components/color-picker.css",
+    "./styles/components/ranked-bar-list.css": "./styles/components/ranked-bar-list.css",
+    "./styles/components/number-stepper.css": "./styles/components/number-stepper.css",
+    "./styles/components/language-selector.css": "./styles/components/language-selector.css"
   },
   "scripts": {
     "lint": "stylelint \"styles/**/*.css\" \"index.css\""

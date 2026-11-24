@@ -25,3 +25,49 @@
   outline: 2px solid var(--wm-color-accent);
   outline-offset: 2px;
 }
+
+.wm-sort-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  font: inherit;
+  text-transform: inherit;
+  letter-spacing: inherit;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+.wm-sort-btn.is-active {
+  color: var(--wm-color-text-secondary);
+}
+
+.wm-sort-head {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.wm-sort-dir-btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--wm-color-text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5rem;
+  min-height: 1.5rem;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.wm-sort-dir-btn.is-active,
+.wm-sort-dir-btn:hover {
+  color: var(--wm-color-text-secondary);
+}

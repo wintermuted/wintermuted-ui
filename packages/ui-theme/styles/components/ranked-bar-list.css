@@ -1,0 +1,67 @@
+.wm-ranked-list {
+  margin-top: 0.65rem;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.wm-ranked-heading {
+  margin: 0;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--wm-color-text-muted);
+}
+
+.wm-ranked-empty {
+  margin: 0;
+  font-size: 0.78rem;
+  color: var(--wm-color-text-muted);
+}
+
+.wm-ranked-item {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.wm-ranked-item-header {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  min-width: 0;
+}
+
+.wm-ranked-chip {
+  width: 0.72rem;
+  height: 0.72rem;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--wm-color-text) 16%, transparent);
+  flex-shrink: 0;
+}
+
+.wm-ranked-label {
+  font-family: var(--wm-font-sans);
+  font-size: 0.72rem;
+  color: var(--wm-color-text);
+}
+
+.wm-ranked-count {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--wm-color-text-muted);
+}
+
+.wm-ranked-track {
+  width: 100%;
+  height: 0.38rem;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--wm-color-surface-muted) 86%, transparent);
+  overflow: hidden;
+}
+
+.wm-ranked-fill {
+  background-color: var(--wm-color-accent);
+  height: 100%;
+  border-radius: inherit;
+  min-width: 0;
+}
+

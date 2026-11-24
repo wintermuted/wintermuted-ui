@@ -34,6 +34,26 @@ test("every component stylesheet is publicly exported and registered", async () 
   }
 });
 
+test("transferred controls retain context-free sources, explicit CSS and public type exports", async () => {
+  const reactRoot = new URL("../ui-react/src/", root);
+  const barrel = await readFile(new URL("index.tsx", reactRoot), "utf8");
+  const interfaces = await readFile(new URL("interfaces.ts", reactRoot), "utf8");
+  for (const name of ["ToggleGroup", "FacetFilter", "SortableTableHeader", "StatCard", "RankedBarList",
+    "Toast", "ColorPicker", "NumberStepper", "LanguageSelector"]) {
+    assert.ok(barrel.includes(`export { ${name} } from "./components/${name}.js"`), name);
+    assert.ok(barrel.includes(`${name}Props`), `${name} public props`);
+    assert.ok(interfaces.includes(`export interface ${name}Props`), name);
+    const source = await readFile(new URL(`components/${name}.tsx`, reactRoot), "utf8");
+    assert.doesNotMatch(source, /wm-staged|game-of-life|ui-staging|i18next|localStorage|setTimeout|App\.css/);
+    assert.doesNotMatch(source, /import\s+["'][^"']+\.css["']/);
+    for (const match of source.matchAll(/from\s+["'](\.[^"']+)["']/g)) assert.ok(match[1].endsWith(".js"), match[1]);
+  }
+  for (const name of ["color-picker", "ranked-bar-list", "number-stepper", "language-selector"]) {
+    const css = await readFile(new URL(`styles/components/${name}.css`, root), "utf8");
+    assert.doesNotMatch(css, /wm-staged|grid-overlay-controls|play-about|App\.css/);
+  }
+});
+
 test("React integration depends on the theme, not the reverse", async () => {
   const react = JSON.parse(await readFile(new URL("../ui-react/package.json", root), "utf8"));
   assert.equal(react.dependencies["@wintermuted/ui-theme"], `^${pkg.version}`);

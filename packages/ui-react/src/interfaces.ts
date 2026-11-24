@@ -46,7 +46,7 @@ export interface MenuItem {
 export interface MenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children"> {
   label: React.ReactNode; items: MenuItem[];
 }
-export interface TooltipProps { text: string; children: React.ReactElement }
+export interface TooltipProps { text: string; children: React.ReactElement; placement?: "above" | "right" }
 export interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, "open" | "onClose" | "title"> {
   open: boolean; onClose: () => void; title: React.ReactNode;
 }
@@ -59,4 +59,152 @@ export interface ThemeContextValue {
 export interface ThemeProviderProps { children: React.ReactNode; storageKey?: string }
 export interface ThemeSelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>, "value" | "defaultValue" | "onChange"> {
   label?: string;
+}
+
+export interface ToggleOption<Value extends string = string> {
+  value: Value;
+  label: React.ReactNode;
+  icon?: React.ReactNode;
+  swatchColor?: string;
+  title?: string;
+  disabled?: boolean;
+}
+
+export interface ToggleGroupProps<Value extends string = string> {
+  options: readonly ToggleOption<Value>[];
+  value: Value;
+  onChange: (value: Value) => void;
+  label: string;
+  disabled?: boolean;
+  orientation?: "horizontal" | "vertical";
+  appearance?: "segmented" | "outline" | "swatches";
+  fullWidth?: boolean;
+  className?: string;
+}
+
+export interface FacetOption<Value extends string = string> {
+  value: Value;
+  label: string;
+  count: number;
+  disabled?: boolean;
+  hidden?: boolean;
+}
+
+export interface FacetFilterProps<Value extends string = string> {
+  label: string;
+  options: readonly FacetOption<Value>[];
+  selected: readonly Value[];
+  onChange: (selected: Value[]) => void;
+  available: boolean;
+  emptyLabel: string;
+  reset: { label: string; count: number; selected: boolean; onSelect: () => void };
+  moreLabel: string;
+  fewerLabel: string;
+}
+
+export interface SortableTableHeaderProps<Key extends string = string> {
+  column: Key;
+  label: string;
+  active: boolean;
+  direction: "asc" | "desc";
+  onSort: (column: Key) => void;
+  onDirection: (column: Key) => void;
+  directionLabel: string;
+  directionIcon: React.ReactNode;
+}
+
+export interface StatCardProps {
+  label: React.ReactNode;
+  value?: React.ReactNode;
+  children?: React.ReactNode;
+  tone?: Tone;
+  variant?: "default" | "compact";
+  className?: string;
+}
+
+export interface RankedBarItem {
+  id: string;
+  label: React.ReactNode;
+  value: number;
+  valueLabel: React.ReactNode;
+  color?: string;
+}
+
+export interface RankedBarListProps {
+  items: readonly RankedBarItem[];
+  label: string;
+  heading?: React.ReactNode;
+  empty: React.ReactNode;
+  maximum: number;
+  minimumWidthPercent?: number;
+}
+
+export interface ToastProps {
+  open: boolean;
+  message: React.ReactNode;
+  action?: React.ReactNode;
+  tone?: "success" | "danger" | "warning" | "info";
+  onDismiss: () => void;
+  dismissLabel: string;
+}
+
+export interface ColorChoice {
+  value: string;
+  label: string;
+}
+
+export interface ColorGroup {
+  id: string;
+  label: string;
+  choices: readonly ColorChoice[];
+}
+
+export interface ColorPickerProps {
+  value: string;
+  groups: readonly ColorGroup[];
+  onSelect: (value: string, group: string, index: number) => void;
+  onChange: (value: string) => void;
+  onCommit?: (value: string) => void;
+  label: string;
+  inputLabel: string;
+  hexLabel: string;
+  invalidLabel: string;
+  inputId?: string;
+  draftValue?: string;
+  onDraftChange?: (value: string) => void;
+  disabled?: boolean;
+  placement?: "above" | "right";
+  className?: string;
+  triggerClassName?: string;
+}
+
+export interface NumberStepperProps {
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  onChange: (value: number) => void;
+  disabled?: boolean;
+  label: string;
+  decreaseLabel: string;
+  increaseLabel: string;
+  valueLabel: string;
+  decreaseIcon: React.ReactNode;
+  increaseIcon: React.ReactNode;
+  tooltipPlacement?: "above" | "right";
+}
+
+export interface LanguageOption {
+  value: string;
+  label: string;
+  disabled?: boolean;
+}
+
+export interface LanguageSelectorProps {
+  options: readonly LanguageOption[];
+  value: string;
+  onChange: (value: string) => void;
+  label: string;
+  variant?: "native" | "dropup";
+  className?: string;
 }

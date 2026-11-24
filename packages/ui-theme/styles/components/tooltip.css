@@ -18,3 +18,10 @@
   font-size: var(--wm-text-sm);
   box-shadow: var(--wm-shadow-soft);
 }
+
+.wm-tooltip-right {
+  inset-block-end: auto;
+  inset-block-start: 50%;
+  inset-inline-start: calc(100% + var(--wm-space-2));
+  transform: translateY(-50%);
+}

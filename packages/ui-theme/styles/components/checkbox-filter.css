@@ -67,3 +67,51 @@
   border-radius: var(--wm-radius-base, 8px);
   margin-left: auto;
 }
+
+.wm-facet-filter {
+  border: 1px solid var(--wm-color-border);
+  border-radius: var(--wm-radius-sm);
+  padding: var(--wm-space-2);
+  background: var(--wm-color-surface-muted);
+}
+
+.wm-facet-filter-summary {
+  cursor: pointer;
+  font-size: var(--wm-text-sm);
+  font-weight: 600;
+  color: var(--wm-color-text-secondary);
+}
+
+.wm-facet-filter[open] .wm-facet-filter-summary {
+  margin-bottom: var(--wm-space-2);
+}
+
+.wm-facet-empty {
+  margin: 0;
+  color: var(--wm-color-text-muted);
+  font-size: var(--wm-text-sm);
+}
+
+.wm-facet-more {
+  appearance: none;
+  width: fit-content;
+  border: 0;
+  background: transparent;
+  padding: var(--wm-space-1) 0;
+  color: var(--wm-color-accent);
+  font: inherit;
+  cursor: pointer;
+}
+
+.wm-facet-more:hover {
+  text-decoration: underline;
+}
+
+.wm-facet-filter .wm-checkbox-filter-label:has(input:disabled) {
+  color: var(--wm-color-text-muted);
+  cursor: not-allowed;
+}
+
+.wm-facet-filter .wm-checkbox-filter-label {
+  flex-direction: row;
+}

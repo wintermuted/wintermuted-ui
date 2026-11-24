@@ -80,3 +80,42 @@
 .wm-card-accent-warning {
   border-left: 4px solid var(--wm-color-warning);
 }
+
+.wm-stat-card-compact {
+  margin: 0;
+  padding: var(--wm-space-3);
+  text-align: left;
+  border-radius: var(--wm-radius-sm);
+  background: var(--wm-color-surface-solid);
+  border-color: var(--wm-color-border);
+}
+
+.wm-stat-card-compact .wm-stat-label {
+  margin: 0;
+  text-transform: none;
+  letter-spacing: normal;
+  font-weight: 400;
+}
+
+.wm-stat-card-compact .wm-stat-value {
+  margin: 0.35rem 0 0;
+  font-size: 1.125rem;
+  line-height: 1.2;
+  color: var(--wm-color-text);
+}
+
+.wm-stat-card-compact.wm-stat-card-success .wm-stat-value {
+  color: var(--wm-color-success);
+}
+
+.wm-stat-card-compact.wm-stat-card-warning .wm-stat-value {
+  color: var(--wm-color-warning);
+}
+
+.wm-stat-card-compact.wm-stat-card-danger .wm-stat-value {
+  color: var(--wm-color-danger);
+}
+
+.wm-stat-card-info .wm-stat-value {
+  color: var(--wm-color-accent);
+}

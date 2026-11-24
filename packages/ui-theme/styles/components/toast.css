@@ -37,6 +37,10 @@
   transition: opacity 0.2s ease, transform 0.2s ease;
 }
 
+.wm-toast[hidden] {
+  display: none;
+}
+
 /* ── Visible state ───────────────────────────────────────────────────────── */
 
 .wm-toast-visible {

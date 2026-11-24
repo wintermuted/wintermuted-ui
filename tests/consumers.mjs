@@ -17,6 +17,9 @@ const runNpm = (args, cwd) => execFileSync(process.execPath, [npmCli, ...args], 
   cwd, encoding: "utf8", stdio: ["ignore", "pipe", "inherit"],
 });
 const packageOnly = process.argv.includes("--package-only");
+const reactMajor = process.argv.find(arg => arg.startsWith("--react-major="))?.split("=")[1] ?? "18";
+assert.ok(["18", "19"].includes(reactMajor), "React major must be 18 or 19.");
+const reactVersion = reactMajor === "18" ? "18.3.1" : "19";
 try {
   const reactDist = join(root, "dist", "packages", "ui-react");
   assert.ok(existsSync(join(reactDist, "package.json")), "Missing compiled React package; CI must build ui-react before consumer checks.");
@@ -72,8 +75,8 @@ try {
   assert.ok(!existsSync(join(installed, "node_modules", "react")));
 
   runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund",
-    "react@18.3.1", "react-dom@18.3.1",
-    "@types/react@18", "@types/react-dom@18"], css);
+    `react@${reactVersion}`, `react-dom@${reactVersion}`,
+    `@types/react@${reactMajor}`, `@types/react-dom@${reactMajor}`], css);
   runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", join(temp, reactPacked.filename)], css);
   assert.throws(() => resolveInstalled.resolve("react-select"), { code: "MODULE_NOT_FOUND" });
   const resolveReact = createRequire(join(css, "node_modules", "@wintermuted", "ui-react", "package.json"));
@@ -82,22 +85,69 @@ try {
 import assert from "node:assert/strict";
 import React from "react";
 import {renderToString} from "react-dom/server";
-import {Button, ThemeProvider} from "@wintermuted/ui-react";
+import {Button, ThemeProvider, ToggleGroup, FacetFilter, SortableTableHeader, StatCard,
+  RankedBarList, Toast, ColorPicker, NumberStepper, LanguageSelector} from "@wintermuted/ui-react";
 import {initTheme, getThemeScript} from "@wintermuted/ui-react/theme";
 assert.match(renderToString(React.createElement(ThemeProvider, null,
   React.createElement(Button, null, "Without optional select"))), /Without optional select/);
 assert.equal(initTheme(), "light");
 assert.ok(getThemeScript().includes("wintermuted:theme"));
+const h = React.createElement;
+const app = h("div", null,
+  h(ToggleGroup, {label: "Documents", options: [{value: "orders", label: "Orders"}], value: "orders", onChange() {}}),
+  h(FacetFilter, {label: "Departments", options: [], selected: [], onChange() {}, available: false,
+    emptyLabel: "No departments", moreLabel: "More", fewerLabel: "Fewer",
+    reset: {label: "Any", count: 0, selected: true, onSelect() {}}}),
+  h("table", null, h("thead", null, h("tr", null, h(SortableTableHeader, {column: "amount", label: "Amount",
+    active: true, direction: "asc", onSort() {}, onDirection() {}, directionLabel: "Reverse amount", directionIcon: "^"})))),
+  h(StatCard, {label: "Orders", value: 0, variant: "compact"}),
+  h(RankedBarList, {label: "Ranking", maximum: 10, empty: "Empty", items: [{id: "a", label: "Shipping", value: 5, valueLabel: "5"}]}),
+  h(Toast, {open: false, message: "Saved", dismissLabel: "Dismiss", onDismiss() {}}),
+  h(ColorPicker, {value: "#123456", groups: [], onSelect() {}, onChange() {},
+    label: "Ink", inputLabel: "Pick ink", hexLabel: "Hex", invalidLabel: "Invalid hex"}),
+  h(NumberStepper, {value: 0.5, min: 0, max: 1, step: 0.1, onChange() {}, label: "Quantity",
+    decreaseLabel: "Less", increaseLabel: "More", valueLabel: "Current quantity", decreaseIcon: "-", increaseIcon: "+"}),
+  h(LanguageSelector, {label: "Locale", options: [{value: "ja", label: "Japanese"}], value: "ja", onChange() {}}));
+const html = renderToString(app);
+assert.match(html, /Orders/);
+assert.match(html, /aria-sort="ascending"/);
+assert.match(html, /hidden=""/);
+assert.doesNotMatch(html, /wm-staged/);
 `], { cwd: css, stdio: "inherit" });
   if (!packageOnly) {
     writeFileSync(join(css, "without-select.tsx"), `
 import * as React from "react";
-import {Button, Card, ThemeProvider} from "@wintermuted/ui-react";
-import type {ButtonProps, ThemeContextValue} from "@wintermuted/ui-react";
+import {Button, Card, ThemeProvider, ToggleGroup, FacetFilter, SortableTableHeader, StatCard,
+  RankedBarList, Toast, ColorPicker, NumberStepper, LanguageSelector} from "@wintermuted/ui-react";
+import type {ButtonProps, ThemeContextValue, ToggleOption, FacetOption, SortableTableHeaderProps,
+  ColorGroup, RankedBarItem, ColorPickerProps, NumberStepperProps, ToastProps, StatCardProps,
+  ToggleGroupProps, FacetFilterProps, RankedBarListProps, LanguageOption, LanguageSelectorProps} from "@wintermuted/ui-react";
 import {initTheme} from "@wintermuted/ui-react/theme";
 const props: ButtonProps = {onClick: event => event.currentTarget.focus()};
 export function readTheme(context: ThemeContextValue) { return context.resolvedTheme; }
 export const app = <ThemeProvider><Card><Button {...props}>Refresh</Button></Card></ThemeProvider>;
+const toggles: ToggleOption<"orders" | "returns">[] = [{value: "orders", label: "Orders"}];
+const facets: FacetOption<"all">[] = [{value: "all", label: "All Services", count: 0}];
+const groups: ColorGroup[] = [{id: "brand", label: "Brand", choices: [{value: "#123456", label: "Ink"}]}];
+const rows: RankedBarItem[] = [{id: "shipping", label: "Shipping", value: 1, valueLabel: "1 order"}];
+export const controls = <>
+  <ToggleGroup options={toggles} value="orders" label="Documents" onChange={value => { const typed: "orders" | "returns" = value; }}/>
+  <FacetFilter options={facets} selected={["all"]} label="Departments" available emptyLabel="Empty"
+    moreLabel="More" fewerLabel="Fewer" onChange={values => { const typed: "all"[] = values; }}
+    reset={{label: "Any", count: 0, selected: false, onSelect() {}}}/>
+  <table><thead><tr><SortableTableHeader column="amount" label="Amount" active direction="asc"
+    onSort={column => { const typed: "amount" = column; }} onDirection={() => {}}
+    directionLabel="Reverse" directionIcon="^"/></tr></thead></table>
+  <StatCard label="Orders" value={0} variant="compact" tone="success"/>
+  <RankedBarList items={rows} maximum={10} label="Ranking" empty="Empty"/>
+  <Toast open={false} message="Saved" dismissLabel="Dismiss" onDismiss={() => {}}/>
+  <ColorPicker value="#123456" groups={groups} onSelect={() => {}} onChange={() => {}}
+    label="Ink" inputLabel="Pick ink" hexLabel="Hex" invalidLabel="Invalid hex"
+    draftValue="unfinished" onDraftChange={() => {}} triggerClassName="host"/>
+  <NumberStepper value={0.5} min={0} max={1} step={0.1} onChange={() => {}} label="Quantity"
+    decreaseLabel="Less" increaseLabel="More" valueLabel="Current quantity" decreaseIcon="-" increaseIcon="+"/>
+  <LanguageSelector label="Locale" options={[{value: "ja", label: "Japanese"}]} value="ja" onChange={() => {}} variant="dropup"/>
+</>;
 initTheme();
 `);
     for (const resolution of ["bundler", "NodeNext"]) typecheck("without-select.tsx", resolution);
@@ -183,9 +233,9 @@ React.createElement(MultiSelect, {options:[{label:"Main",value:1}]})));
       else ok();
     }));
   });
-  console.log("Packed CSS-only, React 18 with/without react-select, TypeScript 7 bundler/NodeNext, Vite 8 and Webpack 5 consumers passed.");
+  console.log(`Packed CSS-only, React ${reactMajor} with/without react-select, TypeScript 7 bundler/NodeNext, Vite 8 and Webpack 5 consumers passed.`);
   } else {
-    console.log("Packed CSS-only install, React 18 SSR with/without react-select, and React-free theme imports passed.");
+    console.log(`Packed CSS-only install, React ${reactMajor} SSR with/without react-select, and React-free theme imports passed.`);
   }
 } finally {
   rmSync(temp, { recursive: true, force: true });
