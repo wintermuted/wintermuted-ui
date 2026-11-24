@@ -75,6 +75,10 @@ async function main() {
     const [packed] = JSON.parse(execFileSync("npm", ["pack", `./${root}`, "--dry-run", "--ignore-scripts", "--json"], {
       encoding: "utf8", stdio: ["ignore", "pipe", "inherit"]
     }));
+    if (manifest.name !== `@wintermuted/${project}` || packed.name !== manifest.name ||
+        packed.version !== manifest.version || !/^[a-f0-9]{40}$/.test(packed.shasum || "")) {
+      throw new Error(`Invalid prepared package identity for ${project}`);
+    }
     await publishProject({ ...manifest, shasum: packed.shasum }, {
       inspect: inspectPublication,
       trusted: () => run(["run", "release:publish", "--", `--projects=${project}`]),

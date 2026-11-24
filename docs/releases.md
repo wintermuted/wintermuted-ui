@@ -180,6 +180,8 @@ gh workflow run publish-package.yml --repo wintermuted/wintermuted-ui -f release
 
 This mode downloads and verifies the tarball and reports exact dependency ranges and checksums; it does not publish, create tags, or finalize releases. Compare its checksums with the failed run before recovering missing Git references. Local npm transport failures are not proof of absent versions. If npm has accepted a version but it remains unavailable, a package maintainer must inspect npm's package settings/status and any actual approval request, or contact npm support. Do not delete/unpublish versions, bypass approval gates, or bump versions to conceal the conflict. React trusted publishing still requires its own authorized configuration; token fallback does not repair that configuration.
 
+On November 23, 2026, read-only verification runs [45315774312](https://github.com/wintermuted/wintermuted-ui/actions/runs/45315774312) (theme) and [45315777648](https://github.com/wintermuted/wintermuted-ui/actions/runs/45315777648) (React) downloaded both `1.0.1` tarballs and verified their SHA-1/SHA-512 digests. Both SHA-1 values matched the original publication logs; React required theme `^1.0.1`. No new publication or npm approval was needed. The failed run had not pushed `ui-theme@1.0.1`, `ui-react@1.0.1`, or `showcase@0.2.1`, so registry recovery and Git/GitHub release reconciliation remain distinct.
+
 ### Existing-tag publication recovery
 
 The manual **Publish package (recovery)** workflow accepts an existing matching package tag and a package selection. It checks out that tag, verifies the manifest version, stages React when selected, and publishes only that project through Nx. It defaults to a dry run and never bumps versions.
