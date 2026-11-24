@@ -1,8 +1,13 @@
-import { createElement, useId } from "react";
+import { useId } from "react";
 import ReactSelect, { mergeStyles } from "react-select";
+import type { GroupBase, Props, StylesConfig } from "react-select";
+
+export type MultiSelectProps<Option = unknown, IsMulti extends boolean = true,
+  Group extends GroupBase<Option> = GroupBase<Option>> = Props<Option, IsMulti, Group>;
 
 // Inline values are CSS variables so open menus follow a theme change immediately.
-const styles = {
+function themeStyles<Option, IsMulti extends boolean, Group extends GroupBase<Option>>(): StylesConfig<Option, IsMulti, Group> {
+  return {
   control: (base, state) => ({ ...base,
     backgroundColor: "var(--wm-color-bg)", color: "var(--wm-color-text)",
     borderColor: state.isFocused ? "var(--wm-color-accent)" : "var(--wm-color-border-strong)",
@@ -26,13 +31,18 @@ const styles = {
   multiValueLabel: base => ({ ...base, color: "var(--wm-color-text)" }),
   multiValueRemove: base => ({ ...base, color: "var(--wm-color-text-secondary)",
     ":hover": { backgroundColor: "var(--wm-color-danger-soft)", color: "var(--wm-color-danger)" } }),
-};
+  };
+}
 
-export function MultiSelect({ styles: overrides, isMulti = true, id, className, ...props }) {
+export function MultiSelect<Option = unknown, IsMulti extends boolean = true,
+  Group extends GroupBase<Option> = GroupBase<Option>>({
+  styles: overrides, isMulti, id, className, ...props
+}: MultiSelectProps<Option, IsMulti, Group>) {
   const generated = useId();
-  return createElement(ReactSelect, {
-    instanceId: generated, ...props, inputId: props.inputId ?? id,
-    className: ["wm-search-select", className].filter(Boolean).join(" "),
-    isMulti, styles: mergeStyles(styles, overrides),
-  });
+  return <ReactSelect<Option, IsMulti, Group>
+    instanceId={generated} {...props} inputId={props.inputId ?? id}
+    className={["wm-search-select", className].filter(Boolean).join(" ")}
+    isMulti={isMulti === undefined ? (true as IsMulti) : isMulti}
+    styles={mergeStyles(themeStyles<Option, IsMulti, Group>(), overrides)}
+  />;
 }

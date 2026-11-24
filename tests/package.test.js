@@ -40,7 +40,20 @@ test("React integration depends on the theme, not the reverse", async () => {
   assert.ok(react.peerDependencies.react);
   assert.ok(react.peerDependencies["react-dom"]);
   assert.equal(react.peerDependenciesMeta["react-select"].optional, true);
-  assert.doesNotMatch(await readFile(new URL("../ui-react/src/index.js", root), "utf8"), /react-select/);
+  assert.doesNotMatch(await readFile(new URL("../ui-react/src/index.tsx", root), "utf8"), /react-select/);
+});
+
+test("React source package refuses packing and publishing through its prepack hook", async () => {
+  const { spawnSync } = await import("node:child_process");
+  const { fileURLToPath } = await import("node:url");
+  const source = new URL("../ui-react/", root);
+  const react = JSON.parse(await readFile(new URL("package.json", source), "utf8"));
+  const [command, ...args] = react.scripts.prepack.split(" ");
+  assert.equal(command, "node");
+  const result = spawnSync(process.execPath, args, { cwd: fileURLToPath(source), encoding: "utf8" });
+  assert.equal(result.status, 1);
+  assert.match(result.stderr, /Cannot pack or publish.*TSX source workspace/);
+  assert.match(result.stderr, /dist\/packages\/ui-react/);
 });
 
 test("local linking links CSS-only theme without preparing React sources", async () => {

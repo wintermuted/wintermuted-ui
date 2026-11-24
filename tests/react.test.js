@@ -1,35 +1,9 @@
-import { afterEach, beforeEach, test } from "node:test";
+import { test } from "node:test";
 import assert from "node:assert/strict";
-import { JSDOM } from "jsdom";
-import React, { createElement as h } from "react";
+import { React, h, dom, render, screen, fireEvent, act, userEvent, theme, setSystemTheme } from "./react/setup.js";
 
-const dom = new JSDOM("<!doctype html><html><body></body></html>", {
-  url: "https://example.test/", runScripts: "outside-only",
-});
-for (const name of ["window", "document", "Element", "HTMLElement", "HTMLDialogElement", "Node", "MutationObserver",
-  "getComputedStyle", "Event", "MouseEvent", "KeyboardEvent"]) {
-  globalThis[name] = name === "getComputedStyle" ? dom.window.getComputedStyle.bind(dom.window) : dom.window[name];
-}
-Object.defineProperty(globalThis, "navigator", { value: dom.window.navigator, configurable: true });
-globalThis.IS_REACT_ACT_ENVIRONMENT = true;
-let dark = false;
-const media = new dom.window.EventTarget();
-Object.defineProperty(media, "matches", { get: () => dark });
-window.matchMedia = () => media;
-HTMLDialogElement.prototype.showModal = function () { this.open = true; this.querySelector("button")?.focus(); };
-HTMLDialogElement.prototype.close = function () { this.open = false; this.dispatchEvent(new Event("close")); };
-const { render, screen, cleanup, fireEvent, act } = await import("@testing-library/react");
-const { default: userEvent } = await import("@testing-library/user-event");
 const ui = await import("@wintermuted/ui-react");
 const { MultiSelect } = await import("@wintermuted/ui-react/select");
-const theme = await import("@wintermuted/ui-react/theme");
-
-beforeEach(() => {
-  dark = false;
-  window.localStorage.clear();
-  document.documentElement.removeAttribute("data-theme");
-});
-afterEach(cleanup);
 
 test("native props, polymorphism, slots, and button default do not submit forms", async () => {
   const user = userEvent.setup();
@@ -159,11 +133,11 @@ test("Theme defaults to System, tracks OS, persists override, resets and accepts
   function Status() { return h("output", null, ui.useTheme().resolvedTheme); }
   render(h(ui.ThemeProvider, null, h(ui.ThemeSelect), h(Status)));
   assert.equal(screen.getByLabelText("Appearance").value, "system");
-  await act(() => { dark = true; media.dispatchEvent(new Event("change")); });
+  await setSystemTheme(true);
   assert.equal(document.documentElement.dataset.theme, "dark");
   await user.selectOptions(screen.getByLabelText("Appearance"), "light");
   assert.equal(window.localStorage.getItem(theme.DEFAULT_THEME_KEY), "light");
-  await act(() => media.dispatchEvent(new Event("change")));
+  await setSystemTheme(true);
   assert.equal(document.documentElement.dataset.theme, "light");
   await user.selectOptions(screen.getByLabelText("Appearance"), "system");
   assert.equal(document.documentElement.dataset.theme, "dark");

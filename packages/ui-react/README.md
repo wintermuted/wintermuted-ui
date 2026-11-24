@@ -1,6 +1,6 @@
 # `@wintermuted/ui-react`
 
-React components extracted from Wintermuted UI: native primitives, accessible interactions, theme helpers, and an optional react-select integration. The existing JavaScript implementation and hand-authored TypeScript declarations are preserved.
+React components for Wintermuted UI: native primitives, accessible interactions, theme helpers, and an optional react-select integration. Components are authored in typed TSX; the published package contains compiled JavaScript and generated TypeScript declarations.
 
 See the [React architecture guide](https://github.com/wintermuted/wintermuted-ui/blob/main/packages/ui-react/docs/architecture.md) for entry-point isolation, interaction ownership, theme synchronization, declarations, and packaging.
 
@@ -15,7 +15,7 @@ Consumers load the theme explicitly; React components do not inject global style
 
 Starting with 1.0.0, this is the standalone home for all Wintermuted React components and theme runtime helpers. It depends on `@wintermuted/ui-theme` 1.x; the CSS-only theme has no dependency on this package or React. Nx Release publishes both packages with independent versions.
 
-The `build` target stages the already-valid ESM, declarations, manifest, README, and license in `dist/packages/ui-react`, without bundling React or introducing a compilation step. `npx nx pack ui-react` packs that output. CI checks declarations and packed consumers.
+The `build` target compiles TypeScript/TSX to ESM and generates declarations in `dist/packages/ui-react`, alongside the manifest, README, and license. It does not bundle React or other peers. `npx nx pack ui-react` packs that output. A source-only `prepack` guard rejects direct packing or publishing of the TSX workspace; staging removes the guard from the compiled npm package. CI checks source types and packed consumers with bundler/NodeNext resolution and with/without the optional react-select peer.
 
 The old theme package's `react`, `react/select`, and `theme` exports were removed in 1.0.0. See the [migration guide](https://github.com/wintermuted/wintermuted-ui/blob/main/docs/migration-to-v1.md).
 
@@ -52,7 +52,7 @@ createRoot(document.getElementById("root")!).render(
 );
 ```
 
-These are distributable ES modules, not TSX source. Conditional exports and legacy `typesVersions` mappings point to declarations. CI checks React 18 packed consumers with TypeScript 7/bundler, Vite 8, and Webpack 5. CRA/Jest consumers should allow the ESM packages through Babel's dependency transform:
+Published entry points are distributable ES modules, not TSX source. Conditional exports and legacy `typesVersions` mappings point to generated declarations. Workspace entry points resolve directly to TypeScript/TSX for Vite development. CI checks React 18 packed consumers with TypeScript 7/bundler, Vite 8, and Webpack 5. CRA/Jest consumers should allow the ESM packages through Babel's dependency transform:
 
 ```json
 {

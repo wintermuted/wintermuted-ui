@@ -5,7 +5,7 @@
 This is an Nx monorepo with npm workspaces and one root lockfile.
 
 - `packages/ui-theme`: published `@wintermuted/ui-theme`, with `index.css`, `index.js`, and `styles/`.
-- `packages/ui-react/src`: canonical React JavaScript and hand-authored declarations, including select integration and theme utilities.
+- `packages/ui-react/src`: canonical React TSX components and TypeScript theme utilities; declarations are generated during the package build.
 - `packages/showcase`: private, versioned static HTML documentation using Vite. Categorized page sources live in `src/pages`, shared layouts/plugin in `src/templates`, styles in `src/styles`, and React examples in `src/examples`. `src/site.config.mjs` maps nested sources to stable public filenames. Shared classic JavaScript remains in `public/showcase.js`.
 - `scripts`: consumer linking, release migration, packaging, and checks.
 
@@ -14,7 +14,9 @@ This is an Nx monorepo with npm workspaces and one root lockfile.
 - Styles are plain CSS. Use `--wm-*` tokens from `packages/ui-theme/styles/tokens.css`.
 - Keep component styles scoped. Register new styles in `packages/ui-theme/styles/components.css` and the theme package's `exports`.
 - Update showcase pages and navigation alongside components. Navigation tiles use `.component-index` and `.component-card`.
-- React components remain plain JavaScript with `.d.ts` declarations; do not distribute TSX or bundle React.
+- Author React components in typed TSX and React-free helpers in TypeScript. Publish compiled JavaScript and generated `.d.ts` declarations; do not distribute TSX or bundle React.
+- Keep each main-entry React component in its own `src/components/*.tsx` file, shared interfaces in `src/interfaces.ts`, and `src/index.tsx` as a re-export-only barrel. Internal modules import dependencies directly rather than through the barrel.
+- Give every React component a dedicated unit test in `tests/react/<Component>.test.js` and register it in `tests/react-components.test.js`. Reuse shared DOM setup and retain cross-component integration coverage.
 - Keep react-select isolated to `ui-react/select`; it is an optional peer of the React package.
 - Keep React components and theme runtime helpers exclusively in `ui-react/src`; do not copy them into `ui-theme`.
 - Keep the CSS-only root export free of React imports and global runtime effects.

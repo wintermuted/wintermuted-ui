@@ -4,20 +4,23 @@
   "description": "React components and theme utilities for Wintermuted UI.",
   "type": "module",
   "license": "MIT",
-  "main": "./src/index.js",
-  "types": "./src/index.d.ts",
+  "main": "./src/index.tsx",
+  "types": "./src/index.tsx",
   "exports": {
-    ".": { "types": "./src/index.d.ts", "default": "./src/index.js" },
-    "./select": { "types": "./src/select.d.ts", "default": "./src/select.js" },
-    "./theme": { "types": "./src/theme.d.ts", "default": "./src/theme.js" }
+    ".": { "types": "./src/index.tsx", "default": "./src/index.tsx" },
+    "./select": { "types": "./src/select.tsx", "default": "./src/select.tsx" },
+    "./theme": { "types": "./src/theme.ts", "default": "./src/theme.ts" }
   },
   "typesVersions": {
     "*": {
-      "select": ["src/select.d.ts"],
-      "theme": ["src/theme.d.ts"]
+      "select": ["src/select.tsx"],
+      "theme": ["src/theme.ts"]
     }
   },
   "files": ["src/**/*.js", "src/**/*.d.ts", "README.md", "LICENSE"],
+  "scripts": {
+    "prepack": "node ../../scripts/block-react-source-pack.mjs"
+  },
   "sideEffects": false,
   "repository": {
     "type": "git",

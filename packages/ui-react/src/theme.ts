@@ -1,10 +1,12 @@
-export const DEFAULT_THEME_KEY = "wintermuted:theme";
+export type ThemePreference = "system" | "light" | "dark";
+export type ResolvedTheme = "light" | "dark";
+export const DEFAULT_THEME_KEY: string = "wintermuted:theme";
 
-export function isThemePreference(value) {
+export function isThemePreference(value: unknown): value is ThemePreference {
   return value === "system" || value === "light" || value === "dark";
 }
 
-export function readThemePreference(storageKey = DEFAULT_THEME_KEY) {
+export function readThemePreference(storageKey = DEFAULT_THEME_KEY): ThemePreference {
   if (typeof window === "undefined") return "system";
   try {
     const stored = window.localStorage.getItem(storageKey);
@@ -15,13 +17,13 @@ export function readThemePreference(storageKey = DEFAULT_THEME_KEY) {
   }
 }
 
-export function resolveTheme(preference) {
+export function resolveTheme(preference: ThemePreference): ResolvedTheme {
   return preference === "system"
     ? (typeof window !== "undefined" && window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light")
     : preference;
 }
 
-export function applyTheme(preference) {
+export function applyTheme(preference: ThemePreference): ResolvedTheme {
   const resolved = resolveTheme(preference);
   if (typeof document !== "undefined") {
     document.documentElement.dataset.theme = resolved;
@@ -30,7 +32,7 @@ export function applyTheme(preference) {
   return resolved;
 }
 
-export function initTheme({ storageKey = DEFAULT_THEME_KEY } = {}) {
+export function initTheme({ storageKey = DEFAULT_THEME_KEY }: { storageKey?: string } = {}): ResolvedTheme {
   return applyTheme(readThemePreference(storageKey));
 }
 

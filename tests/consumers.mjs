@@ -16,10 +16,39 @@ if (!npmCli) throw new Error("Run this check through npm run test:pack or npm ru
 const runNpm = (args, cwd) => execFileSync(process.execPath, [npmCli, ...args], {
   cwd, encoding: "utf8", stdio: ["ignore", "pipe", "inherit"],
 });
+const packageOnly = process.argv.includes("--package-only");
 try {
+  const reactDist = join(root, "dist", "packages", "ui-react");
+  assert.ok(existsSync(join(reactDist, "package.json")), "Missing compiled React package; CI must build ui-react before consumer checks.");
+  const reactManifest = JSON.parse(readFileSync(join(reactDist, "package.json"), "utf8"));
+  assert.equal(reactManifest.scripts?.prepack, undefined, "The compiled package must not retain the source-only pack guard.");
+  const reactPacked = JSON.parse(runNpm(["pack", reactDist, "--json", "--pack-destination", temp], root))[0];
+  assert.match(reactManifest.main, /\.js$/);
+  assert.match(reactManifest.types, /\.d\.ts$/);
+  for (const targets of Object.values(reactManifest.exports)) {
+    assert.match(targets.default, /\.js$/);
+    assert.match(targets.types, /\.d\.ts$/);
+    for (const target of Object.values(targets)) {
+      assert.ok(reactPacked.files.some(file => file.path === target.replace(/^\.\//, "")), `Missing packed export: ${target}`);
+    }
+  }
+  assert.ok(!reactPacked.files.some(file => /\.tsx?$/.test(file.path) && !file.path.endsWith(".d.ts")),
+    "React package must not ship TypeScript implementation files.");
   const packed = JSON.parse(runNpm(["pack", "--workspace=@wintermuted/ui-theme", "--json", "--pack-destination", temp], root))[0];
   const tarball = join(temp, packed.filename);
   const css = join(temp, "css-only");
+  const typecheck = (file, moduleResolution) => {
+    writeFileSync(join(css, "tsconfig.json"), JSON.stringify({
+      compilerOptions: { strict: true, noEmit: true, moduleResolution,
+        module: moduleResolution === "NodeNext" ? "NodeNext" : "ESNext",
+        target: "ES2020", jsx: "react-jsx", esModuleInterop: true, skipLibCheck: false },
+      files: [file],
+    }));
+    const typescriptManifest = require.resolve("typescript/package.json");
+    const typescriptBin = JSON.parse(readFileSync(typescriptManifest, "utf8")).bin.tsc;
+    execFileSync(process.execPath, [resolve(dirname(typescriptManifest), typescriptBin), "-p", join(css, "tsconfig.json")],
+      { cwd: css, stdio: "inherit" });
+  };
   const { mkdirSync } = await import("node:fs");
   mkdirSync(css);
   writeFileSync(join(css, "package.json"), JSON.stringify({ private: true, type: "module" }));
@@ -43,10 +72,37 @@ try {
   assert.ok(!existsSync(join(installed, "node_modules", "react")));
 
   runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund",
-    "react@18.3.1", "react-dom@18.3.1", "react-select@5",
+    "react@18.3.1", "react-dom@18.3.1",
     "@types/react@18", "@types/react-dom@18"], css);
-  const reactPacked = JSON.parse(runNpm(["pack", "--workspace=@wintermuted/ui-react", "--json", "--pack-destination", temp], root))[0];
   runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", join(temp, reactPacked.filename)], css);
+  assert.throws(() => resolveInstalled.resolve("react-select"), { code: "MODULE_NOT_FOUND" });
+  const resolveReact = createRequire(join(css, "node_modules", "@wintermuted", "ui-react", "package.json"));
+  assert.throws(() => resolveReact.resolve("react-select"), { code: "MODULE_NOT_FOUND" });
+  execFileSync(process.execPath, ["--input-type=module", "-e", `
+import assert from "node:assert/strict";
+import React from "react";
+import {renderToString} from "react-dom/server";
+import {Button, ThemeProvider} from "@wintermuted/ui-react";
+import {initTheme, getThemeScript} from "@wintermuted/ui-react/theme";
+assert.match(renderToString(React.createElement(ThemeProvider, null,
+  React.createElement(Button, null, "Without optional select"))), /Without optional select/);
+assert.equal(initTheme(), "light");
+assert.ok(getThemeScript().includes("wintermuted:theme"));
+`], { cwd: css, stdio: "inherit" });
+  if (!packageOnly) {
+    writeFileSync(join(css, "without-select.tsx"), `
+import * as React from "react";
+import {Button, Card, ThemeProvider} from "@wintermuted/ui-react";
+import type {ButtonProps, ThemeContextValue} from "@wintermuted/ui-react";
+import {initTheme} from "@wintermuted/ui-react/theme";
+const props: ButtonProps = {onClick: event => event.currentTarget.focus()};
+export function readTheme(context: ThemeContextValue) { return context.resolvedTheme; }
+export const app = <ThemeProvider><Card><Button {...props}>Refresh</Button></Card></ThemeProvider>;
+initTheme();
+`);
+    for (const resolution of ["bundler", "NodeNext"]) typecheck("without-select.tsx", resolution);
+  }
+  runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", "react-select@5"], css);
   const docs = new JSDOM(readFileSync(join(root, "packages", "showcase", "src", "pages", "foundations", "react.html"), "utf8"));
   const example = [...docs.window.document.querySelectorAll("pre code")]
     .map(node => node.textContent).find(code => code.startsWith("import "));
@@ -78,7 +134,7 @@ assert.match(renderToString(React.createElement(Button, null, "Standalone")), /S
 assert.match(renderToString(React.createElement(MultiSelect, {options: []})), /input/);
 assert.equal(initTheme(), "light");
 `], { cwd: css, stdio: "inherit" });
-  if (!process.argv.includes("--package-only")) {
+  if (!packageOnly) {
   writeFileSync(join(css, "consumer.tsx"), `
 import * as React from "react";
 import {Button, Card, CardTitle, Input, Select, ListItem, Table, Dialog, Tabs, Menu, ThemeProvider, ThemeSelect} from "@wintermuted/ui-react";
@@ -99,15 +155,7 @@ export const app = <ThemeProvider><Card as="article"><CardTitle as="h4">Stops</C
 <Menu label="Actions" items={[{id:"a", label:"Refresh", onSelect: e => e.currentTarget.focus()}]}/>
 </Card></ThemeProvider>;
 `);
-  writeFileSync(join(css, "tsconfig.json"), JSON.stringify({
-    compilerOptions: { strict: true, noEmit: true, moduleResolution: "bundler", module: "ESNext",
-      target: "ES2020", jsx: "react-jsx", esModuleInterop: true, skipLibCheck: false },
-    files: ["consumer.tsx"],
-  }));
-  const typescriptManifest = require.resolve("typescript/package.json");
-  const typescriptBin = JSON.parse(readFileSync(typescriptManifest, "utf8")).bin.tsc;
-  execFileSync(process.execPath, [resolve(dirname(typescriptManifest), typescriptBin), "-p", join(css, "tsconfig.json")],
-    { cwd: css, stdio: "inherit" });
+  for (const resolution of ["bundler", "NodeNext"]) typecheck("consumer.tsx", resolution);
   writeFileSync(join(css, "main.js"), `
 import "@wintermuted/ui-theme/index.css";
 import React from "react";
@@ -135,9 +183,9 @@ React.createElement(MultiSelect, {options:[{label:"Main",value:1}]})));
       else ok();
     }));
   });
-  console.log("Packed CSS-only, React 18, TypeScript 7/bundler, Vite 8 and Webpack 5 consumers passed.");
+  console.log("Packed CSS-only, React 18 with/without react-select, TypeScript 7 bundler/NodeNext, Vite 8 and Webpack 5 consumers passed.");
   } else {
-    console.log("Packed CSS-only install, optional peers, React 18 SSR imports and React-free theme imports passed.");
+    console.log("Packed CSS-only install, React 18 SSR with/without react-select, and React-free theme imports passed.");
   }
 } finally {
   rmSync(temp, { recursive: true, force: true });

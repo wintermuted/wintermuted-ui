@@ -63,7 +63,7 @@ Light/dark appearance is controlled by document theme attributes and CSS tokens.
 
 ## React integration
 
-React source remains plain JavaScript with hand-authored `.d.ts` declarations:
+React components are authored in TypeScript/TSX and published as JavaScript with generated `.d.ts` declarations:
 
 | Entry point | Purpose | Runtime boundary |
 | --- | --- | --- |
@@ -95,9 +95,9 @@ Preferences are System, Light, or Dark. Overrides persist in local storage; Syst
 
 ## Source and package artifacts
 
-`packages/ui-react/src` is the canonical implementation. Its Nx `build` target runs `scripts/stage-react.mjs`, copying source, declarations, README, license, and a manifest without Nx metadata to `dist/packages/ui-react`.
+`packages/ui-react/src` is the canonical TypeScript/TSX implementation. Its Nx `build` target runs `scripts/stage-react.mjs`, compiling ESM and declarations and copying README, license, and a manifest without Nx metadata to `dist/packages/ui-react`.
 
-Staging is packaging preparation, not transpilation or bundling. `nx pack ui-react` and its release publish target use the staged directory. Direct `npm pack --workspace=@wintermuted/ui-react` uses the source workspace's `files` list, as exercised by the consumer tests.
+Compilation generates declarations without bundling peers. `nx pack ui-react` and its release publish target use the staged directory with JavaScript/declaration export paths. Consumer tests pack that same compiled output; do not pack the TypeScript source workspace directly.
 
 The theme publishes its source styles directly. Theme 1.0 no longer copies React files during `prepack`; generated legacy React copies must not become a second source of truth.
 
