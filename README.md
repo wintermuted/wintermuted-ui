@@ -7,6 +7,7 @@ Nx-powered design-system monorepo using npm workspaces and one root lockfile.
 | `packages/ui-theme` | `ui-theme` | Published `@wintermuted/ui-theme` CSS/JS package |
 | `packages/ui-react` | `ui-react` | Existing React components and declarations, extracted into a separate package |
 | `packages/showcase` | `showcase` | Private, versioned static documentation and React examples powered by Vite |
+| `packages/storybook` | `storybook` | Private React component playground and interactive documentation; not released |
 
 ## Documentation
 
@@ -24,6 +25,14 @@ npm run showcase:serve
 Open `http://localhost:4174/showcase/`. The HTML pages, React examples, and light/dark behavior are preserved. `npm run showcase:open` starts Vite and opens the site; the `:sample-data` and `:forms` variants open those pages.
 
 Accept `.github/github-app.yml` when prompted in the Copilot app to enable automatic dependency installation and the manual showcase script. Automatic browser opening remains disabled. Stop an existing server before starting another: port 4174 is fixed.
+
+For isolated React component development, run:
+
+```sh
+npm run storybook:serve
+```
+
+Open `http://127.0.0.1:6006`. [Storybook](packages/storybook/README.md) covers all exported React components with controls, generated docs, accessibility inspection, and light/dark switching. Compound Card and ListGroup primitives are documented together with dedicated slot examples. It complements the showcase without replacing its pages or deployment. CI builds a downloadable `storybook-static` artifact; Storybook is not publicly hosted or independently released.
 
 ## Package usage
 

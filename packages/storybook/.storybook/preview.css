@@ -1,0 +1,44 @@
+.wm-storybook-preview {
+  padding: var(--wm-space-4);
+  color: var(--wm-color-text);
+  background: var(--wm-color-bg);
+  font-family: var(--wm-font-sans);
+}
+
+.wm-storybook-preview .wm-storybook-field {
+  display: grid;
+  gap: var(--wm-space-2);
+  max-width: 28rem;
+}
+
+.wm-storybook-preview .wm-storybook-stack {
+  display: grid;
+  gap: var(--wm-space-4);
+}
+
+.wm-storybook-preview .wm-storybook-menu-stage {
+  min-height: 14rem;
+}
+
+.wm-storybook-preview .wm-storybook-tooltip-stage {
+  padding-block: var(--wm-space-6);
+}
+
+.wm-storybook-preview .wm-storybook-popover-stage,
+.wm-storybook-preview .wm-storybook-dropup-stage {
+  display: flex;
+  align-items: flex-end;
+  padding-block-end: var(--wm-space-6);
+}
+
+.wm-storybook-preview .wm-storybook-popover-stage {
+  min-height: 22rem;
+}
+
+.wm-storybook-preview .wm-storybook-dropup-stage {
+  min-height: 14rem;
+}
+
+.wm-storybook-preview .wm-storybook-toast-stage {
+  min-height: 16rem;
+}

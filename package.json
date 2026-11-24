@@ -18,6 +18,8 @@
     "showcase:open:sample-data": "nx serve showcase --open=/showcase/sample-data.html",
     "showcase:open:forms": "nx serve showcase --open=/showcase/forms.html",
     "showcase:view": "npm run showcase:serve",
+    "storybook:serve": "nx serve storybook",
+    "storybook:build": "nx build storybook",
     "build": "nx run-many -t build",
     "lint": "nx run ui-theme:lint",
     "typecheck": "nx run ui-react:typecheck",
