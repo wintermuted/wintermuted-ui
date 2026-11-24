@@ -1,0 +1,12 @@
+.wm-storybook-preview {
+  padding: var(--wm-space-4);
+  color: var(--wm-color-text);
+  background: var(--wm-color-bg);
+  font-family: var(--wm-font-sans);
+}
+
+.wm-storybook-preview .wm-storybook-field {
+  display: grid;
+  gap: var(--wm-space-2);
+  max-width: 28rem;
+}
