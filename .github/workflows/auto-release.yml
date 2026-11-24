@@ -65,28 +65,12 @@ jobs:
           verify_dir="$(mktemp -d "$RUNNER_TEMP/showcase-archive.XXXXXX")"
           tar -xzf "dist/showcase-$SHOWCASE_VERSION.tar.gz" -C "$verify_dir"
           diff -qr dist/packages/showcase "$verify_dir"
-      - name: Publish packages with Nx Release (trusted)
-        id: publish_trusted
+      - name: Publish and verify each prepared package
         if: steps.release.outputs.projects != ''
-        continue-on-error: true
-        run: npm run release:publish -- --projects="$RELEASE_PROJECTS"
+        run: node scripts/release-publication.mjs
         env:
           RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
-      - name: Publish packages with Nx Release (token fallback)
-        id: publish_token
-        if: steps.release.outputs.projects != '' && steps.publish_trusted.outcome != 'success'
-        continue-on-error: true
-        run: |
-          npm config set //registry.npmjs.org/:_authToken "$NODE_AUTH_TOKEN"
-          npm run release:publish -- --projects="$RELEASE_PROJECTS"
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
-      - name: Ensure publication succeeded
-        if: steps.release.outputs.projects != '' && steps.publish_trusted.outcome != 'success' && steps.publish_token.outcome != 'success'
-        run: |
-          echo "Nx Release publication failed with both trusted publishing and token authentication."
-          exit 1
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
       - name: Push the release commit and package tags atomically
         if: steps.release.outputs.released == 'true'
         env:

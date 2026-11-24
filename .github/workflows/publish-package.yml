@@ -15,6 +15,10 @@ on:
         description: "Preview publication without publishing"
         type: boolean
         default: true
+      verify_only:
+        description: "Only download and verify the registry version; no tag is required and nothing is published"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -34,17 +38,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.release_tag }}
+          ref: ${{ inputs.verify_only && github.sha || inputs.release_tag }}
           fetch-depth: 0
+      - name: Inspect the exact registry version and verify its tarball
+        if: inputs.verify_only
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+        run: node scripts/release-publication.mjs --inspect "$RELEASE_TAG"
       - uses: actions/setup-node@v4
+        if: ${{ !inputs.verify_only }}
         with:
           node-version: 22
           registry-url: https://registry.npmjs.org
           cache: npm
       - name: Install npm with trusted publishing support
+        if: ${{ !inputs.verify_only }}
         run: npm install --global npm@11.5.1 --registry=https://registry.npmjs.org
       - run: npm ci --no-audit --no-fund
+        if: ${{ !inputs.verify_only }}
       - name: Verify package release identity
+        if: ${{ !inputs.verify_only }}
         env:
           RELEASE_TAG: ${{ inputs.release_tag }}
           RELEASE_PROJECT: ${{ inputs.project }}
@@ -55,9 +68,10 @@ jobs:
             exit 1
           fi
       - name: Stage React package
-        if: inputs.project == 'ui-react'
+        if: ${{ !inputs.verify_only && inputs.project == 'ui-react' }}
         run: npx nx build ui-react
       - name: Publish package through Nx Release
+        if: ${{ !inputs.verify_only }}
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           DRY_RUN: ${{ inputs.dry_run }}

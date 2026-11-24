@@ -25,6 +25,7 @@ Legacy `vX.Y.Z` theme tags are retained. Do not rewrite them, move an existing p
 | `nx.json` | Released projects, independent versions, tag format, conventional commits, dependency updates, changelogs |
 | `packages/*/package.json` | Public exports, package files, dependencies, pack/publish targets |
 | `scripts/release.mjs` | Dry run, preparation state, and GitHub release finalization |
+| `scripts/release-publication.mjs` | Per-package authentication fallback and exact downloadable-content verification |
 | `scripts/release-changelog.mjs` | Finalize each changed project's notes from its own pre-release baseline |
 | `scripts/release-baseline.mjs` | Temporary legacy/first-React baselines and initial showcase release detection |
 | `scripts/stage-react.mjs` | Assemble the React package without bundling peers |
@@ -85,9 +86,10 @@ flowchart TD
     Changes -->|"Yes"| Stage["Stage public packages; build/check/archive released showcase"]
     Stage --> Public{"Public packages released?"}
     Public -->|"No"| Push
-    Public -->|"Yes"| Trusted["Publish only prepared public projects with provenance / trusted publishing"]
+    Public -->|"Yes"| Trusted["Verify existing content; publish each missing prepared package with provenance / trusted publishing"]
     Trusted --> Result{"Publication succeeded?"}
-    Result -->|"No"| Token["Retry with NPM_TOKEN fallback"]
+    Result -->|"Confirmed pre-submission login rejection"| Token["Verify registry; retry only the failed package with NPM_TOKEN"]
+    Result -->|"Uncertain failure and still invisible"| Block
     Token --> Retry{"Publication succeeded?"}
     Retry -->|"No"| Block["Fail: do not push release commit or tags"]
     Result -->|"Yes"| Push["Atomically push release commit + package tags"]
@@ -109,7 +111,9 @@ The wrapper has three modes:
 | `--prepare` | Require a clean checkout, run Nx version/changelog preparation, create local commit/tags, save state |
 | `--finalize` | Require saved state matching HEAD; create GitHub releases without re-versioning or pushing |
 
-Preparation writes `.nx/release-state.json` with each project's pre-release baseline commit, project version data, and prepared commit. Workflow outputs distinguish any release (`released`), a theme release (`theme_released`), and a showcase release (`showcase_released`). `projects` contains only changed npm-publishable project names; `tags` contains all release tags, including showcase. Both npm attempts use the public project filter and are skipped when it is empty. Showcase outputs also include its version and tag.
+Preparation writes `.nx/release-state.json` with each project's pre-release baseline commit, project version data, and prepared commit. Workflow outputs distinguish any release (`released`), a theme release (`theme_released`), and a showcase release (`showcase_released`). `projects` contains only changed npm-publishable project names; `tags` contains all release tags, including showcase. Publication is skipped when the public project filter is empty. Showcase outputs also include its version and tag.
+
+Publication processes public projects individually. Before publishing, it checks the exact registry version and downloads its tarball, verifies SHA-1 and SHA-512, and compares the published checksum with the prepared package's `npm pack --dry-run --ignore-scripts` checksum. Identical existing content is skipped; different content or registry/transport errors fail closed. A trusted failure is checked again read-only. Token fallback is allowed only for npm's confirmed pre-submission `ENEEDAUTH` login rejection, identified from the captured summary/detail that Nx preserves; it targets only that package and uses a temporary credential configuration. A 404 after an uncertain failed command is not proof of rejection: staged/delayed visibility stops recovery without resubmission. Other failures, including generic HTTP authentication errors, are not classified as safe fallback. After submission, the package must be downloadable and match before Git references or releases advance.
 
 Finalization generates notes separately for each changed project, from its saved baseline to the prepared commit. The React baseline advances independently of the theme, preventing earlier React-only changes from appearing again in later releases. Finalization depends on that state; a fresh tagged checkout alone cannot reconstruct it.
 
@@ -163,6 +167,21 @@ Identify the failed stage and inspect npm and GitHub before retrying. Never infe
 | Downstream dispatch | Packages, tags, and GitHub releases exist | Retry the dispatch for the existing theme version; do not create another package release. |
 
 If main advanced after a failed run, do not blindly rerun an older preparation and publish different content under an existing npm version. Compare the release logs, manifests, tags, and registry first. A published npm version is immutable.
+
+### Complementary publication successes and staged conflicts
+
+Run `45313138618` prepared `1.0.1` from source commit `a8308b4e69c0f40b494baae1f0464004547f4b4e`. Its trusted attempt accepted theme `1.0.1` (SHA-1 `8c2bbaea765c35abaa76c2406972f1a431b23594`) but React required login. The blanket token retry accepted React `1.0.1` (SHA-1 `f403e5810f1825f843da249f0f04e251b6116467`) and failed on the previously accepted theme with `409 Cannot publish over previously staged version`. The failed aggregate status therefore does not mean either submission failed, and “staged” alone does not establish public availability or a required npm approval.
+
+Use the recovery workflow's read-only `verify_only=true` mode to inspect an exact registry version even when its Git tag was never pushed:
+
+```sh
+gh workflow run publish-package.yml --repo wintermuted/wintermuted-ui -f release_tag=ui-theme@1.0.1 -f verify_only=true
+gh workflow run publish-package.yml --repo wintermuted/wintermuted-ui -f release_tag=ui-react@1.0.1 -f verify_only=true
+```
+
+This mode downloads and verifies the tarball and reports exact dependency ranges and checksums; it does not publish, create tags, or finalize releases. Compare its checksums with the failed run before recovering missing Git references. Local npm transport failures are not proof of absent versions. If npm has accepted a version but it remains unavailable, a package maintainer must inspect npm's package settings/status and any actual approval request, or contact npm support. Do not delete/unpublish versions, bypass approval gates, or bump versions to conceal the conflict. React trusted publishing still requires its own authorized configuration; token fallback does not repair that configuration.
+
+On November 23, 2026, read-only verification runs [45315774312](https://github.com/wintermuted/wintermuted-ui/actions/runs/45315774312) (theme) and [45315777648](https://github.com/wintermuted/wintermuted-ui/actions/runs/45315777648) (React) downloaded both `1.0.1` tarballs and verified their SHA-1/SHA-512 digests. Both SHA-1 values matched the original publication logs; React required theme `^1.0.1`. No new publication or npm approval was needed. The failed run had not pushed `ui-theme@1.0.1`, `ui-react@1.0.1`, or `showcase@0.2.1`, so registry recovery and Git/GitHub release reconciliation remain distinct.
 
 ### Existing-tag publication recovery
 
