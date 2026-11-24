@@ -1,3 +1,13 @@
+## 0.2.1 (2026-11-24)
+
+### 🩹 Fixes
+
+- release all packages after typed TSX migration ([#39](https://github.com/wintermuted/wintermuted-ui/pull/39))
+
+### ❤️ Thank You
+
+- Jameson Nyeholt @wintermuted
+
 ## 0.2.0 (2026-11-23)
 
 ### 🚀 Features
