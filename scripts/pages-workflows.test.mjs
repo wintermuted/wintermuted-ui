@@ -55,6 +55,21 @@ test("Pages deploy and cleanup queue pending runs instead of replacing cleanup e
   }
 });
 
+test("cleanup limits Pages and OIDC permissions to the publication job", () => {
+  const permissions = cleanup.match(/^permissions:\n((?:  [^\n]*\n)*)/m)?.[1];
+  assert.equal(permissions?.trim(), "contents: write");
+  const publishStart = cleanup.indexOf("\n  publish:\n");
+  assert.ok(publishStart > 0);
+  const cleanupJob = cleanup.slice(cleanup.indexOf("\n  cleanup:\n"), publishStart);
+  const publishJob = cleanup.slice(publishStart);
+  assert.doesNotMatch(cleanupJob, /^\s+permissions:/m);
+  assert.doesNotMatch(cleanupJob, /actions\/configure-pages/);
+  assert.match(publishJob, /permissions:\n      pages: write\n      id-token: write/);
+  assert.doesNotMatch(publishJob, /contents: write/);
+  assert.ok(publishJob.includes("uses: actions/configure-pages@v5"));
+  assert.ok(publishJob.indexOf("actions/configure-pages@v5") < publishJob.indexOf("actions/deploy-pages@v4"));
+});
+
 test("cleanup republishes an existing Pages tree on retry even after its preview was removed", (t) => {
   const { cwd, git, run } = fixture(t);
   assert.match(run(), /^ready=true$/m);
@@ -76,9 +91,7 @@ test("cleanup republishes an existing Pages tree on retry even after its preview
   assert.match(cleanup, /artifact_name: \$\{\{ format\('github-pages-\{0\}', github\.run_attempt\) \}\}/);
   assert.match(cleanup, /name: github-pages-\$\{\{ github\.run_attempt \}\}/);
   assert.match(cleanup, /artifact_name: \$\{\{ needs\.cleanup\.outputs\.artifact_name \}\}/);
-  for (const step of ["Configure Pages", "Upload cleaned Pages artifact"]) {
-    assert.ok(cleanup.includes(`- name: ${step}\n        if: steps.remove.outputs.ready == 'true'`));
-  }
+  assert.ok(cleanup.includes("- name: Upload cleaned Pages artifact\n        if: steps.remove.outputs.ready == 'true'"));
 });
 
 test("cleanup skips Pages publication only when the gh-pages branch does not exist", (t) => {

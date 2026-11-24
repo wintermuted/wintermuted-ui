@@ -132,6 +132,8 @@ The private `packages/storybook` workspace complements the showcase with interac
 
 The documentation Pages workflow builds both sites and runs `scripts/stage-pages.mjs` to check Storybook entry-point assets and assemble one shared tree. Production replacement preserves `.git` and `previews/`; a PR replaces only `previews/pr-<number>/`, containing both `showcase/` and `storybook/`. Preview comments link to both sites only after Pages succeeds. The cleanup workflow deletes the closed PR's whole tree and republishes the remaining artifact so removal takes effect on the live site. It republishes even when that directory is already absent, making retries reconcile live Pages after a successful branch update but failed publication. Both workflows share the `pages` concurrency group with `queue: max` to retain up to 100 pending runs instead of replacing an earlier cleanup.
 
+In the cleanup workflow, the branch-update job has only `contents: write`. Pages configuration and publication run in a separate job with only `pages: write` and `id-token: write`; the cleanup steps do not receive Pages/OIDC privileges.
+
 Markdown architecture/release documentation stays in `docs` on GitHub; it is not an HTML build input.
 
 ## Validation responsibilities
