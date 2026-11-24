@@ -61,7 +61,7 @@ npx nx pack ui-theme
 npx nx pack ui-react
 ```
 
-The theme needs no CSS compilation. React's build stages its existing ESM and declarations into `dist/packages/ui-react`, without bundling peers. Vite builds every showcase HTML page into `dist/packages/showcase/showcase`, using relative URLs compatible with nested previews. Workspace dependencies and shared configuration participate in Nx cache invalidation.
+The theme needs no CSS compilation. React's build compiles TypeScript/TSX to ESM and generates declarations in `dist/packages/ui-react`, without bundling peers. Vite builds every showcase HTML page into `dist/packages/showcase/showcase`, using relative URLs compatible with nested previews. Workspace dependencies and shared configuration participate in Nx cache invalidation.
 
 CI owns lint, typecheck, and build validation. Behavioral and package checks are available locally:
 
@@ -71,7 +71,7 @@ npm run test:pack
 npm run test:browser
 ```
 
-`test:consumers` additionally runs TypeScript 7, Vite 8, and Webpack 5 consumer checks in CI.
+`test:pack` requires compiled React output from CI; it never builds locally. `test:consumers` additionally runs TypeScript 7 bundler/NodeNext, Vite 8, and Webpack 5 consumer checks in CI, including React usage without the optional react-select peer. Node behavior tests transform TSX source directly, and Vite resolves workspace source during showcase development.
 
 ## Local consumer linking
 

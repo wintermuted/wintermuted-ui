@@ -90,10 +90,10 @@ Existing Vite and Webpack CSS loading remains unchanged. Do not alias the remove
 
 Declare `ui-react` in each workspace that imports its JavaScript. Shared React libraries should declare appropriate peers or dependencies on `ui-react`, rather than relying on another workspace's installation.
 
-The repository's `link:local` helper links only the CSS theme. To test React changes in an external consumer, also link the React workspace from the monorepo root:
+The repository's `link:local` helper links only the CSS theme. To test React changes in an external consumer, link the compiled React package from the monorepo root after CI has produced it. Internal Vite workspaces resolve TSX source directly; external consumers should use the distributable JavaScript:
 
 ```sh
-npm link --workspace=@wintermuted/ui-react
+npm link ./dist/packages/ui-react
 ```
 
 Then, from the consumer:

@@ -22,7 +22,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci --no-audit --no-fund
-      - run: npm test
+      - name: Run all unit and integration tests, including React components
+        run: npm test
       - name: Build and typecheck Nx projects
         run: npx nx run-many -t build typecheck
       - run: npm run test:showcase-output
@@ -30,4 +31,5 @@ jobs:
         run: npm run release -- --dry-run
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
-      - run: npm run test:consumers
+      - name: Verify compiled npm packages, optional-peer isolation, and bundler/NodeNext consumers
+        run: npm run test:consumers

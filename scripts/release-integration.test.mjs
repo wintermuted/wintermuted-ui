@@ -109,7 +109,7 @@ test("independent releases filter publication, advance changelog baselines, and 
   assert.equal(git("rev-list", "-n", "1", "ui-theme@1.0.0"), state.commit);
   assert.equal(git("rev-list", "-n", "1", "ui-react@1.0.0"), state.commit);
   assert.match(output, /Skipped publishing packages/);
-  const reactSource = join(cwd, "packages", "ui-react", "src", "index.js");
+  const reactSource = join(cwd, "packages", "ui-react", "src", "index.tsx");
   writeFileSync(reactSource, `${readFileSync(reactSource, "utf8")}\n// React-only release fixture\n`);
   git("add", ".");
   git("commit", "--quiet", "-m", "fix: update React integration");
@@ -246,7 +246,7 @@ test("showcase bootstraps at 0.1.0, releases independently, and follows dependen
   }, second);
   assert.match(notes[0], /correct the showcase/);
   assert.doesNotMatch(notes[0], /version the showcase/);
-  const reactSource = join(cwd, "packages", "ui-react", "src", "index.js");
+  const reactSource = join(cwd, "packages", "ui-react", "src", "index.tsx");
   writeFileSync(reactSource, `${readFileSync(reactSource, "utf8")}\n// dependency update\n`);
   git("add", ".");
   git("commit", "--quiet", "-m", "fix: update a showcase dependency");
