@@ -4,6 +4,11 @@ import type { NumberStepperProps } from "../interfaces.js";
 import { Button } from "./Button.js";
 import { Tooltip } from "./Tooltip.js";
 
+function decimalPlaces(value: number): number {
+  const [coefficient, exponent = "0"] = String(value).split("e");
+  return Math.max(0, (coefficient.split(".")[1]?.length ?? 0) - Number(exponent));
+}
+
 export function NumberStepper({
   value,
   min,
@@ -30,6 +35,13 @@ export function NumberStepper({
       "NumberStepper requires a finite value within bounds and a positive finite step.",
     );
   }
+  function change(direction: number): void {
+    const next = value + direction * step;
+    const precision = Math.max(decimalPlaces(value), decimalPlaces(step));
+    // toFixed supports up to 100 fractional digits; finer steps retain native precision.
+    const rounded = Number.isFinite(next) && precision <= 100 ? Number(next.toFixed(precision)) : next;
+    onChange(Math.min(max, Math.max(min, rounded)));
+  }
   return (
     <div
       className="wm-stepper"
@@ -43,7 +55,7 @@ export function NumberStepper({
           type="button"
           aria-label={decreaseLabel}
           disabled={disabled || value <= min}
-          onClick={() => onChange(Math.max(min, Number((value - step).toPrecision(15))))}
+          onClick={() => change(-1)}
         >
           {decreaseIcon}
         </Button>
@@ -60,7 +72,7 @@ export function NumberStepper({
           type="button"
           aria-label={increaseLabel}
           disabled={disabled || value >= max}
-          onClick={() => onChange(Math.min(max, Number((value + step).toPrecision(15))))}
+          onClick={() => change(1)}
         >
           {increaseIcon}
         </Button>

@@ -16,6 +16,7 @@ test("ToggleGroup preserves controlled selection, disabled choices and canonical
   assert.match(screen.getByRole("group").className, /wm-toggle-group-outline/);
   assert.match(screen.getByRole("group").className, /wm-toggle-group-vertical/);
   view.rerender(h(ToggleGroup, { ...props, disabled: true, appearance: "swatches" }));
+  assert.match(screen.getByRole("group").className, /wm-toggle-group-swatches/);
   assert.equal(screen.getByRole("button", { name: "Invoices" }).disabled, true);
   assert.ok(view.container.querySelector(".wm-toggle-group-swatch"));
 });

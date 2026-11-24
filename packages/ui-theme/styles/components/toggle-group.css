@@ -91,6 +91,11 @@
   justify-content: flex-start;
 }
 
+.wm-toggle-group-swatches .wm-toggle-group-btn {
+  border: 1px solid var(--wm-color-border);
+  border-radius: var(--wm-radius-xs);
+}
+
 /* In vertical layout replace right border with bottom border */
 .wm-toggle-group-vertical .wm-toggle-group-btn {
   border-right: none;
@@ -99,6 +104,11 @@
 
 .wm-toggle-group-vertical .wm-toggle-group-btn:last-child {
   border-bottom: none;
+}
+
+.wm-toggle-group-swatches.wm-toggle-group-vertical .wm-toggle-group-btn,
+.wm-toggle-group-swatches.wm-toggle-group-vertical .wm-toggle-group-btn:last-child {
+  border: 1px solid var(--wm-color-border);
 }
 
 /* ── Active / selected state ─────────────────────────────────────────────── */
@@ -140,4 +150,21 @@
 .wm-toggle-group-outline .wm-toggle-group-btn[aria-pressed="true"] {
   background: color-mix(in srgb, var(--wm-color-accent) 10%, transparent);
   color: var(--wm-color-accent);
+}
+
+.wm-toggle-group-swatches {
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  border: none;
+  overflow: visible;
+}
+
+.wm-toggle-group-swatches .wm-toggle-group-swatch {
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 50%;
+}
+
+.wm-toggle-group-swatches .wm-toggle-group-btn[aria-pressed="true"] {
+  border-color: var(--wm-color-accent-border);
 }

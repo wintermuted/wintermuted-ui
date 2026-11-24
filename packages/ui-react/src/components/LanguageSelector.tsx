@@ -21,10 +21,12 @@ export function LanguageSelector({
       if (event.target instanceof Node && !wrapper.current?.contains(event.target)) setOpen(false);
     }
     document.addEventListener("mousedown", outside);
-    const selectedIndex = options.findIndex((option) => option.value === value && !option.disabled);
-    const index =
-      selectedIndex >= 0 ? selectedIndex : options.findIndex((option) => !option.disabled);
-    optionRefs.current[index]?.focus();
+    if (!optionRefs.current.some((option) => option && option === document.activeElement && !option.disabled)) {
+      const selectedIndex = options.findIndex((option) => option.value === value && !option.disabled);
+      const index =
+        selectedIndex >= 0 ? selectedIndex : options.findIndex((option) => !option.disabled);
+      optionRefs.current[index]?.focus();
+    }
     return () => document.removeEventListener("mousedown", outside);
   }, [open, options, value]);
 
@@ -73,6 +75,7 @@ export function LanguageSelector({
       </select>
     );
   }
+  const selectedLabel = options.find((option) => option.value === value)?.label;
   return (
     <div
       ref={wrapper}
@@ -90,7 +93,7 @@ export function LanguageSelector({
         ref={trigger}
         className="wm-language-trigger"
         type="button"
-        aria-label={label}
+        aria-label={selectedLabel ? `${label}: ${selectedLabel}` : label}
         aria-haspopup="listbox"
         aria-controls={listId}
         aria-expanded={open}
@@ -103,7 +106,7 @@ export function LanguageSelector({
           }
         }}
       >
-        <span>{options.find((option) => option.value === value)?.label}</span>
+        <span>{selectedLabel}</span>
         <span aria-hidden="true">&#x25B4;</span>
       </button>
       {open && (

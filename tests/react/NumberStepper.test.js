@@ -29,3 +29,29 @@ test("NumberStepper rejects invalid bounds, steps and values", () => {
     assert.throws(() => render(h(NumberStepper, { ...props, value: 0.5, onChange() {}, ...invalid })), RangeError);
   }
 });
+
+test("NumberStepper retains integer and fractional step direction and stays within both bounds", () => {
+  let changed;
+  const onChange = value => { changed = value; };
+  const view = render(h(NumberStepper, { ...props, value: 0.5, onChange }));
+  for (const [range, button, expected] of [
+    [{ value: 1000000000000009, min: 1000000000000000, max: 1000000000000009, step: 1 }, "Less", 1000000000000008],
+    [{ value: 1000000000000008, min: 1000000000000000, max: 1000000000000009, step: 1 }, "More", 1000000000000009],
+    [{ value: 1, min: 0, max: 2, step: Number.EPSILON }, "More", 1 + Number.EPSILON],
+    [{ value: 1, min: 0, max: 2, step: Number.EPSILON }, "Less", 1 - Number.EPSILON],
+    [{ value: 0.1234567890123456, min: 0, max: 1, step: 1e-16 }, "More", 0.1234567890123457],
+    [{ value: 0, min: 0, max: 1e-119, step: 1e-120 }, "More", 1e-120],
+    [{ value: Number.MIN_VALUE, min: 0, max: 3 * Number.MIN_VALUE, step: Number.MIN_VALUE }, "More", 2 * Number.MIN_VALUE],
+    [{ value: 0.3, min: 0.25, max: 0.35, step: 0.1 }, "Less", 0.25],
+    [{ value: 0.3, min: 0.25, max: 0.35, step: 0.1 }, "More", 0.35],
+    [{ value: Number.MAX_VALUE / 2, min: 0, max: Number.MAX_VALUE, step: Number.MAX_VALUE }, "More", Number.MAX_VALUE],
+  ]) {
+    changed = undefined;
+    view.rerender(h(NumberStepper, { ...props, ...range, onChange }));
+    fireEvent.click(screen.getByRole("button", { name: button }));
+    assert.equal(changed, expected);
+    assert.ok(changed >= range.min && changed <= range.max);
+    assert.ok(button === "More" ? changed > range.value : changed < range.value);
+    view.rerender(h(NumberStepper, { ...props, ...range, value: changed, onChange }));
+  }
+});

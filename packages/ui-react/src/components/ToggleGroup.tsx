@@ -13,7 +13,7 @@ export function ToggleGroup<Value extends string>({
   fullWidth = false,
   className = "",
 }: ToggleGroupProps<Value>): ReactElement {
-  const groupClass = `wm-toggle-group${orientation === "vertical" ? " wm-toggle-group-vertical" : ""}${fullWidth ? " wm-toggle-group-full" : ""}${appearance === "outline" ? " wm-toggle-group-outline" : ""}`;
+  const groupClass = `wm-toggle-group${orientation === "vertical" ? " wm-toggle-group-vertical" : ""}${fullWidth ? " wm-toggle-group-full" : ""}${appearance !== "segmented" ? ` wm-toggle-group-${appearance}` : ""}`;
   return (
     <div
       className={`${groupClass} ${className}`}

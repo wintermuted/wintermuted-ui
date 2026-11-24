@@ -15,6 +15,7 @@ const section = (title, ...children) => h("section", { className: "react-doc-sec
 
 function ReusableControls() {
   const [view, setView] = useState("orders");
+  const [palette, setPalette] = useState("blue");
   const [departments, setDepartments] = useState(["all"]);
   const [quantity, setQuantity] = useState(0.5);
   const [color, setColor] = useState("#2a4a8a");
@@ -31,6 +32,9 @@ function ReusableControls() {
       h(ToggleGroup, { label: "Documents", value: view, onChange: setView, appearance: "outline", options: [
         { value: "orders", label: "Orders" }, { value: "returns", label: "Returns" },
         { value: "archive", label: "Archive", disabled: true }] }),
+      h(ToggleGroup, { label: "Ink palette", value: palette, onChange: setPalette, appearance: "swatches", options: [
+        { value: "blue", label: "Blue ink", swatchColor: "#2a4a8a" },
+        { value: "green", label: "Green ink", swatchColor: "#137333" }] }),
       h(NumberStepper, { label: "Quantity", value: quantity, min: 0, max: 1, step: 0.1, onChange: setQuantity,
         decreaseLabel: "Decrease quantity", increaseLabel: "Increase quantity", valueLabel: "Current quantity",
         decreaseIcon: "-", increaseIcon: "+" }),

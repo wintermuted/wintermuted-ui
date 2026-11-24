@@ -19,6 +19,13 @@ test("reusable controls preserve native interaction and fit desktop/mobile theme
     await page.route("https://api.github.com/**", route => route.fulfill({ json: [] }));
     await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/showcase/react.html`);
     await page.getByRole("group", { name: "Documents", exact: true }).waitFor();
+    const palette = page.getByRole("group", { name: "Ink palette" });
+    assert.ok(await palette.evaluate(group => {
+      const [first, second] = group.querySelectorAll("button");
+      return second.getBoundingClientRect().left > first.getBoundingClientRect().right;
+    }));
+    await palette.getByRole("button", { name: "Green ink" }).click();
+    assert.equal(await palette.getByRole("button", { name: "Green ink" }).getAttribute("aria-pressed"), "true");
     assert.equal(await page.locator(".wm-facet-filter .wm-checkbox-filter-label").first()
       .evaluate(node => getComputedStyle(node).flexDirection), "row");
     await page.getByRole("button", { name: "Returns", exact: true }).click();
@@ -32,12 +39,15 @@ test("reusable controls preserve native interaction and fit desktop/mobile theme
     await page.getByRole("button", { name: "Reverse vendor" }).click();
     assert.equal(await page.getByRole("columnheader", { name: /Vendor/ }).getAttribute("aria-sort"), "descending");
 
-    const locale = page.getByRole("button", { name: "Popup locale" });
+    const locale = page.getByRole("button", { name: /^Popup locale:/ });
     await locale.click();
     await page.keyboard.press("ArrowDown");
     assert.equal(await page.evaluate(() => document.activeElement.textContent), "German");
+    await page.getByRole("button", { name: "Increase quantity" }).evaluate(button => button.click());
+    assert.equal(await page.evaluate(() => document.activeElement.textContent), "German");
     await page.keyboard.press("Enter");
     assert.equal(await page.getByLabel("Native locale").inputValue(), "de");
+    assert.equal(await page.getByRole("button", { name: "Popup locale: German" }).count(), 1);
     assert.ok(await locale.evaluate(node => node === document.activeElement));
     await locale.click();
     await page.keyboard.press("Escape");
