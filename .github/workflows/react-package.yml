@@ -29,8 +29,8 @@ jobs:
       - name: Use React 18 peers for source behavior and declarations
         if: matrix.react == 18
         run: npm install --no-save --package-lock=false --ignore-scripts --no-audit --no-fund react@18.3.1 react-dom@18.3.1 @types/react@18 @types/react-dom@18
-      - name: Run all unit and integration tests, including React components
-        run: npm test
+      - name: Run React behavior, package boundaries, and showcase tests
+        run: node --test tests/react-components.test.js tests/react.test.js tests/package.test.js tests/showcase.test.js
       - name: Build and typecheck Nx projects
         run: npx nx run-many -t build typecheck
       - run: npm run test:showcase-output
@@ -40,3 +40,5 @@ jobs:
       - run: npm run test:browser
       - name: Verify compiled npm packages, optional-peer isolation, and bundler/NodeNext consumers
         run: npm run test:consumers -- --react-major=${{ matrix.react }}
+      - name: Run complete unit and release integration suite
+        run: npm test
