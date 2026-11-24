@@ -1,7 +1,10 @@
+import type { ComponentProps } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useArgs } from "storybook/preview-api";
 import { fn } from "storybook/test";
-import { Button, Dialog, type DialogProps } from "@wintermuted/ui-react";
+import { Button, Dialog } from "@wintermuted/ui-react";
+
+type DialogProps = ComponentProps<typeof Dialog>;
 
 function DialogExample(args: DialogProps) {
   const [, updateArgs] = useArgs<DialogProps>();

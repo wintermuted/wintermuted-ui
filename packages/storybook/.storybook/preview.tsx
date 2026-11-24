@@ -4,8 +4,8 @@ import { applyTheme, type ResolvedTheme } from "@wintermuted/ui-react/theme";
 import "@wintermuted/ui-theme/index.css";
 import "./preview.css";
 
-function ThemePreview({ theme, children }: { theme: ResolvedTheme; children: ReactNode }) {
-  useLayoutEffect(() => { applyTheme(theme); }, [theme]);
+function ThemePreview({ theme, storyId, children }: { theme: ResolvedTheme; storyId: string; children: ReactNode }) {
+  useLayoutEffect(() => { applyTheme(theme); }, [theme, storyId]);
   return <div className="wm-storybook-preview">{children}</div>;
 }
 
@@ -32,7 +32,7 @@ const preview: Preview = {
   },
   decorators: [
     (Story, context) => (
-      <ThemePreview theme={context.globals.theme === "dark" ? "dark" : "light"}>
+      <ThemePreview theme={context.globals.theme === "dark" ? "dark" : "light"} storyId={context.id}>
         <Story />
       </ThemePreview>
     ),

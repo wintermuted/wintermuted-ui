@@ -32,7 +32,7 @@ For isolated React component development, run:
 npm run storybook:serve
 ```
 
-Open `http://127.0.0.1:6006`. The [Storybook pilot](packages/storybook/README.md) covers Button, Input, Tabs, Dialog, and MultiSelect with controls, generated docs, accessibility inspection, and light/dark switching. It complements the showcase without replacing its pages or deployment. CI builds a downloadable `storybook-static` artifact; Storybook is not publicly hosted or independently released.
+Open `http://127.0.0.1:6006`. [Storybook](packages/storybook/README.md) covers all exported React components with controls, generated docs, accessibility inspection, and light/dark switching. Compound Card and ListGroup primitives are documented together with dedicated slot examples. It complements the showcase without replacing its pages or deployment. CI builds a downloadable `storybook-static` artifact; Storybook is not publicly hosted or independently released.
 
 ## Package usage
 
