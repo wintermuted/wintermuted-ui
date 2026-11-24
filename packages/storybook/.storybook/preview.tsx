@@ -29,6 +29,12 @@ const preview: Preview = {
     layout: "padded",
     controls: { expanded: true },
     backgrounds: { disable: true },
+    options: {
+      storySort: {
+        method: "alphabetical",
+        order: ["Components", ["Actions", "Forms", "Layout", "Navigation", "Data display", "Feedback", "Overlays", "Theming"]],
+      },
+    },
   },
   decorators: [
     (Story, context) => (

@@ -7,7 +7,8 @@ type SortArgs = SortableTableHeaderProps<"name">;
 const projects = [{ name: "Component library", tasks: 18 }, { name: "Documentation", tasks: 7 }];
 
 const meta = {
-  title: "Components/SortableTableHeader",
+  title: "Components/Data display/SortableTableHeader",
+  id: "components-sortabletableheader",
   render: function SortExample(args) {
     const [, updateArgs] = useArgs<SortArgs>();
     const rows = [...projects];

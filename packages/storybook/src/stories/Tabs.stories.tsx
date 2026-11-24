@@ -12,7 +12,8 @@ function TabsExample(args: TabsProps) {
 }
 
 const meta = {
-  title: "Components/Tabs",
+  title: "Components/Navigation/Tabs",
+  id: "components-tabs",
   component: Tabs,
   render: TabsExample,
   args: {

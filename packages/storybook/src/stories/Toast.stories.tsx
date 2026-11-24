@@ -4,7 +4,8 @@ import { fn } from "storybook/test";
 import { Button, Toast, type ToastProps } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/Toast",
+  title: "Components/Feedback/Toast",
+  id: "components-toast",
   component: Toast,
   render: function ToastExample(args) {
     const [, updateArgs] = useArgs<ToastProps>();

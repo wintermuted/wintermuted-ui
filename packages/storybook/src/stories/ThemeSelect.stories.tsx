@@ -3,7 +3,8 @@ import { ThemeSelect } from "@wintermuted/ui-react";
 import { withThemeProvider } from "../decorators/withThemeProvider.js";
 
 const meta = {
-  title: "Components/ThemeSelect",
+  title: "Components/Theming/ThemeSelect",
+  id: "components-themeselect",
   component: ThemeSelect,
   decorators: [
     withThemeProvider,

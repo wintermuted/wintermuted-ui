@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Alert } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/Alert",
+  title: "Components/Feedback/Alert",
+  id: "components-alert",
   component: Alert,
   args: { children: "Your changes have been saved.", tone: "info" },
   argTypes: {

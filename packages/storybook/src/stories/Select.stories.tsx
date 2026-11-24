@@ -1,13 +1,14 @@
-import { useId, type ComponentProps } from "react";
+import { useId, type ComponentPropsWithoutRef } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useArgs } from "storybook/preview-api";
 import { fn } from "storybook/test";
 import { Select } from "@wintermuted/ui-react";
 
-type SelectArgs = ComponentProps<"select">;
+type SelectArgs = ComponentPropsWithoutRef<"select">;
 
 const meta = {
-  title: "Components/Select",
+  title: "Components/Forms/Select",
+  id: "components-select",
   render: function SelectExample(args) {
     const id = useId();
     const [, updateArgs] = useArgs<SelectArgs>();

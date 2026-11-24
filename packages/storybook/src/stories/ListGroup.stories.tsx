@@ -1,8 +1,12 @@
+import type { ComponentPropsWithoutRef } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Badge, ListGroup, ListItem } from "@wintermuted/ui-react";
 
+type ListArgs = ComponentPropsWithoutRef<"ul"> & { as?: "ul" };
+
 const meta = {
-  title: "Components/ListGroup",
+  title: "Components/Data display/ListGroup",
+  id: "components-listgroup",
   component: ListGroup,
   subcomponents: { ListItem },
   argTypes: { children: { control: false }, as: { control: false } },
@@ -12,10 +16,10 @@ const meta = {
     <ListItem>Publish examples</ListItem>
   </ListGroup>,
   parameters: { docs: { description: { component: "ListGroup and ListItem preserve native list semantics and support native attributes and polymorphic elements." } } },
-} satisfies Meta<typeof ListGroup>;
+} satisfies Meta<ListArgs>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<ListArgs>;
 
 export const Playground: Story = {};
 export const ItemWithStatus: Story = {

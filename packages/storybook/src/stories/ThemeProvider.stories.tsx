@@ -11,7 +11,8 @@ function ThemeStatus() {
 }
 
 const meta = {
-  title: "Components/ThemeProvider",
+  title: "Components/Theming/ThemeProvider",
+  id: "components-themeprovider",
   component: ThemeProvider,
   decorators: [withThemeProvider],
   render: () => <div className="wm-storybook-field"><ThemeStatus /></div>,

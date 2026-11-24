@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { RankedBarList } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/RankedBarList",
+  title: "Components/Data display/RankedBarList",
+  id: "components-rankedbarlist",
   component: RankedBarList,
   args: {
     label: "Example tasks by team", heading: "Example task distribution", maximum: 20,

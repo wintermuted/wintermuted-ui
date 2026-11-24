@@ -18,7 +18,8 @@ function DialogExample(args: DialogProps) {
 }
 
 const meta = {
-  title: "Components/Dialog",
+  title: "Components/Overlays/Dialog",
+  id: "components-dialog",
   component: Dialog,
   render: DialogExample,
   args: {

@@ -4,7 +4,8 @@ import { fn } from "storybook/test";
 import { NumberStepper, type NumberStepperProps } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/NumberStepper",
+  title: "Components/Forms/NumberStepper",
+  id: "components-numberstepper",
   component: NumberStepper,
   render: function StepperExample(args) {
     const [, updateArgs] = useArgs<NumberStepperProps>();

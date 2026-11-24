@@ -3,7 +3,8 @@ import { fn } from "storybook/test";
 import { Menu } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/Menu",
+  title: "Components/Overlays/Menu",
+  id: "components-menu",
   component: Menu,
   args: {
     label: "Project actions",

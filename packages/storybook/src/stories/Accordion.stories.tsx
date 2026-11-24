@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Accordion } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/Accordion",
+  title: "Components/Layout/Accordion",
+  id: "components-accordion",
   component: Accordion,
   args: { title: "Keyboard instructions", children: "Focus the summary and press Enter or Space to toggle this disclosure." },
   argTypes: {

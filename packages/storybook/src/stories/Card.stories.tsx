@@ -1,9 +1,13 @@
+import type { ComponentPropsWithoutRef } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { fn } from "storybook/test";
 import { Button, Card, CardHeader, CardBody, CardTitle, CardText, CardFooter } from "@wintermuted/ui-react";
 
+type CardArgs = ComponentPropsWithoutRef<"section"> & { as?: "section" };
+
 const meta = {
-  title: "Components/Card",
+  title: "Components/Layout/Card",
+  id: "components-card",
   component: Card,
   subcomponents: { CardHeader, CardBody, CardTitle, CardText, CardFooter },
   args: { children: "A composed card keeps related content and actions together." },
@@ -16,10 +20,10 @@ const meta = {
   parameters: {
     docs: { description: { component: "Card composes CardHeader, CardBody, CardTitle, CardText, and CardFooter. Named examples show each slot in its semantic context; the primitives also accept native props and an as element." } },
   },
-} satisfies Meta<typeof Card>;
+} satisfies Meta<CardArgs>;
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<CardArgs>;
 
 export const Playground: Story = {};
 export const Header: Story = {

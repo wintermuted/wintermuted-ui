@@ -7,7 +7,8 @@ type NavArgs = { current: string };
 const pages = ["Overview", "Activity", "Settings"];
 
 const meta = {
-  title: "Components/Nav",
+  title: "Components/Navigation/Nav",
+  id: "components-nav",
   render: function NavExample(args) {
     const id = useId();
     const [, updateArgs] = useArgs<NavArgs>();

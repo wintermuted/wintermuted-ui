@@ -4,7 +4,8 @@ import { fn } from "storybook/test";
 import { LanguageSelector, type LanguageSelectorProps } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/LanguageSelector",
+  title: "Components/Forms/LanguageSelector",
+  id: "components-languageselector",
   component: LanguageSelector,
   render: function LanguageExample(args) {
     const [, updateArgs] = useArgs<LanguageSelectorProps>();

@@ -26,7 +26,8 @@ function MultiSelectExample(args: SelectArgs) {
 }
 
 const meta = {
-  title: "Components/MultiSelect",
+  title: "Components/Forms/MultiSelect",
+  id: "components-multiselect",
   render: MultiSelectExample,
   args: {
     options,

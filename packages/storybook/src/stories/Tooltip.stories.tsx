@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Button, Tooltip } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/Tooltip",
+  title: "Components/Overlays/Tooltip",
+  id: "components-tooltip",
   component: Tooltip,
   args: { text: "Save the current project", placement: "above", children: <Button variant="secondary">Save project</Button> },
   argTypes: { text: { control: "text" }, placement: { control: "select", options: ["above", "right"] }, children: { control: false } },

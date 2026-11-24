@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { ProgressBar } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/ProgressBar",
+  title: "Components/Feedback/ProgressBar",
+  id: "components-progressbar",
   component: ProgressBar,
   args: { label: "Documentation progress", value: 60, max: 100 },
   argTypes: {

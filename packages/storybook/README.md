@@ -18,6 +18,8 @@ Use the theme toolbar to select light or dark. This applies the existing theme r
 
 All 35 public React components are represented across 29 component groups. Card's six primitives share one Docs page and named slot examples; ListGroup and ListItem are documented together. The ThemeProvider example also demonstrates the `useTheme` hook.
 
+The sidebar organizes component pages into Actions, Forms, Layout, Navigation, Data display, Feedback, Overlays, and Theming. Components are alphabetical within each section. Explicit component IDs preserve existing story and Docs links when sidebar titles change.
+
 | Component | Examples and interactions |
 | --- | --- |
 | Button | Variants, small size, disabled state, and click actions |
@@ -50,7 +52,7 @@ The Accessibility panel provides manual inspection, not an automated accessibili
 
 ## Adding stories
 
-Add a typed `*.stories.tsx` file under `src/stories`. Import components from `@wintermuted/ui-react`, MultiSelect from `@wintermuted/ui-react/select`, and theme helpers from `@wintermuted/ui-react/theme`.
+Add a typed `*.stories.tsx` file under `src/stories` with a `Components/<section>/<Component>` title and stable `components-<component>` ID. Reuse an existing sidebar section when it fits. Import components from `@wintermuted/ui-react`, MultiSelect from `@wintermuted/ui-react/select`, and theme helpers from `@wintermuted/ui-react/theme`.
 
 Use typed CSF metadata (`satisfies Meta<...>`) and `StoryObj`, supply accessible labels, and add explicit controls for props that docgen cannot infer from primitive wrappers or generic components. Use `useArgs` from `storybook/preview-api` in rendered examples when interaction must update Controls, and `fn` from `storybook/test` for observable callbacks. Theme CSS and preview spacing are shared centrally; keep production styling in the theme package.
 

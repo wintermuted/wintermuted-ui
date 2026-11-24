@@ -1,10 +1,10 @@
-import { useId, type ComponentProps } from "react";
+import { useId, type ComponentPropsWithoutRef } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useArgs } from "storybook/preview-api";
 import { fn } from "storybook/test";
 import { Input } from "@wintermuted/ui-react";
 
-type InputArgs = ComponentProps<"input">;
+type InputArgs = ComponentPropsWithoutRef<"input">;
 
 function InputExample(args: InputArgs) {
   const id = useId();
@@ -19,7 +19,8 @@ function InputExample(args: InputArgs) {
 }
 
 const meta = {
-  title: "Components/Input",
+  title: "Components/Forms/Input",
+  id: "components-input",
   render: InputExample,
   args: { value: "", placeholder: "e.g. Wintermuted", disabled: false, onChange: fn() },
   argTypes: {

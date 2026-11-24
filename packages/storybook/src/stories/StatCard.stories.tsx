@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { StatCard } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/StatCard",
+  title: "Components/Data display/StatCard",
+  id: "components-statcard",
   component: StatCard,
   args: { label: "Example open tasks", value: 18, tone: "neutral", variant: "default" },
   argTypes: {

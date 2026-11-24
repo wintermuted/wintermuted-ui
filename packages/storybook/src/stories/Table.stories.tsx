@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { Table } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/Table",
+  title: "Components/Data display/Table",
+  id: "components-table",
   component: Table,
   args: { responsive: true, "aria-label": "Example project status" },
   argTypes: { responsive: { control: "boolean" }, children: { control: false } },

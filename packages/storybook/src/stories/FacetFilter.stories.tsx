@@ -6,7 +6,8 @@ import { FacetFilter, type FacetFilterProps } from "@wintermuted/ui-react";
 type FacetArgs = FacetFilterProps<string>;
 
 const meta = {
-  title: "Components/FacetFilter",
+  title: "Components/Forms/FacetFilter",
+  id: "components-facetfilter",
   render: function FacetExample(args) {
     const [, updateArgs] = useArgs<FacetArgs>();
     return <div className="wm-storybook-field"><FacetFilter {...args}

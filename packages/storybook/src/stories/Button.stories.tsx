@@ -3,7 +3,8 @@ import { fn } from "storybook/test";
 import { Button } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/Button",
+  title: "Components/Actions/Button",
+  id: "components-button",
   component: Button,
   args: { children: "Save changes", variant: "primary", disabled: false, onClick: fn() },
   argTypes: {

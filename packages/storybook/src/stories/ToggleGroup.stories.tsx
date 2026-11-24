@@ -6,7 +6,8 @@ import { ToggleGroup, type ToggleGroupProps } from "@wintermuted/ui-react";
 type ToggleArgs = ToggleGroupProps<string>;
 
 const meta = {
-  title: "Components/ToggleGroup",
+  title: "Components/Forms/ToggleGroup",
+  id: "components-togglegroup",
   render: function ToggleExample(args) {
     const [, updateArgs] = useArgs<ToggleArgs>();
     return <ToggleGroup {...args} onChange={value => {

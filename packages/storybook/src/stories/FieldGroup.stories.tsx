@@ -2,7 +2,8 @@ import type { Meta, StoryObj } from "@storybook/react-vite";
 import { FieldGroup, Input } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/FieldGroup",
+  title: "Components/Forms/FieldGroup",
+  id: "components-fieldgroup",
   component: FieldGroup,
   args: { label: "Project name", hint: "Use a name your team will recognize.", error: "", children: <Input placeholder="e.g. Component library" /> },
   argTypes: {

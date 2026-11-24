@@ -4,7 +4,8 @@ import { fn } from "storybook/test";
 import { ColorPicker, type ColorPickerProps } from "@wintermuted/ui-react";
 
 const meta = {
-  title: "Components/ColorPicker",
+  title: "Components/Forms/ColorPicker",
+  id: "components-colorpicker",
   component: ColorPicker,
   render: function ColorExample(args) {
     const [, updateArgs] = useArgs<ColorPickerProps>();
