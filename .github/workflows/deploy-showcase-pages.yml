@@ -18,6 +18,7 @@ on:
       - "nx.json"
       - "scripts/stage-react.mjs"
       - "scripts/stage-pages*"
+      - "scripts/pages-workflows.test.mjs"
       - "scripts/check-showcase.mjs"
       - "package*.json"
       - ".github/workflows/deploy-showcase-pages.yml"
@@ -33,6 +34,7 @@ on:
       - "nx.json"
       - "scripts/stage-react.mjs"
       - "scripts/stage-pages*"
+      - "scripts/pages-workflows.test.mjs"
       - "scripts/check-showcase.mjs"
       - "package*.json"
       - ".github/workflows/deploy-showcase-pages.yml"
@@ -52,6 +54,7 @@ permissions:
 concurrency:
   group: pages
   cancel-in-progress: false
+  queue: max
 
 jobs:
   deploy:
@@ -73,7 +76,7 @@ jobs:
       - run: npm run showcase:build
       - run: npm run storybook:build
       - run: npm run test:showcase-output
-      - run: node --test scripts/stage-pages.test.mjs
+      - run: node --test scripts/stage-pages.test.mjs scripts/pages-workflows.test.mjs
 
       - name: Configure Pages
         id: pages

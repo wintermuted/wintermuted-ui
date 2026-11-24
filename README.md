@@ -95,7 +95,7 @@ These Bash helpers resolve relative paths from the invoking directory and link t
 
 Production documentation remains at [Showcase](https://wintermuted.github.io/wintermuted-ui/showcase/), with [Storybook](https://wintermuted.github.io/wintermuted-ui/storybook/) alongside it. Pushes to `main` publish both sites together. Pull requests publish `/previews/pr-<number>/showcase/` and `/previews/pr-<number>/storybook/`; the preview comment links to both after a successful Pages deployment. Closing a PR removes both preview directories and republishes the remaining site.
 
-Deployments consume built output, not copied source. Production replacements preserve all PR previews, and a PR deployment replaces only its own preview. The shared `pages` concurrency group serializes deployment and cleanup workflows so neither site overwrites the other. The workflow can also be dispatched manually; dispatch from `main` to refresh production.
+Deployments consume built output, not copied source. Production replacements preserve all PR previews, and a PR deployment replaces only its own preview. The shared `pages` concurrency group serializes deployment and cleanup workflows with `queue: max` so pending cleanup runs are not replaced by newer runs (up to GitHub's 100-pending-run limit). Cleanup republishes an existing Pages tree even if the PR directory is already absent, allowing a retry to reconcile a previous publication failure. The workflow can also be dispatched manually; dispatch from `main` to refresh production.
 
 ## Nx Release
 
