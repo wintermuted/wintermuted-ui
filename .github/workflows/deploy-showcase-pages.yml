@@ -50,6 +50,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       deployment_id: ${{ steps.create_deployment.outputs.deployment_id }}
+      artifact_name: ${{ format('github-pages-{0}', github.run_attempt) }}
     steps:
       - name: Checkout source
         uses: actions/checkout@v4
@@ -178,7 +179,7 @@ jobs:
         id: deployment
         uses: actions/deploy-pages@v4
         with:
-          artifact_name: github-pages-${{ github.run_attempt }}
+          artifact_name: ${{ needs.deploy.outputs.artifact_name }}
 
       - name: Mark PR deployment success
         if: github.event_name == 'pull_request' && success()
