@@ -1,4 +1,4 @@
-name: Cleanup Showcase PR Preview
+name: Cleanup Documentation PR Preview
 
 on:
   pull_request:
@@ -7,6 +7,8 @@ on:
 
 permissions:
   contents: write
+  pages: write
+  id-token: write
 
 concurrency:
   group: pages
@@ -15,6 +17,8 @@ concurrency:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
+    outputs:
+      removed: ${{ steps.remove.outputs.removed }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,6 +29,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Remove preview directory from gh-pages
+        id: remove
         run: |
           if ! git ls-remote --exit-code --heads origin gh-pages > /dev/null 2>&1; then
             echo "gh-pages does not exist; nothing to clean."
@@ -41,6 +46,7 @@ jobs:
           fi
 
           rm -rf "$preview_dir"
+          echo "removed=true" >> "$GITHUB_OUTPUT"
 
           cd gh-pages-out
           git add -A
@@ -48,3 +54,25 @@ jobs:
             git commit -m "Cleanup preview for PR #${{ github.event.pull_request.number }}"
             git push --force origin HEAD:refs/heads/gh-pages
           fi
+
+      - name: Configure Pages
+        if: steps.remove.outputs.removed == 'true'
+        uses: actions/configure-pages@v5
+
+      - name: Upload cleaned Pages artifact
+        if: steps.remove.outputs.removed == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: gh-pages-out
+
+  publish:
+    needs: cleanup
+    if: needs.cleanup.outputs.removed == 'true'
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Publish preview removal to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

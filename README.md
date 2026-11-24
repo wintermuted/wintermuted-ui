@@ -32,7 +32,7 @@ For isolated React component development, run:
 npm run storybook:serve
 ```
 
-Open `http://127.0.0.1:6006`. [Storybook](packages/storybook/README.md) covers all exported React components with controls, generated docs, accessibility inspection, and light/dark switching. Compound Card and ListGroup primitives are documented together with dedicated slot examples. It complements the showcase without replacing its pages or deployment. CI builds a downloadable `storybook-static` artifact; Storybook is not publicly hosted or independently released.
+Open `http://127.0.0.1:6006`. [Storybook](packages/storybook/README.md) covers all exported React components with controls, generated docs, accessibility inspection, and light/dark switching. Compound Card and ListGroup primitives are documented together with dedicated slot examples. It complements the showcase without replacing its pages. The Pages workflow publishes Storybook alongside the showcase, and CI retains a downloadable `storybook-static` artifact. Storybook remains private and is not independently released or published to npm.
 
 ## Package usage
 
@@ -93,7 +93,9 @@ These Bash helpers resolve relative paths from the invoking directory and link t
 
 ## Pages deployments
 
-Production documentation remains under `/showcase/`. Pull requests deploy to `/previews/pr-<number>/showcase/`; closing a PR removes its preview. Deployments consume Vite's output for all pages, not a mixture of copied source and built React HTML.
+Production documentation remains at [Showcase](https://wintermuted.github.io/wintermuted-ui/showcase/), with [Storybook](https://wintermuted.github.io/wintermuted-ui/storybook/) alongside it. Pushes to `main` publish both sites together. Pull requests publish `/previews/pr-<number>/showcase/` and `/previews/pr-<number>/storybook/`; the preview comment links to both after a successful Pages deployment. Closing a PR removes both preview directories and republishes the remaining site.
+
+Deployments consume built output, not copied source. Production replacements preserve all PR previews, and a PR deployment replaces only its own preview. The shared `pages` concurrency group serializes deployment and cleanup workflows so neither site overwrites the other. The workflow can also be dispatched manually; dispatch from `main` to refresh production.
 
 ## Nx Release
 

@@ -6,6 +6,10 @@ const config: StorybookConfig = {
   addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
   typescript: { reactDocgen: "react-docgen" },
   core: { disableTelemetry: true },
+  viteFinal(config) {
+    config.base = "./";
+    return config;
+  },
 };
 
 export default config;
