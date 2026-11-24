@@ -1,12 +1,12 @@
 {
   "name": "@wintermuted/showcase",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "Versioned static documentation and React examples for Wintermuted UI.",
   "private": true,
   "type": "module",
   "dependencies": {
-    "@wintermuted/ui-theme": "1.0.1",
-    "@wintermuted/ui-react": "1.0.1"
+    "@wintermuted/ui-theme": "1.0.2",
+    "@wintermuted/ui-react": "1.1.0"
   },
   "nx": {
     "name": "showcase",

@@ -1,3 +1,13 @@
+## 1.1.0 (2026-11-24)
+
+### 🚀 Features
+
+- **ui-react:** transfer nine context-free UI components ([#41](https://github.com/wintermuted/wintermuted-ui/pull/41))
+
+### ❤️ Thank You
+
+- Jameson Nyeholt @wintermuted
+
 ## 1.0.1 (2026-11-24)
 
 ### 🩹 Fixes
