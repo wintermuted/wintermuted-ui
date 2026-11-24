@@ -88,7 +88,8 @@ flowchart TD
     Public -->|"No"| Push
     Public -->|"Yes"| Trusted["Verify existing content; publish each missing prepared package with provenance / trusted publishing"]
     Trusted --> Result{"Publication succeeded?"}
-    Result -->|"No"| Token["Verify uncertain result; retry only the failed package with NPM_TOKEN"]
+    Result -->|"Confirmed pre-submission login rejection"| Token["Verify registry; retry only the failed package with NPM_TOKEN"]
+    Result -->|"Uncertain failure and still invisible"| Block
     Token --> Retry{"Publication succeeded?"}
     Retry -->|"No"| Block["Fail: do not push release commit or tags"]
     Result -->|"Yes"| Push["Atomically push release commit + package tags"]
@@ -112,7 +113,7 @@ The wrapper has three modes:
 
 Preparation writes `.nx/release-state.json` with each project's pre-release baseline commit, project version data, and prepared commit. Workflow outputs distinguish any release (`released`), a theme release (`theme_released`), and a showcase release (`showcase_released`). `projects` contains only changed npm-publishable project names; `tags` contains all release tags, including showcase. Publication is skipped when the public project filter is empty. Showcase outputs also include its version and tag.
 
-Publication processes public projects individually. Before publishing, it checks the exact registry version and downloads its tarball, verifies SHA-1 and SHA-512, and compares the published checksum with the prepared package's `npm pack --dry-run --ignore-scripts` checksum. Identical existing content is skipped; different content or registry/transport errors fail closed. A trusted failure is checked again before token fallback, which targets only that package and uses a temporary credential configuration. After submission, the package must be downloadable and match before Git references or releases advance. Delayed/staged visibility blocks finalization rather than authorizing another submission.
+Publication processes public projects individually. Before publishing, it checks the exact registry version and downloads its tarball, verifies SHA-1 and SHA-512, and compares the published checksum with the prepared package's `npm pack --dry-run --ignore-scripts` checksum. Identical existing content is skipped; different content or registry/transport errors fail closed. A trusted failure is checked again read-only. Token fallback is allowed only for npm's confirmed pre-submission `ENEEDAUTH` login rejection, identified from the captured summary/detail that Nx preserves; it targets only that package and uses a temporary credential configuration. A 404 after an uncertain failed command is not proof of rejection: staged/delayed visibility stops recovery without resubmission. Other failures, including generic HTTP authentication errors, are not classified as safe fallback. After submission, the package must be downloadable and match before Git references or releases advance.
 
 Finalization generates notes separately for each changed project, from its saved baseline to the prepared commit. The React baseline advances independently of the theme, preventing earlier React-only changes from appearing again in later releases. Finalization depends on that state; a fresh tagged checkout alone cannot reconstruct it.
 

@@ -1,12 +1,21 @@
-import { execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
+import { stripVTControlCharacters } from "node:util";
 
 const registry = "https://registry.npmjs.org";
 const packageRoots = { "ui-theme": "packages/ui-theme", "ui-react": "dist/packages/ui-react" };
+
+export function isPreSubmissionAuthRejection(error) {
+  if (!Number.isInteger(error.status) || error.status === 0) return false;
+  const output = stripVTControlCharacters(`${error.stdout || ""}\n${error.stderr || ""}`).replaceAll("\r", "");
+  // Nx preserves npm's ENEEDAUTH summary/detail, but not its structured error code.
+  return /^npm publish error:\nThis command requires you to be logged in to https:\/\/registry\.npmjs\.org\/\nYou need to authorize this machine using `npm adduser`(?:\n|$)/m.test(output) &&
+    !/Published to |Added the dist-tag /.test(output);
+}
 
 export async function inspectPublication(name, version, request = fetch) {
   const response = await request(`${registry}/${encodeURIComponent(name)}/${encodeURIComponent(version)}`, {
@@ -49,7 +58,12 @@ export async function publishProject({ name, version, shasum }, { inspect, trust
   } catch (error) {
     console.error(`Trusted publication failed for ${name}@${version}: ${error.message}`);
     // A failed command may still have submitted the package successfully.
-    if (!await verify()) await fallback();
+    if (!await verify()) {
+      if (!isPreSubmissionAuthRejection(error)) {
+        throw new Error(`Trusted publication outcome is uncertain for ${name}@${version}; stop and verify read-only before recovery`, { cause: error });
+      }
+      await fallback();
+    }
   }
   if (!await verify()) throw new Error(`Publication is not downloadable for ${name}@${version}; do not finalize or blindly retry`);
 }
@@ -68,7 +82,18 @@ async function main() {
   if (!projects?.length || projects.some((project) => !Object.hasOwn(packageRoots, project))) {
     throw new Error("RELEASE_PROJECTS must select only ui-theme and/or ui-react");
   }
-  const run = (args, env = process.env) => execFileSync("npm", args, { stdio: "inherit", env });
+  const run = (args, env = process.env) => {
+    const result = spawnSync("npm", args, {
+      stdio: ["ignore", "pipe", "pipe"], encoding: "utf8", maxBuffer: 10 * 1024 * 1024, env
+    });
+    process.stdout.write(result.stdout || "");
+    process.stderr.write(result.stderr || "");
+    if (result.error || result.status !== 0) {
+      throw Object.assign(result.error || new Error(`npm publication exited with status ${result.status}`), {
+        status: result.status, stdout: result.stdout, stderr: result.stderr
+      });
+    }
+  };
   for (const project of projects) {
     const root = packageRoots[project];
     const manifest = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));

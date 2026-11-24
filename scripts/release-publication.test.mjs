@@ -1,9 +1,33 @@
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { test } from "node:test";
-import { inspectPublication, publishProject } from "./release-publication.mjs";
+import { inspectPublication, isPreSubmissionAuthRejection, publishProject } from "./release-publication.mjs";
 
 const packageIdentity = { name: "@wintermuted/ui-theme", version: "1.0.1", shasum: "same-content" };
+const loginRejection = () => Object.assign(new Error("npm exited with status 1"), {
+  status: 1,
+  stdout: "npm publish error:\nThis command requires you to be logged in to https://registry.npmjs.org/\nYou need to authorize this machine using `npm adduser`\n"
+});
+
+test("only captured pre-submission ENEEDAUTH output permits authentication fallback", () => {
+  assert.equal(isPreSubmissionAuthRejection(loginRejection()), true);
+  assert.equal(isPreSubmissionAuthRejection({ status: 1, stderr: loginRejection().stdout }), true);
+  const colored = loginRejection();
+  colored.stdout = Buffer.from(`\u001b[31m${colored.stdout.replaceAll("\n", "\r\n")}\u001b[0m`);
+  assert.equal(isPreSubmissionAuthRejection(colored), true);
+  for (const output of [
+    "E401 Unauthorized",
+    "E403 Forbidden",
+    "409 Cannot publish over previously staged version",
+    "ETIMEDOUT",
+    "npm publish error:\nThis command requires you to be logged in to https://registry.npmjs.org/\n",
+    `${loginRejection().stdout}Published to https://registry.npmjs.org/ with tag \"latest\"\n`
+  ]) {
+    assert.equal(isPreSubmissionAuthRejection({ status: 1, stdout: output }), false);
+  }
+  assert.equal(isPreSubmissionAuthRejection(new Error(loginRejection().stdout)), false);
+  assert.equal(isPreSubmissionAuthRejection({ ...loginRejection(), status: 0 }), false);
+});
 
 test("complementary trusted and fallback successes never republish the successful theme", async () => {
   const calls = [];
@@ -13,7 +37,7 @@ test("complementary trusted and fallback successes never republish the successfu
       inspect: async () => published.get(name),
       trusted: async () => {
         calls.push(`trusted:${name}`);
-        if (name.endsWith("ui-react")) throw new Error("Login required");
+        if (name.endsWith("ui-react")) throw loginRejection();
         published.set(name, { shasum: packageIdentity.shasum });
       },
       fallback: async () => {
@@ -47,13 +71,25 @@ test("a failed trusted command that submitted the package is verified without fa
   });
 });
 
+test("an accepted submission that throws while still invisible stops without fallback", async () => {
+  let submitted = false;
+  let inspections = 0;
+  await assert.rejects(publishProject(packageIdentity, {
+    inspect: async () => { inspections += 1; return null; },
+    trusted: async () => { submitted = true; throw new Error("Connection closed after submission"); },
+    fallback: async () => assert.fail("A 404 must not authorize resubmission")
+  }), /outcome is uncertain/);
+  assert.equal(submitted, true);
+  assert.equal(inspections, 2);
+});
+
 test("non-downloadable publication and failed fallback cannot finalize", async () => {
   await assert.rejects(publishProject(packageIdentity, {
     inspect: async () => null, trusted: async () => {}, fallback: async () => assert.fail("Must not retry successful submission")
   }), /not downloadable/);
   await assert.rejects(publishProject(packageIdentity, {
     inspect: async () => null,
-    trusted: async () => { throw new Error("Login required"); },
+    trusted: async () => { throw loginRejection(); },
     fallback: async () => { throw new Error("Token rejected"); }
   }), /Token rejected/);
 });
