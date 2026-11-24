@@ -1,4 +1,4 @@
-name: Cleanup Showcase PR Preview
+name: Cleanup Documentation PR Preview
 
 on:
   pull_request:
@@ -11,10 +11,14 @@ permissions:
 concurrency:
   group: pages
   cancel-in-progress: false
+  queue: max
 
 jobs:
   cleanup:
     runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.remove.outputs.ready }}
+      artifact_name: ${{ format('github-pages-{0}', github.run_attempt) }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -25,6 +29,7 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
       - name: Remove preview directory from gh-pages
+        id: remove
         run: |
           if ! git ls-remote --exit-code --heads origin gh-pages > /dev/null 2>&1; then
             echo "gh-pages does not exist; nothing to clean."
@@ -35,11 +40,6 @@ jobs:
           git worktree add --detach ./gh-pages-out FETCH_HEAD
 
           preview_dir="gh-pages-out/previews/pr-${{ github.event.pull_request.number }}"
-          if [ ! -d "$preview_dir" ]; then
-            echo "Preview directory does not exist; nothing to clean."
-            exit 0
-          fi
-
           rm -rf "$preview_dir"
 
           cd gh-pages-out
@@ -48,3 +48,31 @@ jobs:
             git commit -m "Cleanup preview for PR #${{ github.event.pull_request.number }}"
             git push --force origin HEAD:refs/heads/gh-pages
           fi
+          echo "ready=true" >> "$GITHUB_OUTPUT"
+
+      - name: Upload cleaned Pages artifact
+        if: steps.remove.outputs.ready == 'true'
+        uses: actions/upload-pages-artifact@v3
+        with:
+          name: github-pages-${{ github.run_attempt }}
+          path: gh-pages-out
+
+  publish:
+    needs: cleanup
+    if: needs.cleanup.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
+      - name: Publish preview removal to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+        with:
+          artifact_name: ${{ needs.cleanup.outputs.artifact_name }}

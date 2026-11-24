@@ -126,7 +126,13 @@ Development uses `/showcase/`; the site plugin maps flat public page requests to
 
 The private package is release-managed by Nx, starting at `0.1.0`, with independent changelogs and `showcase@X.Y.Z` tags. Its own releasable changes and declared dependency updates trigger releases. Each GitHub release includes a static archive containing `.nojekyll` and the `showcase/` directory, not an npm package. External framework distribution is deferred; internal templates share document metadata, assets, header, sidebar, and shell while preserving plain HTML content and presentation.
 
-`scripts/check-showcase.mjs` checks that all source HTML pages exist in the build and that referenced local assets resolve without root-relative URLs. Pages deployments publish Vite output, preserve existing preview directories when replacing production content, and remove a preview when its PR closes.
+`scripts/check-showcase.mjs` checks that all source HTML pages exist in the build and that referenced local assets resolve without root-relative URLs.
+
+The private `packages/storybook` workspace complements the showcase with interactive React documentation. It builds to `dist/packages/storybook` and uses relative Vite assets, including under query-based story/Docs deep links. Production is served at `/wintermuted-ui/storybook/` and PR previews at `/wintermuted-ui/previews/pr-<number>/storybook/`. Storybook is excluded from Nx Release and npm publishing.
+
+The documentation Pages workflow builds both sites and runs `scripts/stage-pages.mjs` to check Storybook entry-point assets and assemble one shared tree. Production replacement preserves `.git` and `previews/`; a PR replaces only `previews/pr-<number>/`, containing both `showcase/` and `storybook/`. Preview comments link to both sites only after Pages succeeds. The cleanup workflow deletes the closed PR's whole tree and republishes the remaining artifact so removal takes effect on the live site. It republishes even when that directory is already absent, making retries reconcile live Pages after a successful branch update but failed publication. Both workflows share the `pages` concurrency group with `queue: max` to retain up to 100 pending runs instead of replacing an earlier cleanup.
+
+In the cleanup workflow, the branch-update job has only `contents: write`. Pages configuration and publication run in a separate job with only `pages: write` and `id-token: write`; the cleanup steps do not receive Pages/OIDC privileges.
 
 Markdown architecture/release documentation stays in `docs` on GitHub; it is not an HTML build input.
 
