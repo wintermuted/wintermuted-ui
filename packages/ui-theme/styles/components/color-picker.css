@@ -52,7 +52,7 @@
 }
 
 .wm-color-group-label {
-  margin: 0.25rem 0 0.25rem;
+  margin: 0.25rem 0;
   font-size: var(--wm-text-sm);
   color: var(--wm-color-text-muted);
   text-transform: uppercase;

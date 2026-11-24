@@ -68,6 +68,15 @@
   color: var(--wm-color-text);
 }
 
+.wm-toggle-group-outline .wm-toggle-group-btn {
+  background: transparent;
+}
+
+.wm-toggle-group-btn:focus-visible {
+  outline: 2px solid var(--wm-color-accent);
+  outline-offset: -3px;
+}
+
 /* ── Disabled ────────────────────────────────────────────────────────────── */
 
 .wm-toggle-group-btn:disabled {
@@ -128,16 +137,7 @@
   border-radius: var(--wm-radius-sm);
 }
 
-.wm-toggle-group-outline .wm-toggle-group-btn {
-  background: transparent;
-}
-
 .wm-toggle-group-outline .wm-toggle-group-btn[aria-pressed="true"] {
   background: color-mix(in srgb, var(--wm-color-accent) 10%, transparent);
   color: var(--wm-color-accent);
-}
-
-.wm-toggle-group-btn:focus-visible {
-  outline: 2px solid var(--wm-color-accent);
-  outline-offset: -3px;
 }

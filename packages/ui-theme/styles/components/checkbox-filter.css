@@ -107,11 +107,11 @@
   text-decoration: underline;
 }
 
+.wm-facet-filter .wm-checkbox-filter-label {
+  flex-direction: row;
+}
+
 .wm-facet-filter .wm-checkbox-filter-label:has(input:disabled) {
   color: var(--wm-color-text-muted);
   cursor: not-allowed;
-}
-
-.wm-facet-filter .wm-checkbox-filter-label {
-  flex-direction: row;
 }

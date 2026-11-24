@@ -104,6 +104,10 @@
   color: var(--wm-color-text);
 }
 
+.wm-stat-card-info .wm-stat-value {
+  color: var(--wm-color-accent);
+}
+
 .wm-stat-card-compact.wm-stat-card-success .wm-stat-value {
   color: var(--wm-color-success);
 }
@@ -114,8 +118,4 @@
 
 .wm-stat-card-compact.wm-stat-card-danger .wm-stat-value {
   color: var(--wm-color-danger);
-}
-
-.wm-stat-card-info .wm-stat-value {
-  color: var(--wm-color-accent);
 }
