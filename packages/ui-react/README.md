@@ -2,6 +2,8 @@
 
 React components for Wintermuted UI: native primitives, accessible interactions, theme helpers, and an optional react-select integration. Components are authored in typed TSX; the published package contains compiled JavaScript and generated TypeScript declarations.
 
+The patch release following the typed TSX migration delivers the migrated source as compiled ESM and generated declarations, without changing the public entry points or bundling React.
+
 See the [React architecture guide](https://github.com/wintermuted/wintermuted-ui/blob/main/packages/ui-react/docs/architecture.md) for entry-point isolation, interaction ownership, theme synchronization, declarations, and packaging.
 
 ```js

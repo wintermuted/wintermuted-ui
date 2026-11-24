@@ -61,6 +61,52 @@ for (const [type, expected] of [
   });
 }
 
+test("package-local release documentation triggers a patch for every package without publishing", { timeout: 90000 }, (t) => {
+  const cwd = mkdtempSync(join(tmpdir(), "wm-all-package-patch-"));
+  t.after(() => rmSync(cwd, { recursive: true, force: true }));
+  for (const path of ["package.json", "package-lock.json", "nx.json", ".gitignore", "packages", "scripts"]) {
+    cpSync(join(root, path), join(cwd, path), { recursive: true });
+  }
+  symlinkSync(join(root, "node_modules"), join(cwd, "node_modules"), process.platform === "win32" ? "junction" : "dir");
+  const git = (...args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  git("init", "--quiet");
+  git("config", "user.name", "Release test");
+  git("config", "user.email", "release-test@example.invalid");
+  git("remote", "add", "origin", "https://github.com/wintermuted/wintermuted-ui.git");
+  git("add", ".");
+  git("commit", "--quiet", "-m", "chore: package baseline");
+  const expected = {};
+  for (const project of ["ui-theme", "ui-react", "showcase"]) {
+    const manifest = JSON.parse(readFileSync(join(cwd, "packages", project, "package.json"), "utf8"));
+    git("tag", `${project}@${manifest.version}`);
+    const [major, minor, patch] = manifest.version.split(".").map(Number);
+    expected[project] = `${major}.${minor}.${patch + 1}`;
+    const readme = join(cwd, "packages", project, "README.md");
+    writeFileSync(readme, `${readFileSync(readme, "utf8")}\nPatch release after typed TSX migration.\n`);
+  }
+  git("add", ".");
+  git("commit", "--quiet", "-m", "fix: release all packages after typed TSX migration");
+  const outputPath = join(cwd, ".nx", "release-output.txt");
+  const output = execFileSync(process.execPath, ["scripts/release.mjs", "--prepare"], {
+    cwd, encoding: "utf8",
+    env: { ...process.env, NX_DAEMON: "false", NX_INTERACTIVE: "false", GITHUB_OUTPUT: outputPath },
+    stdio: ["ignore", "pipe", "pipe"]
+  });
+  const state = JSON.parse(readFileSync(join(cwd, ".nx", "release-state.json"), "utf8"));
+  for (const [project, version] of Object.entries(expected)) {
+    assert.equal(state.projectsVersionData[project].newVersion, version);
+    assert.equal(JSON.parse(readFileSync(join(cwd, "packages", project, "package.json"), "utf8")).version, version);
+    assert.equal(git("rev-list", "-n", "1", `${project}@${version}`), state.commit);
+    assert.match(readFileSync(join(cwd, "packages", project, "CHANGELOG.md"), "utf8"), /release all packages after typed TSX migration/);
+  }
+  const outputs = readFileSync(outputPath, "utf8");
+  assert.match(outputs, /^released=true$/m);
+  assert.match(outputs, /^theme_released=true$/m);
+  assert.match(outputs, /^showcase_released=true$/m);
+  assert.match(outputs, /^projects=ui-theme,ui-react$/m);
+  assert.match(output, /Skipped publishing packages/);
+});
+
 test("independent releases filter publication, advance changelog baselines, and preserve valid dependencies", { timeout: 180000 }, async (t) => {
   const cwd = mkdtempSync(join(tmpdir(), "wm-nx-split-"));
   t.after(() => rmSync(cwd, { recursive: true, force: true }));

@@ -46,6 +46,8 @@ Use conventional commits and preserve the intended message when squashing a PR:
 
 A `BREAKING CHANGE:` footer is another way to express a breaking release. A message alone does not select every package: Nx combines commit history with affected project files and dependency relationships. Review the dry-run output rather than assuming a version from the PR title.
 
+To release previously merged non-releasable work (such as a `refactor:`), follow it with an unscoped `fix:` commit updating release documentation inside each intended package. Package-local README changes count as affected files. For the typed TSX migration, preserve `fix: release all packages after typed TSX migration` as the merge message: the theme, React package, and showcase each receive a patch selection. Leave manifests and changelogs unchanged until Auto Release prepares them with Nx; showcase receives a GitHub archive, not an npm publication.
+
 Zero-major adjustment is disabled. A major selection from theme 0.22.0 becomes 1.0.0, not another 0.x minor.
 
 ### The initial 1.0 split

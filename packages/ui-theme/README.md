@@ -2,6 +2,8 @@
 
 Shared plain-CSS design tokens, resets, component styles, and light/dark themes for Wintermuted projects.
 
+The patch release accompanying the typed React source migration preserves the CSS-only exports and `--wm-*` tokens; React components remain in `@wintermuted/ui-react`.
+
 See the [theme architecture guide](https://github.com/wintermuted/wintermuted-ui/blob/main/packages/ui-theme/docs/architecture.md) for CSS layers, token ownership, public-path registration, and extension rules.
 
 ## Install
