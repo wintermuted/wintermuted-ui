@@ -204,12 +204,20 @@ Auto Release [45551981808](https://github.com/wintermuted/wintermuted-ui/actions
 
 The locked Nx 24.0.6 publisher constructs its success message from npm's successful JSON output and Nx's own dry-run flag, and suppresses successful npm stderr. It does not independently verify availability. No Nx cache hit or configured dry-run was present in the failed publication log. The separate `npm pack --dry-run` checksum command runs in a child process and does not change the parent's environment. An inherited npm dry-run setting could theoretically mislead Nx, but it does not explain this now-downloadable matching upload.
 
-Recovery must treat theme `1.0.3` as already published and immutable. React publication was not reached, and the release commit, tags, GitHub releases, and showcase archive were not pushed/uploaded. The failed run retained no prepared-state/package archive artifact. Before authorizing recovery:
+At that original failure, React publication had not been reached, and the release commit, tags, GitHub releases, and showcase archive had not been pushed/uploaded. The failed run retained no prepared-state/package archive artifact. The recovery procedure was:
 
 1. Reconstruct the original prepared release in an isolated checkout of the exact source revision with the original lockfile/toolchain and release baselines. Do not prepare from newer `main` and assume the same versions contain the same content.
 2. Verify theme `1.0.3` read-only again and compare the reconstructed theme package checksum with `931a54133332d43ca90d6e6d5962ac2ee1589f1c`. Stop on any mismatch. Do not republish or overwrite it.
 3. Inspect React `1.2.0` read-only before any authorized publication. Rebuild only the original prepared React content, verify its version and theme dependency range, and skip it only if existing registry content matches exactly. A 404 alone does not authorize a new upload.
 4. With maintainer approval, publish only a confirmed missing React package, verify its downloadable content, then reconcile the prepared release commit/tags against current `main` without force-pushing or losing newer changes. Finalize project releases and attach the matching checked showcase archive from that same recovered state. Do not use the existing-tag recovery workflow for tags that were never pushed.
+
+### November 25 reconciliation outcome
+
+After the visibility fix, run `45554293734` verified theme `1.0.3` and published React `1.2.0` with SHA-1 `1d7dd0478f9e17b8d6e4f07c3c2f80ea74528206`. Its atomic Git push failed because Inventory PR #45 had advanced main. The following run correctly rejected different prepared content under the same immutable theme version; that rejection was not a reason to republish or bump versions.
+
+[Recovery run 45556762904](https://github.com/wintermuted/wintermuted-ui/actions/runs/45556762904) reconstructed preparation from `090415e55adb47b5fdd1bd21eeac6e53b0264818`, verified both existing packages against their exact prepared checksums without uploading either, and saved the prepared bundle/state/staged package/showcase archive. The recovered commit is `997722d86e3eadfaed00077484b3127dd1844840`; tags `ui-theme@1.0.3`, `ui-react@1.2.0`, and `showcase@0.2.3` all point there.
+
+Reconciliation merged newer main into that release, producing `dc84174f4cbe803a19ea015d9e1cb916b537b6e8`. Inventory source remained unchanged on main but is absent from the older published package tags. All three GitHub releases were finalized, and `showcase-0.2.3.tar.gz` was attached. No npm uploads, newer package release, or downstream dispatch occurred during reconciliation. The preventive workflow changes remain a separate reviewable branch until explicitly merged.
 
 ### Existing-tag publication recovery
 
