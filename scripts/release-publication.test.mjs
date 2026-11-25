@@ -84,14 +84,69 @@ test("an accepted submission that throws while still invisible stops without fal
 });
 
 test("non-downloadable publication and failed fallback cannot finalize", async () => {
+  let submissions = 0;
+  let inspections = 0;
+  const waits = [];
   await assert.rejects(publishProject(packageIdentity, {
-    inspect: async () => null, trusted: async () => {}, fallback: async () => assert.fail("Must not retry successful submission")
+    inspect: async () => { inspections += 1; return null; },
+    trusted: async () => { submissions += 1; },
+    fallback: async () => assert.fail("Must not retry successful submission"),
+    sleep: async (milliseconds) => { waits.push(milliseconds); }
   }), /not downloadable/);
+  assert.equal(submissions, 1);
+  assert.equal(inspections, 42);
+  assert.equal(waits.length, 40);
+  assert.equal(waits.reduce((total, milliseconds) => total + milliseconds, 0), 600000);
   await assert.rejects(publishProject(packageIdentity, {
     inspect: async () => null,
     trusted: async () => { throw loginRejection(); },
     fallback: async () => { throw new Error("Token rejected"); }
   }), /Token rejected/);
+});
+
+test("delayed registry visibility after either publication path waits read-only without resubmitting", async () => {
+  for (const useFallback of [false, true]) {
+    const calls = [];
+    let inspections = 0;
+    let elapsed = 0;
+    await publishProject(packageIdentity, {
+      inspect: async () => {
+        inspections += 1;
+        return elapsed >= 405000 ? packageIdentity : null;
+      },
+      trusted: async () => {
+        calls.push("trusted");
+        if (useFallback) throw loginRejection();
+      },
+      fallback: async () => { calls.push("fallback"); },
+      sleep: async (milliseconds) => { elapsed += milliseconds; }
+    });
+    assert.deepEqual(calls, useFallback ? ["trusted", "fallback"] : ["trusted"]);
+    assert.equal(elapsed, 405000);
+    assert.equal(inspections, useFallback ? 30 : 29);
+  }
+});
+
+test("visibility polling fails closed on different content or registry errors", async () => {
+  for (const result of [{ shasum: "different-content" }, new Error("Registry unavailable")]) {
+    let inspections = 0;
+    let waits = 0;
+    let submissions = 0;
+    await assert.rejects(publishProject(packageIdentity, {
+      inspect: async () => {
+        inspections += 1;
+        if (inspections <= 2) return null;
+        if (result instanceof Error) throw result;
+        return result;
+      },
+      trusted: async () => { submissions += 1; },
+      fallback: async () => assert.fail("Visibility errors must not authorize resubmission"),
+      sleep: async () => { waits += 1; }
+    }), result instanceof Error ? /Registry unavailable/ : /registry content differs/);
+    assert.equal(submissions, 1);
+    assert.equal(waits, 1);
+    assert.equal(inspections, 3);
+  }
 });
 
 test("inspection verifies exact metadata and downloaded SHA-1 and SHA-512 digests", async () => {
