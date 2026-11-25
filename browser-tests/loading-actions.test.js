@@ -91,6 +91,19 @@ test("loading actions preserve native keyboard behavior, retained fields and res
         await section.getByRole("button", { name: "Clear error" }).click();
       }
     }
+    await page.evaluate(() => {
+      document.querySelectorAll('style, link[rel="stylesheet"]').forEach(node => node.remove());
+    });
+    const sheet = fileURLToPath(new URL("../packages/ui-theme/styles/components/load-status.css", import.meta.url)).replaceAll("\\", "/");
+    await page.addStyleTag({ url: new URL(`@fs/${sheet}`, url).href });
+    const announcement = section.getByRole("status").filter({ hasText: "Archived records are excluded." });
+    assert.equal(await announcement.count(), 1, "The help message must remain in the accessibility tree");
+    assert.deepEqual(await announcement.evaluate(node => {
+      const style = getComputedStyle(node);
+      return { position: style.position, width: style.width, height: style.height,
+        overflow: style.overflow, clipPath: style.clipPath };
+    }), { position: "absolute", width: "1px", height: "1px", overflow: "hidden", clipPath: "inset(50%)" },
+    "Loading only load-status.css must supply its screen-reader-only dependency");
     assert.deepEqual(failures, []);
     await context.close();
   } finally {

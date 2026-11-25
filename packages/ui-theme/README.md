@@ -43,8 +43,10 @@ Color-picker and selector styles never depend on application toolbar or game sel
 `load-status.css` and `action-disclosure.css` provide scoped `.wm-load-status` and
 `.wm-action-disclosure-*` styles for neutral loading/retry feedback and independent
 header actions. They are exported under `styles/components/` and registered in the
-aggregate theme. Load tokens, base (for `.wm-sr-only`) and button CSS when importing these
-sheets individually. RefreshAction uses button CSS alone.
+aggregate theme. Load tokens and button CSS when importing these sheets individually;
+base CSS is optional for document defaults. `load-status.css` imports `spinner.css`,
+which owns `.wm-sr-only`, so help-mode announcements stay visually hidden with modular imports.
+RefreshAction uses button CSS alone.
 The additive `--wm-color-warning-text` token supplies readable warning text in light/dark
 themes without changing the existing warning color or Button/Accordion defaults.
 
