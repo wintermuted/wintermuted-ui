@@ -59,8 +59,8 @@
   color: var(--wm-color-text);
 }
 
-.wm-action-disclosure-trigger:focus-visible,
-.wm-action-disclosure-action:focus-visible {
+.wm-action-disclosure .wm-action-disclosure-trigger:focus-visible,
+.wm-action-disclosure .wm-action-disclosure-action:focus-visible {
   outline: 2px solid var(--wm-color-accent);
   outline-offset: -2px;
 }
