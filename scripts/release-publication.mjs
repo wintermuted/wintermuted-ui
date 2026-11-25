@@ -3,6 +3,7 @@ import { createHash } from "node:crypto";
 import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
+import { setTimeout } from "node:timers/promises";
 import { pathToFileURL } from "node:url";
 import { stripVTControlCharacters } from "node:util";
 
@@ -44,7 +45,7 @@ export async function inspectPublication(name, version, request = fetch) {
     peerDependencies: manifest.peerDependencies, tarball: manifest.dist.tarball };
 }
 
-export async function publishProject({ name, version, shasum }, { inspect, trusted, fallback }) {
+export async function publishProject({ name, version, shasum }, { inspect, trusted, fallback, sleep = setTimeout }) {
   const verify = async () => {
     const published = await inspect(name, version);
     if (published && published.shasum !== shasum) {
@@ -65,7 +66,14 @@ export async function publishProject({ name, version, shasum }, { inspect, trust
       await fallback();
     }
   }
-  if (!await verify()) throw new Error(`Publication is not downloadable for ${name}@${version}; do not finalize or blindly retry`);
+  if (await verify()) return;
+  console.log(`Waiting up to 10 minutes for registry visibility of ${name}@${version}; publication will not be retried`);
+  // npm can accept an upload before its exact-version metadata becomes visible.
+  for (let attempt = 0; attempt < 40; attempt += 1) {
+    await sleep(15000);
+    if (await verify()) return;
+  }
+  throw new Error(`Publication is not downloadable for ${name}@${version}; do not finalize or blindly retry`);
 }
 
 async function main() {
