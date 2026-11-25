@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-sJBDdmOt.js";import{y as t}from"./iframe-D5qbwdCu.js";import{n,t as r}from"./utils-D0n_kN6R.js";function i(e,t){return(0,a.forwardRef)(function({as:n=e,className:i,...o},s){return(0,a.createElement)(n,{...o,ref:s,className:r(t,i)})})}var a;function o(){return(o=e((()=>{a=t(),n()})))()}export{i as n,o as t};
