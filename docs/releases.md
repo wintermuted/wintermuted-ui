@@ -102,7 +102,7 @@ flowchart TD
     Theme -->|"No"| Done["Finish without theme dispatch"]
 ```
 
-Auto Release runs on pushes to `main` and serializes releases through its concurrency group. After the compatibility gate, it fetches current `main` rather than preparing an obsolete queued event checkout. The release job uses the GitHub environment `wintermuted-ui-theme` for both packages.
+Auto Release runs on pushes to `main` and serializes releases through its concurrency group. After leaving the queue, it resolves current `main` to an exact source commit instead of preparing an obsolete event checkout. Both the compatibility gate and release preparation use that same commit. The release job uses the GitHub environment `wintermuted-ui-theme` for both packages.
 
 The wrapper has three modes:
 

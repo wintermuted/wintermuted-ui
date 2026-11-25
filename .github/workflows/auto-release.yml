@@ -18,11 +18,32 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  source:
+    runs-on: ubuntu-latest
+    outputs:
+      commit: ${{ steps.source.outputs.commit }}
+    steps:
+      - name: Validate recovery source
+        env:
+          RECOVERY_SOURCE: ${{ inputs.recovery_source }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            [[ "$RECOVERY_SOURCE" =~ ^[a-f0-9]{40}$ ]] || { echo "Recovery requires a full source SHA."; exit 1; }
+          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.recovery_source || 'main' }}
+      - id: source
+        run: echo "commit=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
   compatibility:
+    needs: source
     uses: ./.github/workflows/react-package.yml
+    with:
+      source_ref: ${{ needs.source.outputs.commit }}
 
   release:
-    needs: compatibility
+    needs: [source, compatibility]
     runs-on: ubuntu-latest
     environment: wintermuted-ui-theme
     outputs:
@@ -38,19 +59,14 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Save reconciliation tools and validate recovery source
-        env:
-          RECOVERY_SOURCE: ${{ inputs.recovery_source }}
+      - name: Save reconciliation tools
         run: |
           mkdir -p "$RUNNER_TEMP/release-tools"
           cp scripts/release-{reconcile,publication}.mjs "$RUNNER_TEMP/release-tools/"
-          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
-            [[ "$RECOVERY_SOURCE" =~ ^[a-f0-9]{40}$ ]] || { echo "Recovery requires a full source SHA."; exit 1; }
-          fi
-      - name: Check out the release source after the compatibility gate
+      - name: Check out the exact compatibility-tested release source
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.recovery_source || 'main' }}
+          ref: ${{ needs.source.outputs.commit }}
           fetch-depth: 0
       - uses: actions/setup-node@v4
         with:

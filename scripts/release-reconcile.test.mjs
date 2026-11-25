@@ -123,6 +123,10 @@ test("workflow saves recovery state before publication and uses strict read-only
     assert.ok(workflow.includes(path), path);
   }
   assert.match(workflow, /include-hidden-files: true/);
+  assert.match(workflow, /source_ref: \$\{\{ needs\.source\.outputs\.commit \}\}/);
+  assert.match(workflow, /ref: \$\{\{ needs\.source\.outputs\.commit \}\}/);
+  const compatibility = readFileSync(new URL("../.github/workflows/react-package.yml", import.meta.url), "utf8");
+  assert.match(compatibility, /ref: \$\{\{ inputs\.source_ref \|\| github\.sha \}\}/);
   assert.match(workflow, /if \[ "\$GITHUB_EVENT_NAME" = "workflow_dispatch" \]; then\s+node "\$RUNNER_TEMP\/release-tools\/release-publication\.mjs" --verify-only\s+else/);
   assert.match(workflow, /run: node "\$RUNNER_TEMP\/release-tools\/release-reconcile\.mjs"/);
   assert.ok(workflow.indexOf("name: Return to the immutable prepared tree") < workflow.indexOf("name: Create the GitHub release"));
