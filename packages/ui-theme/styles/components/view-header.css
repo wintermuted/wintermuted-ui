@@ -58,3 +58,46 @@
   color: var(--wm-color-text);
   font-size: 0.875rem;
 }
+
+.wm-page-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--wm-space-4);
+}
+
+.wm-page-header > div:first-child {
+  min-width: 0;
+  flex: 1 1 18rem;
+}
+
+.wm-page-header h1 {
+  margin: 0 0 var(--wm-space-2);
+  font-size: 1.75rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  color: var(--wm-color-text);
+}
+
+.wm-page-header-title {
+  display: flex;
+  align-items: center;
+  gap: var(--wm-space-3);
+}
+
+.wm-page-header-title > svg {
+  flex-shrink: 0;
+}
+
+.wm-page-header .wm-page-header-eyebrow {
+  margin-bottom: var(--wm-space-2);
+  font-size: var(--wm-text-sm);
+}
+
+.wm-page-header-action {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-space-2);
+}
