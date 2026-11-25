@@ -1,1 +1,0 @@
-import{n as e}from"./rolldown-runtime-sJBDdmOt.js";import{y as t}from"./iframe-VVRyE3hW.js";var n,r,i;function a(){return(a=e((()=>{n=t(),r=(...e)=>e.filter(Boolean).join(` `),i=typeof window>`u`?n.useEffect:n.useLayoutEffect})))()}export{a as n,i as r,r as t};

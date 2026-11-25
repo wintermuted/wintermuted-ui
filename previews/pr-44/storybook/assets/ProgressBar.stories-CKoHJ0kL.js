@@ -1,9 +1,0 @@
-import{n as e}from"./rolldown-runtime-sJBDdmOt.js";import{n as t}from"./iframe-VVRyE3hW.js";import{n,t as r}from"./utils-C-aqz12w.js";function i({value:e=0,max:t=100,label:n,className:i,...o}){if(!Number.isFinite(t)||t<=0||!Number.isFinite(e))throw RangeError(`ProgressBar requires a finite value and a positive finite max.`);return(0,a.jsx)(`progress`,{...o,className:r(`wm-progress`,i),value:Math.min(t,Math.max(0,e)),max:t,"aria-label":n??o[`aria-label`]})}var a;function o(){return(o=e((()=>{n(),a=t(),i.__docgenInfo={description:``,methods:[],displayName:`ProgressBar`,props:{value:{required:!1,tsType:{name:`number`},description:``,defaultValue:{value:`0`,computed:!1}},max:{required:!1,tsType:{name:`number`},description:``,defaultValue:{value:`100`,computed:!1}},label:{required:!1,tsType:{name:`string`},description:``}}}})))()}var s,c,l,u,d;function f(){return(f=e((()=>{o(),s={title:`Components/Feedback/ProgressBar`,id:`components-progressbar`,component:i,args:{label:`Documentation progress`,value:60,max:100},argTypes:{label:{control:`text`},value:{control:{type:`range`,min:0,max:100,step:1}},max:{control:{type:`number`,min:1}}}},c={},l={args:{value:0}},u={args:{value:100}},d=[`Playground`,`Empty`,`Complete`],c.parameters={...c.parameters,docs:{...c.parameters?.docs,source:{originalSource:`{}`,...c.parameters?.docs?.source}}},l.parameters={...l.parameters,docs:{...l.parameters?.docs,source:{originalSource:`{
-  args: {
-    value: 0
-  }
-}`,...l.parameters?.docs?.source}}},u.parameters={...u.parameters,docs:{...u.parameters?.docs,source:{originalSource:`{
-  args: {
-    value: 100
-  }
-}`,...u.parameters?.docs?.source}}}})))()}f();export{u as Complete,l as Empty,c as Playground,d as __namedExportsOrder,s as default};
