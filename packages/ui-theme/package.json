@@ -79,6 +79,7 @@
     "./styles/components/ranked-bar-list.css": "./styles/components/ranked-bar-list.css",
     "./styles/components/number-stepper.css": "./styles/components/number-stepper.css",
     "./styles/components/language-selector.css": "./styles/components/language-selector.css",
+    "./styles/components/filter-panel.css": "./styles/components/filter-panel.css",
     "./styles/components/load-status.css": "./styles/components/load-status.css",
     "./styles/components/action-disclosure.css": "./styles/components/action-disclosure.css"
   },

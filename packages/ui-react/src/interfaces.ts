@@ -256,3 +256,48 @@ export interface LanguageSelectorProps {
   variant?: "native" | "dropup";
   className?: string;
 }
+
+export interface PageHeaderProps {
+  title: string;
+  eyebrow?: string;
+  description?: React.ReactNode;
+  icon?: React.ReactNode;
+  action?: React.ReactNode;
+  classNames?: Partial<Record<"root" | "eyebrow" | "title" | "action", string>>;
+}
+
+export interface BreadcrumbItem {
+  id: string;
+  label: string;
+  href?: string;
+}
+
+export interface BreadcrumbsProps {
+  items: readonly BreadcrumbItem[];
+  label: string;
+  className?: string;
+  renderLink?: (item: BreadcrumbItem & { href: string }) => React.ReactNode;
+}
+
+export interface PreviewImageProps {
+  src: string | null;
+  alt: string;
+  fallbackLabel: string;
+  fallback: React.ReactNode;
+  className?: string;
+  fallbackClassName?: string;
+  loading?: "lazy" | "eager";
+}
+
+export interface FilterPanelProps {
+  children: React.ReactNode;
+  search: React.ReactNode;
+  summary?: React.ReactNode;
+  labels: { toggle: string; panel: string; title: string; dismiss: string; close: string };
+  toggleIcon?: React.ReactNode;
+  closeIcon?: React.ReactNode;
+  classNames?: Partial<Record<
+    "toolbar" | "search" | "toggle" | "toggleLabel" | "scrim" | "controls" |
+    "controlsOpen" | "panelHeader" | "close" | "summary", string
+  >>;
+}
