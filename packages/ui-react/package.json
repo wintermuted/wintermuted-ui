@@ -1,6 +1,6 @@
 {
   "name": "@wintermuted/ui-react",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "React components and theme utilities for Wintermuted UI.",
   "type": "module",
   "license": "MIT",
@@ -29,7 +29,7 @@
   },
   "publishConfig": { "registry": "https://registry.npmjs.org", "access": "public" },
   "dependencies": {
-    "@wintermuted/ui-theme": "^1.0.2"
+    "@wintermuted/ui-theme": "^1.0.3"
   },
   "peerDependencies": {
     "react": "^18.3.0 || ^19.0.0",
