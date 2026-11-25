@@ -104,6 +104,12 @@ test("package-local release documentation triggers a patch for every package wit
   assert.match(outputs, /^theme_released=true$/m);
   assert.match(outputs, /^showcase_released=true$/m);
   assert.match(outputs, /^projects=ui-theme,ui-react$/m);
+  const lock = JSON.parse(readFileSync(join(cwd, "package-lock.json"), "utf8"));
+  for (const project of ["ui-theme", "ui-react"]) {
+    assert.equal(lock.packages["packages/storybook"].dependencies[`@wintermuted/${project}`], `file:../${project}`);
+    assert.equal(lock.packages[`packages/storybook/node_modules/@wintermuted/${project}`], undefined,
+      "A release must not replace canonical Storybook source with an older registry package");
+  }
   assert.match(output, /Skipped publishing packages/);
 });
 

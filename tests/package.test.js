@@ -73,10 +73,15 @@ test("loading and disclosure transfer resolves only package-owned modules withou
   const barrel = await readFile(new URL("index.tsx", reactRoot), "utf8");
   assert.equal(barrel.replace(/export[\s\S]*?from\s+["'][^"']+["'];/g, "").trim(), "");
   for (const name of ["LoadIssue", "LoadStatusHelp", "ActionDisclosureAction"]) assert.ok(barrel.includes(name), name);
-  const storybook = JSON.parse(await readFile(new URL("../storybook/package.json", root), "utf8"));
-  const react = JSON.parse(await readFile(new URL("../ui-react/package.json", root), "utf8"));
-  assert.equal(storybook.dependencies["@wintermuted/ui-react"], react.version, "Stories must resolve canonical workspace components");
-  assert.equal(storybook.dependencies["@wintermuted/ui-theme"], pkg.version, "Stories must resolve canonical workspace CSS");
+  const storybookRoot = new URL("../storybook/", root);
+  const storybook = JSON.parse(await readFile(new URL("package.json", storybookRoot), "utf8"));
+  for (const project of ["ui-react", "ui-theme"]) {
+    const dependency = storybook.dependencies[`@wintermuted/${project}`];
+    assert.match(dependency, /^file:/, "Storybook must link source independently of release versions");
+    const linked = new URL(`${dependency.slice("file:".length)}/`, storybookRoot);
+    assert.equal(linked.href, new URL(`../${project}/`, root).href, "Stories must resolve canonical workspace packages");
+    await access(new URL("package.json", linked));
+  }
 });
 
 test("React integration depends on the theme, not the reverse", async () => {

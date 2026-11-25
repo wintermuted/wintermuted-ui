@@ -126,6 +126,8 @@ Before any npm submission, CI uploads a `prepared-release-RUN_ID` artifact conta
 
 The release commit and all selected package tags are pushed together with `git push --atomic`. If main advanced, reconciliation merges it into the prepared commit without rebasing or moving the package tags. Thus new features remain on main but are not mislabeled as part of the already-published package tree. Conflicts stop explicitly; no force push or automatic conflict resolution is used. A push is retried (at most five attempts) only when a fresh fetch proves concurrent forward advancement of main. Other failures stop for recovery. Finalization switches back to the original prepared commit, so saved baselines, release notes, and the showcase archive retain the original release boundary. This protects Git references only. npm publication is a separate external operation and is not transactional across packages.
 
+The private Storybook workspace uses `file:../ui-react` and `file:../ui-theme` dependencies, not release-version pins. It must keep resolving canonical source after Nx advances package versions; an old exact pin can silently install a registry copy and block the next compatibility gate. These local documentation links do not change public package dependency ranges or add Storybook to the released projects.
+
 ## Publication prerequisites
 
 Both packages publish publicly to npm. The release runner installs npm 11.5.1, enables provenance, and grants `id-token: write` for trusted publishing.
