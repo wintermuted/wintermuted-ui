@@ -24,7 +24,7 @@ for (const dismissal of ["escape", "close", "scrim", "toggle"]) {
     fireEvent.change(input, { target: { value: "Grace" } });
     input.focus();
     view.rerender(panel({ closeIcon: h("span", { "aria-hidden": true }, "X") }));
-    if (dismissal === "escape") fireEvent.keyDown(input, { key: "Escape" });
+    if (dismissal === "escape") assert.equal(fireEvent.keyDown(input, { key: "Escape" }), false);
     else if (dismissal === "toggle") { toggle.focus(); fireEvent.click(toggle); }
     else fireEvent.click(screen.getByRole("button", { name: dismissal === "close" ? labels.close : labels.dismiss }));
     assert.equal(toggle.getAttribute("aria-expanded"), "false");

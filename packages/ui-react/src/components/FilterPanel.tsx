@@ -17,6 +17,7 @@ export function FilterPanel({ children, search, summary, labels, toggleIcon, clo
     if (!expanded) return;
     const closeOnEscape = (event: KeyboardEvent) => {
       if (event.key === "Escape" && !event.defaultPrevented && toolbarRef.current?.contains(document.activeElement)) {
+        event.preventDefault();
         closePanel();
       }
     };

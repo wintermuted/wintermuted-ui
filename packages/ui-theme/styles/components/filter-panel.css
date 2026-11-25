@@ -47,8 +47,6 @@
     z-index: var(--wm-layer-popup);
     align-items: stretch;
     flex-direction: column;
-    max-height: 70dvh;
-    overflow-y: auto;
     padding: var(--wm-space-4);
     border: 1px solid var(--wm-color-border);
     border-radius: var(--wm-radius-base);

@@ -1,6 +1,7 @@
 /* Image gallery grid with hover-lift thumbnails. */
 
 .wm-preview-image {
+  box-sizing: border-box;
   display: block;
   width: 100%;
   height: auto;
