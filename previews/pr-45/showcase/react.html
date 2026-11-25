@@ -4,9 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>React Components | Wintermuted UI Library Docs</title>
-    <script type="module" crossorigin src="./assets/react-DMX9LXMo.js"></script>
+    <script type="module" crossorigin src="./assets/react-B1kpmR3f.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/react-DpEs0fid.css">
-    <link rel="stylesheet" crossorigin href="./assets/showcase-Xqtkixox.css">
+    <link rel="stylesheet" crossorigin href="./assets/showcase-Cudxuzo2.css">
   </head>
   <body>
     <header class="docs-topbar docs-topbar-global" data-site-repository="wintermuted/wintermuted-ui" data-site-theme-key="wm-showcase-theme" data-site-theme-owner="react">
@@ -55,6 +55,20 @@
             <code>ToggleGroup appearance="outline"</code> for an outlined selector.
             Facet reset is independent of values named <code>all</code>. Sortable headers
             render their own <code>th</code>; sort and direction callbacks are separate.</p>
+        </section>
+        <section class="react-doc-section">
+          <h3>Loading and action disclosures</h3>
+          <p><code>LoadStatus</code> announces supplied errors with an alert and warnings with a status.
+            Idle renders nothing. Retry calls each supplied callback once and is disabled during loading.
+            Optional help receives the exact combined message and error/warning tone; position it in the host.</p>
+          <p><code>RefreshAction</code> composes Button, prioritizes loading over retry/idle labels,
+            preserves native props and refs, and never submits a form.
+            <code>ActionDisclosure</code> defaults expanded and keeps hidden content mounted.
+            Its labeled header action is separate from the heading trigger and schedules expansion before its callback.
+            Collapse cleanup runs before hiding; applications own post-render focus.</p>
+          <p>Use native <code>Accordion</code> for simple details/summary content and
+            <code>ActionDisclosure</code> when a separate header action is required.
+            Neither component owns fetching, routing or persistence.</p>
         </section>
         <section class="react-doc-section">
           <h3>Install only what you use</h3>
