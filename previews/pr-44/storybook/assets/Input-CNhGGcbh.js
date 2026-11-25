@@ -1,0 +1,1 @@
+import{n as e}from"./rolldown-runtime-sJBDdmOt.js";import{n as t,t as n}from"./primitive-BgG-E7-i.js";var r;function i(){return(i=e((()=>{n(),r=t(`input`,`wm-input`)})))()}export{i as n,r as t};
