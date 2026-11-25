@@ -62,6 +62,9 @@ Components do not inject global CSS or bundle theme styles. The consumer explici
 | `Tooltip` | Focus/hover description and dismissal | Supply a focusable child forwarding ARIA and keep content noninteractive |
 | `Dialog` | Native modal activation, focus containment, dismissal requests, focus restoration | Own `open`, update it in `onClose`, and provide a title |
 | `Accordion` | Compose native details/summary semantics | Own content and any application-controlled state |
+| `ActionDisclosure` | Unique panel ID, keyboard heading trigger, mounted hidden panel and separate sibling action; collapse callback before hiding, action callback after scheduling expansion | Supply heading/action labels and optional refs; own cleanup and post-render focus |
+| `LoadStatus` | Announce supplied messages, isolate control events, disable retry during loading and call supplied retries once | Prepare issues/warnings and labels, own requests and position help |
+| `RefreshAction` | Compose Button with loading/retry/idle priority, disabling, click event and ref forwarding | Supply state/content and request policy |
 
 Tabs keep inactive panels mounted and hide them rather than destroying their contents. Controlled selection leaves the value update to the caller.
 

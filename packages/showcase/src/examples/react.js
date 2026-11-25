@@ -5,6 +5,7 @@ import {
   Dialog, FieldGroup, Input, Select, ListGroup, ListItem, Menu, Nav, ProgressBar, Spinner,
   Table, Tabs, ThemeProvider, ThemeSelect, Tooltip, ToggleGroup, FacetFilter, SortableTableHeader,
   StatCard, RankedBarList, Toast, ColorPicker, NumberStepper, LanguageSelector,
+  ActionDisclosure, LoadStatus, RefreshAction,
 } from "@wintermuted/ui-react";
 import { MultiSelect } from "@wintermuted/ui-react/select";
 import { initTheme } from "@wintermuted/ui-react/theme";
@@ -12,6 +13,36 @@ import { initTheme } from "@wintermuted/ui-react/theme";
 const storageKey = "wintermuted:react-showcase:theme";
 initTheme({ storageKey });
 const section = (title, ...children) => h("section", { className: "react-doc-section" }, h("h3", null, title), ...children);
+
+function ResourceControls() {
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [warning, setWarning] = useState(false);
+  const [editing, setEditing] = useState(false);
+  const startUpdate = () => setLoading(true);
+  return section("Loading and action disclosures",
+    h("p", null, "These examples simulate state without fetching. Start an update, then complete it; the application owns request policy and retained data."),
+    h("div", { className: "react-demo-actions" },
+      h(RefreshAction, { loading, error, onRefresh: startUpdate, variant: "secondary",
+        labels: { idle: "Update records", loading: "Updating records", retry: "Retry update" } }),
+      loading && h(Button, { variant: "ghost", onClick: () => { setLoading(false); setError(false); } }, "Complete update"),
+      h(Button, { variant: "ghost", onClick: () => setError(!error) }, error ? "Clear error" : "Show error"),
+      h(Button, { variant: "ghost", onClick: () => setWarning(!warning) }, warning ? "Clear warning" : "Show warning")),
+    h(ActionDisclosure, { title: "Record options", headingLevel: 4, headingId: "record-options-title",
+      onCollapse: () => setEditing(false),
+      action: { label: "Edit record options", icon: "+", onClick: () => setEditing(true) } },
+      h("div", { className: "react-demo-stack" },
+        h("p", null, editing ? "Editing options. Collapsing ends editing without discarding the field." : "The field remains mounted while collapsed."),
+        h(FieldGroup, { label: "Record name" }, h(Input, { defaultValue: "Quarterly report" })),
+        h(LoadStatus, { issues: error ? [{ message: "Records could not be loaded.", retry: startUpdate }] : [],
+          warnings: warning ? ["Some records are incomplete."] : [], loading,
+          labels: { retry: "Retry records", loading: "Loading records" } }))),
+    h("p", null, "Optional help can reuse Tooltip; the application chooses placement and supplies the same announced message."),
+    h(LoadStatus, { issues: [], warnings: ["Archived records are excluded."],
+      labels: { retry: "Retry archived records", loading: "Loading archived records" },
+      renderHelp: ({ message }) => h(Tooltip, { text: message },
+        h(Button, { variant: "ghost", "aria-label": "About excluded records" }, "?")) }));
+}
 
 function ReusableControls() {
   const [view, setView] = useState("orders");
@@ -73,6 +104,7 @@ function Showcase() {
   const [stops, setStops] = useState([]);
   return h(ThemeProvider, { storageKey },
     section("Appearance", h(ThemeSelect)),
+    h(ResourceControls),
     h(ReusableControls),
     section("Actions and feedback",
       h("div", { className: "react-demo-actions" },

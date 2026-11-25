@@ -40,6 +40,16 @@ They are also included in the aggregate theme and use the existing tokens.
 NumberStepper needs button and tooltip CSS when loading sheets individually.
 Color-picker and selector styles never depend on application toolbar or game selectors.
 
+`load-status.css` and `action-disclosure.css` provide scoped `.wm-load-status` and
+`.wm-action-disclosure-*` styles for neutral loading/retry feedback and independent
+header actions. They are exported under `styles/components/` and registered in the
+aggregate theme. Load tokens and button CSS when importing these sheets individually;
+base CSS is optional for document defaults. `load-status.css` imports `spinner.css`,
+which owns `.wm-sr-only`, so help-mode announcements stay visually hidden with modular imports.
+RefreshAction uses button CSS alone.
+The additive `--wm-color-warning-text` token supplies readable warning text in light/dark
+themes without changing the existing warning color or Button/Accordion defaults.
+
 This package lives in `packages/ui-theme` within the [Wintermuted UI monorepo](https://github.com/wintermuted/wintermuted-ui). New monorepo tags are not directly installable as the theme through a GitHub-source npm dependency; use npm releases or a tarball produced by `npm pack --workspace=@wintermuted/ui-theme`.
 
 ## Migrating to 1.0
