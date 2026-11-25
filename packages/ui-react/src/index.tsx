@@ -39,3 +39,8 @@ export { ColorPicker } from "./components/ColorPicker.js";
 export { NumberStepper } from "./components/NumberStepper.js";
 export { LanguageSelector } from "./components/LanguageSelector.js";
 export type { ToggleOption, ToggleGroupProps, FacetOption, FacetFilterProps, SortableTableHeaderProps, StatCardProps, RankedBarItem, RankedBarListProps, ToastProps, ColorChoice, ColorGroup, ColorPickerProps, NumberStepperProps, LanguageOption, LanguageSelectorProps } from "./interfaces.js";
+export { PageHeader } from "./components/PageHeader.js";
+export { Breadcrumbs } from "./components/Breadcrumbs.js";
+export { PreviewImage } from "./components/PreviewImage.js";
+export { FilterPanel } from "./components/FilterPanel.js";
+export type { PageHeaderProps, BreadcrumbItem, BreadcrumbsProps, PreviewImageProps, FilterPanelProps } from "./interfaces.js";

@@ -34,3 +34,7 @@ import "./react/Toast.test.js";
 import "./react/ColorPicker.test.js";
 import "./react/NumberStepper.test.js";
 import "./react/LanguageSelector.test.js";
+import "./react/PageHeader.test.js";
+import "./react/Breadcrumbs.test.js";
+import "./react/PreviewImage.test.js";
+import "./react/FilterPanel.test.js";

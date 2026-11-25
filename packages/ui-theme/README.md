@@ -40,6 +40,16 @@ They are also included in the aggregate theme and use the existing tokens.
 NumberStepper needs button and tooltip CSS when loading sheets individually.
 Color-picker and selector styles never depend on application toolbar or game selectors.
 
+PageHeader reuses `view-header.css` with additive `.wm-page-header` slots.
+Breadcrumbs reuses `nav.css` and `.wm-breadcrumbs`; PreviewImage uses
+`.wm-preview-image`/`.wm-preview-image-fallback` in `gallery.css`.
+The new exported `filter-panel.css` adds the responsive non-modal disclosure:
+controls are inline above 48rem and CSS-hidden/expandable below, without unmounting.
+Load `view-header.css`, `button.css` and `filter-panel.css` when importing its
+styles individually. All sheets are included by the aggregate theme.
+Loading/error compositions reuse `alert.css`, optionally `spinner.css` and
+`empty-state.css`; no second feedback API or Inventory composition styles were added.
+
 This package lives in `packages/ui-theme` within the [Wintermuted UI monorepo](https://github.com/wintermuted/wintermuted-ui). New monorepo tags are not directly installable as the theme through a GitHub-source npm dependency; use npm releases or a tarball produced by `npm pack --workspace=@wintermuted/ui-theme`.
 
 ## Migrating to 1.0

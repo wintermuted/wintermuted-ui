@@ -5,6 +5,7 @@ import {
   Dialog, FieldGroup, Input, Select, ListGroup, ListItem, Menu, Nav, ProgressBar, Spinner,
   Table, Tabs, ThemeProvider, ThemeSelect, Tooltip, ToggleGroup, FacetFilter, SortableTableHeader,
   StatCard, RankedBarList, Toast, ColorPicker, NumberStepper, LanguageSelector,
+  PageHeader, Breadcrumbs, PreviewImage, FilterPanel,
 } from "@wintermuted/ui-react";
 import { MultiSelect } from "@wintermuted/ui-react/select";
 import { initTheme } from "@wintermuted/ui-react/theme";
@@ -12,6 +13,35 @@ import { initTheme } from "@wintermuted/ui-react/theme";
 const storageKey = "wintermuted:react-showcase:theme";
 initTheme({ storageKey });
 const section = (title, ...children) => h("section", { className: "react-doc-section" }, h("h3", null, title), ...children);
+
+function DocumentPrimitives() {
+  const [cover, setCover] = useState(null);
+  return section("Document navigation and filtering",
+    h(Breadcrumbs, { label: "Document trail", items: [
+      { id: "guide", label: "Installation guide", href: "./installation.html" },
+      { id: "documents", label: "Documents" },
+    ] }),
+    h(PageHeader, { title: "Documents", description: "Shared reference materials.",
+      action: h(React.Fragment, null,
+        h(Button, { variant: "secondary", onClick: () => setCover(new URL("./logo.png", window.location.href).href) }, "Load cover"),
+        h(Button, { variant: "ghost", onClick: () => setCover(new URL("./missing-document-cover.png", window.location.href).href) }, "Use unavailable cover")) }),
+    h(FilterPanel, {
+      labels: { toggle: "Refine documents", panel: "Document filters", title: "Refine documents",
+        dismiss: "Dismiss document filters", close: "Close document filters" },
+      search: h(Input, { "aria-label": "Find documents", placeholder: "Find documents" }),
+      summary: "Showing all documents",
+    },
+    h(FieldGroup, { label: "Document owner" }, h(Input, { defaultValue: "Ada" })),
+    h(FieldGroup, { label: "Document type" }, h(Select, { defaultValue: "all" },
+      h("option", { value: "all" }, "All types"), h("option", { value: "notes" }, "Notes")))),
+    h("div", { className: "react-demo-fields" },
+      h(PreviewImage, { src: cover, alt: "Document cover", fallbackLabel: "Cover unavailable",
+        fallback: "No cover available", loading: "eager" }),
+      h("div", null,
+        h(Alert, { tone: "neutral", className: "wm-empty-state" }, h("p", null, "Reading documents")),
+        h(Alert, { tone: "danger", role: "alert" }, h("h2", null, "Connection lost"),
+          h("p", null, "Cannot read documents."), h(Button, { variant: "secondary" }, "Retry documents")))));
+}
 
 function ReusableControls() {
   const [view, setView] = useState("orders");
@@ -73,6 +103,7 @@ function Showcase() {
   const [stops, setStops] = useState([]);
   return h(ThemeProvider, { storageKey },
     section("Appearance", h(ThemeSelect)),
+    h(DocumentPrimitives),
     h(ReusableControls),
     section("Actions and feedback",
       h("div", { className: "react-demo-actions" },

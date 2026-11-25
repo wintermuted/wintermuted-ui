@@ -13,6 +13,21 @@
         </header>
         <div id="react-showcase"></div>
         <section class="react-doc-section">
+          <h3>Document primitives</h3>
+          <p><code>PageHeader</code> uses canonical view-header styling; <code>Breadcrumbs</code>
+            composes Nav and accepts a router-independent <code>renderLink</code>.
+            <code>PreviewImage</code> renders a labeled fallback for missing or failed images and
+            retries when <code>src</code> changes. All copy, icons, routes and content belong to the caller.</p>
+          <p><code>FilterPanel</code> is a responsive <strong>non-modal disclosure</strong>,
+            inline above 48rem and expandable on narrower viewports. Controls remain mounted.
+            Escape within the disclosure, close and scrim dismissal restore toggle focus;
+            it does not trap focus or lock scrolling. Use Dialog when modality is required.</p>
+          <p>Compose loading states with <code>Spinner label="..."</code> or a status
+            <code>Alert</code> containing an icon and message. Compose error/recovery states with
+            <code>Alert role="alert" tone="danger"</code>, a heading, message and recovery content.
+            Separate LoadingState and ErrorState exports are unnecessary.</p>
+        </section>
+        <section class="react-doc-section">
           <h3>Context-free controls</h3>
           <p><code>ToggleGroup</code>, <code>FacetFilter</code>, <code>SortableTableHeader</code>,
             <code>StatCard</code>, <code>RankedBarList</code>, <code>Toast</code>,

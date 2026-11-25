@@ -1,5 +1,23 @@
 /* Image gallery grid with hover-lift thumbnails. */
 
+.wm-preview-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  border-radius: var(--wm-radius-base);
+}
+
+.wm-preview-image-fallback {
+  display: grid;
+  place-items: center;
+  padding: var(--wm-space-4);
+  background: var(--wm-color-surface-muted);
+  color: var(--wm-color-text-secondary);
+  text-align: center;
+}
+
 /**
  * .gallery / .wm-gallery
  * Responsive auto-fill image grid. Minimum cell width: 200 px.

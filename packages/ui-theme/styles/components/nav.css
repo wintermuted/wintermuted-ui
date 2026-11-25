@@ -16,3 +16,29 @@
   outline: 2px solid var(--wm-color-accent);
   outline-offset: 2px;
 }
+
+.wm-breadcrumbs ol {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--wm-space-2);
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  font-size: var(--wm-text-sm);
+}
+
+.wm-breadcrumbs li {
+  display: flex;
+  gap: var(--wm-space-2);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.wm-breadcrumbs li + li::before {
+  content: "/";
+  color: var(--wm-color-text-muted);
+}
+
+.wm-breadcrumbs [aria-current="page"] {
+  color: var(--wm-color-text-secondary);
+}

@@ -94,6 +94,10 @@ All components come from `@wintermuted/ui-react` except `MultiSelect`. Primitive
 | `ColorPicker` | Controlled six-digit hex `value`, labeled `groups`/choices, `onSelect(value,groupId,index)`, `onChange(value)`, optional Enter-only `onCommit(value)`. Required `label`, `inputLabel`, `hexLabel`, `invalidLabel`; optional unique `inputId`, `disabled`, `placement` (above/right), `className`, `triggerClassName`. Supply `draftValue` and `onDraftChange` together to retain unfinished drafts across unmounts. Invalid drafts stay visible with an associated error; valid blur normalizes without firing `onCommit`. Escape, outside click and swatch selection close the popup. |
 | `NumberStepper` | Finite `value` within finite `min`/`max`, positive finite `step`, `onChange(value)`, `disabled`, supplied group/button/value labels and decrease/increase icons. Integer and representable fractional steps retain numeric precision; decimal rounding removes ordinary arithmetic noise before clamping to both bounds. Invalid numeric contracts throw. Uses Button and Tooltip; optional `tooltipPlacement` above/right. |
 | `LanguageSelector` | Supplied `options: {value,label,disabled?}[]`, controlled `value`/`onChange`, `label`, optional `className`, `variant` native (default) or dropup. The popup trigger's accessible name includes the selected label. Popup Arrow Up/Down, Home/End skip disabled options; enabled-option focus survives parent rerenders; Escape, Tab, outside click and selection dismiss. Callers own locale normalization and translation updates. |
+| `PageHeader` | Required string `title` rendered as h1; optional `eyebrow`, `description`, decorative `icon`, `action`, and additive `classNames` slots (root, eyebrow, title, action). Uses canonical view-header styling; applications own heading hierarchy. |
+| `Breadcrumbs` | Required navigation `label` and readonly `items: {id,label,href?}[]` with stable unique IDs. Native anchors by default; `renderLink(item)` receives a guaranteed href for router adaptation. The final non-link has `aria-current="page"`; custom link renderers own current-link ARIA. Optional additive `className`. |
+| `PreviewImage` | Required nullable `src`, `alt`, `fallbackLabel` and fallback node. Missing/empty URLs or load failure render a labeled image-role fallback; a changed source retries, an unchanged failed source stays failed. Optional `className`, `fallbackClassName`, `loading` (lazy default/eager). Gallery defaults size image and fallback consistently; applications own image URLs and sizing overrides. |
+| `FilterPanel` | Required search node, children and `labels: {toggle,panel,title,dismiss,close}`; optional summary, decorative toggle/close icons and additive class slots. Responsive non-modal disclosure: inline above 48rem; collapsed controls are CSS-hidden below. Inputs stay mounted; close, scrim and Escape within focused disclosure content restore toggle focus. Handled Escape is respected, instances dismiss independently. No focus trap, initial focus move or scroll lock; use Dialog for modality. |
 
 These context-free controls require no providers, routing, persistence or domain state. All copy,
 palette choices, filtering, rankings, formatting and notification timing belong to the application.
@@ -105,6 +109,54 @@ Public option/props interfaces are exported from the main barrel and emitted as 
 CI runs source behavior, generated declarations, native browser interactions and packed consumers
 against React 18.3 and 19, with TypeScript bundler/NodeNext resolution and no required react-select.
 The React showcase includes all nine controls with neutral invoice/department data.
+
+## Inventory transfer boundary and post-release adapters
+
+The four new primitives were adapted from immutable
+[Inventory revision c09af9a](https://github.com/wintermuted/inventory/commit/c09af9a8835d0082ffded1683e66858647638bde),
+`libs/ui-staging`. Existing Nav, view-header/gallery CSS, Alert and Spinner were reused rather
+than introducing parallel navigation, image layout or feedback systems. Existing consumer APIs
+are unchanged; public props live in `src/interfaces.ts`. React behavior stays here and all CSS
+stays in `ui-theme`. Routes, icons, kitchen copy, domain filtering, theme preferences and
+Inventory composition CSS were not transferred.
+
+| Staged candidate | Destination API | Inventory change after both packages release |
+| --- | --- | --- |
+| PageHeader | `PageHeader` with the staged prop/class-slot names; canonical `.wm-view-header` presentation | Replace staging import in `libs/ui/src/lib/ui.tsx`; retain navigation icon lookup and local class slots. |
+| Breadcrumbs | `Breadcrumbs` built on existing `Nav`; `items`, `label`, `renderLink`, `className` | Replace staging import; retain trail-to-items mapping and React Router Link renderer. |
+| PreviewImage | `PreviewImage` with the staged source/fallback contract | Replace staging import; retain recipe URL/alt mapping, icons and card/detail sizing classes. |
+| LoadingState | Existing `Spinner` for an indicator, or `Alert role="status"` with supplied icon/message | Keep local LoadingState API and kitchen icon/copy; compose Alert with existing centered class instead of importing a new LoadingState. |
+| ErrorState | Existing `Alert role="alert" tone="danger"` with heading/message/recovery children | Keep local ErrorState API and storage recovery copy; replace its staged component with Alert composition. |
+| FilterPanel | `FilterPanel` with staged slots/labels and canonical responsive CSS | Replace staging import in `libs/feature-inventory/src/lib/filter-panel.tsx`; retain local search/filter/summary content, labels, icons and composition classes. |
+
+```tsx
+import { Alert, Breadcrumbs, FilterPanel, PageHeader, PreviewImage, Spinner } from "@wintermuted/ui-react";
+
+<Breadcrumbs label="Document trail" items={[
+  { id: "library", label: "Library", href: "/library" },
+  { id: "notes", label: "Notes" },
+]} />;
+<PageHeader title="Documents" description="Shared reference materials." />;
+<PreviewImage src={null} alt="Document cover" fallbackLabel="Cover unavailable" fallback="No cover" />;
+<Spinner label="Reading documents" />;
+<Alert role="status" tone="neutral" className="wm-empty-state"><p>Reading documents</p></Alert>;
+<Alert role="alert" tone="danger"><h2>Connection lost</h2><p>Cannot read documents.</p><button>Retry</button></Alert>;
+<FilterPanel
+  labels={{ toggle: "Refine", panel: "Document filters", title: "Refine documents",
+    dismiss: "Dismiss refinement", close: "Close refinement" }}
+  search={<input aria-label="Find documents" />}
+  summary="Showing all documents"
+><input aria-label="Owner" defaultValue="Ada" /></FilterPanel>;
+```
+
+Update Inventory dependency versions only after the destination release is available, then
+remove unused staging exports once its adapters/tests consume the published APIs. Canonical
+classes are additive, not headless: check local CSS cascade and image dimensions during that
+consumer migration. Preserve the existing desktop/mobile breakpoint and disclosure behavior
+through overrides if necessary; Inventory remains responsible for its composition. The theme's
+48rem breakpoint is a default, not an Inventory route/layout decision. Escape no longer dismisses
+an unrelated panel while focus is elsewhere. No Inventory consumption or package publishing is
+part of this destination transfer.
 
 ## Searchable select
 
