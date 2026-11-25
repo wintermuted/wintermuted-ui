@@ -89,7 +89,7 @@ function renderHead(site, page, profile) {
     '<link rel="stylesheet" href="/styles/theme.css" />',
     profile.prism || profile.prismStyle
       ? '<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" crossorigin />' : "",
-    '<link rel="stylesheet" href="/styles/showcase.css?v=6" />',
+    '<link rel="stylesheet" href="/styles/showcase.css?v=8" />',
     profile.favicon ? [
       '<link rel="icon" type="image/png" sizes="32x32" href="/logo.png" />',
       '<link rel="apple-touch-icon" href="/logo.png" />',

@@ -7,6 +7,57 @@ import { chromium } from "playwright";
 import { createServer } from "vite";
 import { site } from "../packages/showcase/src/site.config.mjs";
 
+test("project card links retain normal theme underlines and hover feedback", { timeout: 90000 }, async () => {
+  const server = await createServer({
+    configFile: fileURLToPath(new URL("../packages/showcase/vite.config.mjs", import.meta.url)),
+    server: { host: "127.0.0.1", port: 0 },
+  });
+  let browser;
+  try {
+    await server.listen();
+    browser = await chromium.launch();
+    const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
+    await page.route("https://**", route => route.fulfill({ body: "", contentType: "text/plain" }));
+    const base = `http://127.0.0.1:${server.httpServer.address().port}/showcase/`;
+    await page.goto(`${base}projects.html`);
+    const icons = page.locator(".project-card-icon");
+    assert.equal(await icons.count(), 5);
+    assert.ok(await icons.evaluateAll(images => images.every(image =>
+      image.complete && image.naturalWidth > 0 &&
+      image.getBoundingClientRect().width === 64 && image.getBoundingClientRect().height === 64
+    )));
+    await page.addStyleTag({ content: "a { transition: none !important; }" });
+    const decoration = link => link.evaluate(node => {
+      const style = getComputedStyle(node);
+      return { line: style.textDecorationLine, underline: style.textDecorationColor, color: style.color };
+    });
+    for (const theme of ["light", "dark"]) {
+      await page.locator("html").evaluate((node, value) => node.dataset.theme = value, theme);
+      await page.mouse.move(0, 0);
+      const ordinary = page.locator('a[href$="/issues/new"]');
+      const normal = await decoration(ordinary);
+      await ordinary.hover();
+      const hovered = await decoration(ordinary);
+      assert.equal(normal.line, "underline");
+      assert.notEqual(normal.underline, hovered.underline);
+      for (const selector of ["h3 a", "p a:first-child", "p a:last-child"]) {
+        const link = page.locator("article.component-card").first().locator(selector);
+        await page.mouse.move(0, 0);
+        assert.deepEqual(await decoration(link), normal);
+        await link.hover();
+        assert.deepEqual(await decoration(link), hovered);
+      }
+    }
+    await page.goto(`${base}index.html`);
+    const tile = page.locator('.component-index > a[href="./projects.html"]');
+    await tile.hover();
+    assert.equal((await decoration(tile)).line, "none");
+  } finally {
+    await browser?.close();
+    await server.close();
+  }
+});
+
 test("static layouts work without JavaScript and enhance navigation without duplicating chrome", { timeout: 90000 }, async () => {
   const server = await createServer({
     configFile: fileURLToPath(new URL("../packages/showcase/vite.config.mjs", import.meta.url)),

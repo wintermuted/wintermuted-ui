@@ -45,6 +45,28 @@ Vite uses `src` as its source root and the package's existing `public` folder fo
 
 ### Adding a page
 
+The public project gallery is `projects.html`, authored in `src/pages/foundations/projects.html`.
+Keep it separate from `gallery.html`, which documents the gallery component. To add or
+refresh a listing, verify the repository is public and contains a theme dependency or
+import, check the live site, and include a description, site link, source link, and
+dependency/import evidence link. Update the last-checked date when reviewing the list.
+Do not publish private repository details. The gallery is static and needs no runtime
+GitHub API access; additional consumers can be suggested through the linked issue form.
+
+Project icons are local snapshots in `public/projects`, displayed without cropping or
+recoloring. Prefer the app's published icon; otherwise use an existing project mark.
+Keep their source attribution below when refreshing assets. The JSON Resume mark
+comes from its public project listing; Overworld currently publishes the React
+favicon as its app icon (converted from ICO to PNG here).
+
+| Asset | Original source |
+| --- | --- |
+| `game-of-life.svg` | [Game of Life app icon](https://github.com/wintermuted/game-of-life/blob/HEAD/packages/app/public/gol-mark.svg) |
+| `icon-builder.svg` | [Icon Builder's preview favicon](https://github.com/wintermuted/icon-builder/blob/HEAD/assets/svg/wintermuted-brand/wm-wintermuted-mark.svg) |
+| `blog.png` | [Blog logo](https://github.com/wintermuted/blog/blob/HEAD/logo.png) |
+| `jsonresume.svg` | [JSON Resume project mark](https://github.com/wintermuted/blog/blob/HEAD/assets/img/projects/jsonresume-theme-wintermuted/jsonresume-theme-wintermuted-mark.svg) |
+| `overworld.png` | [Overworld app favicon](https://github.com/wintermuted/overworld/blob/HEAD/public/favicon.ico) |
+
 Create an HTML file in the appropriate category, such as `src/pages/foundations/example.html`:
 
 ```html

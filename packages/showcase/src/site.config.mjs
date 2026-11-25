@@ -6,6 +6,7 @@ export const site = {
   fallbackTags: ["v0.1.1", "v0.1.0"],
   pages: [
     { file: "index.html", source: "foundations/index.html", label: "Introduction", title: "Wintermuted UI Library Docs" },
+    { file: "projects.html", source: "foundations/projects.html", label: "Project Gallery", profile: "icons" },
     { file: "installation.html", source: "foundations/installation.html", label: "Installation", title: "Installation & Usage | Wintermuted UI Library Docs" },
     { file: "react.html", source: "foundations/react.html", label: "React Components", profile: "react", themeOwner: "react" },
     { file: "typography.html", source: "foundations/typography.html", label: "Typography" },
@@ -41,7 +42,7 @@ export const site = {
     { file: "layout-example-topnav.html", source: "layouts/examples/layout-example-topnav.html", label: "Top Nav Mock Page", title: "Top Nav Mock Page | Wintermuted UI Library", layout: "standalone", profile: "standalone" },
   ],
   navigation: [
-    { label: "Foundations", items: ["index.html", "installation.html", "react.html", "typography.html", "cards.html"] },
+    { label: "Foundations", items: ["index.html", "projects.html", "installation.html", "react.html", "typography.html", "cards.html"] },
     { label: "Inputs and Actions", items: ["buttons.html", "tags.html", "forms.html", "toggle.html", "slider.html", "toggle-group.html"] },
     { label: "Navigation and Structure", items: [
       "navigation.html", "modal.html",
