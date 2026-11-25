@@ -71,6 +71,9 @@ All components come from `@wintermuted/ui-react` except `MultiSelect`. Primitive
 | Export | Contract |
 | --- | --- |
 | `Button` | Native button; defaults to `type="button"`. `variant`: primary, secondary, ghost, danger, success, warning, link. Optional `size="sm"` and decorative `icon`. Supply an accessible name for icon-only buttons. |
+| `RefreshAction` | Required `loading`, `error`, `onRefresh(event)` and `labels: {idle,loading,retry}` accepting React nodes. Loading takes precedence and disables interaction; caller `disabled` is preserved. Composes Button with native props, styling, icons and forwarded ref; always `type="button"` and `aria-busy` reflects loading. |
+| `LoadStatus` | Readonly `issues: {message,retry?}[]`, optional readonly `warnings`, `loading`, required accessible `labels: {retry,loading}`, optional `retryIcon`, `loadingIcon`, `className`, `renderHelp({message,tone})`. Idle renders nothing; errors use alert, warnings status. Help receives the exact space-joined messages and `"error"`/`"warning"` tone while the same message is announced visually hidden. Each supplied retry runs once per activation; retries disable during loading. Loading without errors gets its own status, even with warnings; loading errors retain their message without a second loading announcement. Clicks/keydown do not activate surrounding disclosures. |
+| `ActionDisclosure` | Required `title` and children; optional `headingLevel` 2-6 (default 3), `headingId`, `defaultExpanded` (default true), `onCollapse()`, decorative `indicator`, `className`, `classNames: {header?,heading?,action?}`. Stable unique panel IDs; keyboard heading button toggles mounted hidden children. Optional `action: {label,icon?,buttonRef?,onClick}` is a sibling Button, never nested in the trigger. Collapse callback runs before scheduling hiding; the action schedules expansion then calls its callback. Post-render focus and domain cleanup belong to the host. |
 | `Badge`, `Alert` | `tone`: neutral, info, success, warning, danger. Alert defaults to `role="status"`; opt into `role="alert"` for urgent messages. |
 | `Card`, `CardHeader`, `CardBody`, `CardTitle`, `CardText`, `CardFooter` | Semantic section/header/div/h3/p/footer slots; `as` selects an element or custom component. |
 | `ListGroup`, `ListItem`, `Nav` | Semantic ul/li/nav; `as` supports other elements or router links without a router dependency. Label navigation regions and use `aria-current="page"` on active links. Compose grid/flex layout in your application. |
@@ -157,6 +160,40 @@ through overrides if necessary; Inventory remains responsible for its compositio
 48rem breakpoint is a default, not an Inventory route/layout decision. Escape no longer dismisses
 an unrelated panel while focus is elsewhere. No Inventory consumption or package publishing is
 part of this destination transfer.
+
+## Loading and action disclosures
+
+`LoadStatus`, `RefreshAction`, and `ActionDisclosure` were transferred from
+[Overworld revision 4d9b669](https://github.com/wintermuted/overworld/commit/4d9b669cc0d10a397d0cef3e2968ed5e80066c77).
+Fetching, snapshot retention, routing, time persistence, map-aware help, and application
+disclosure adapters remain outside the library. Existing Accordion and Button defaults are unchanged.
+Use Accordion for native details/summary and ActionDisclosure for an independent header action.
+Keep `title` noninteractive; put secondary controls in `action` or the panel.
+
+```tsx
+import "@wintermuted/ui-theme/index.css";
+import { ActionDisclosure, LoadStatus, RefreshAction } from "@wintermuted/ui-react";
+import type { LoadIssue, LoadStatusHelp, ActionDisclosureAction } from "@wintermuted/ui-react";
+
+const reload = () => { /* application-owned request */ };
+const issues: readonly LoadIssue[] = [{ message: "Records unavailable.", retry: reload }];
+const action: ActionDisclosureAction = { label: "Edit records", onClick: () => {} };
+const loading = false;
+
+<ActionDisclosure title="Record options" headingLevel={2} action={action}>
+  <input aria-label="Record name" defaultValue="Quarterly report" />
+  <LoadStatus issues={issues} loading={loading}
+    labels={{ retry: "Retry records", loading: "Loading records" }} />
+</ActionDisclosure>;
+<RefreshAction loading={loading} error={issues.length > 0} onRefresh={reload}
+  labels={{ idle: "Update records", loading: "Updating records", retry: "Retry records" }} />;
+```
+
+Optional help can compose the existing Tooltip and Button with a supplied accessible name.
+Interactive or map-positioned help remains host-owned. In either case, the help renderer gets
+`LoadStatusHelp` with the exact combined message and tone. CSS is explicitly loaded from the theme;
+no CSS imports, ambient Vite types, or handwritten CSS declarations enter the React package.
+CI generates and checks all public declarations and packed React 18/19 consumers.
 
 ## Searchable select
 

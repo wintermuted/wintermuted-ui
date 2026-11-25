@@ -16,6 +16,54 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
   icon?: React.ReactNode;
 }
 
+export interface RefreshActionProps extends Omit<ButtonProps, "children" | "onClick" | "type"> {
+  loading: boolean;
+  error: boolean;
+  onRefresh: React.MouseEventHandler<HTMLButtonElement>;
+  labels: { idle: React.ReactNode; loading: React.ReactNode; retry: React.ReactNode };
+}
+
+export interface LoadIssue {
+  message: string;
+  retry?: () => void;
+}
+
+export interface LoadStatusHelp {
+  message: string;
+  tone: "error" | "warning";
+}
+
+export interface LoadStatusProps {
+  issues: readonly LoadIssue[];
+  warnings?: readonly string[];
+  loading?: boolean;
+  labels: { retry: string; loading: string };
+  renderHelp?: (help: LoadStatusHelp) => React.ReactNode;
+  retryIcon?: React.ReactNode;
+  loadingIcon?: React.ReactNode;
+  className?: string;
+}
+
+export interface ActionDisclosureAction {
+  label: string;
+  icon?: React.ReactNode;
+  buttonRef?: React.Ref<HTMLButtonElement>;
+  onClick: () => void;
+}
+
+export interface ActionDisclosureProps {
+  title: React.ReactNode;
+  children: React.ReactNode;
+  headingLevel?: 2 | 3 | 4 | 5 | 6;
+  headingId?: string;
+  defaultExpanded?: boolean;
+  onCollapse?: () => void;
+  indicator?: React.ReactNode;
+  action?: ActionDisclosureAction;
+  className?: string;
+  classNames?: { header?: string; heading?: string; action?: string };
+}
+
 export interface BadgeProps extends React.HTMLAttributes<HTMLSpanElement> { tone?: Tone }
 export interface AlertProps extends React.HTMLAttributes<HTMLDivElement> { tone?: Tone }
 export interface SpinnerProps extends React.HTMLAttributes<HTMLSpanElement> { label?: string }

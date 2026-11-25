@@ -16,13 +16,16 @@ Use the theme toolbar to select light or dark. This applies the existing theme r
 
 ## Component coverage
 
-All 35 public React components are represented across 29 component groups. Card's six primitives share one Docs page and named slot examples; ListGroup and ListItem are documented together. The ThemeProvider example also demonstrates the `useTheme` hook.
+All 38 public React components are represented across 32 component groups. Card's six primitives share one Docs page and named slot examples; ListGroup and ListItem are documented together. The ThemeProvider example also demonstrates the `useTheme` hook.
 
 The sidebar organizes component pages into Actions, Forms, Layout, Navigation, Data display, Feedback, Overlays, and Theming. Components are alphabetical within each section. Explicit component IDs preserve existing story and Docs links when sidebar titles change.
 
 | Component | Examples and interactions |
 | --- | --- |
 | Button | Variants, small size, disabled state, and click actions |
+| RefreshAction | Supplied idle/retry/loading content, loading precedence, and caller disabling |
+| LoadStatus | Idle, loading, warning, aggregate retry, recovery, and caller-positioned help |
+| ActionDisclosure | Keyboard disclosure, retained field state, and separate text/icon actions |
 | Accordion | Native disclosure and initially expanded content |
 | Alert, Badge | Semantic tones, status, warning, and error content |
 | Card, CardHeader, CardBody, CardTitle, CardText, CardFooter | Complete composition and individual slot examples |

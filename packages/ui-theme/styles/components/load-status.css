@@ -1,0 +1,31 @@
+@import url("./spinner.css");
+
+.wm-load-status {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--wm-space-1);
+  max-inline-size: 100%;
+  color: var(--wm-color-danger);
+  overflow-wrap: anywhere;
+}
+
+.wm-load-status-warning {
+  color: var(--wm-color-warning-text);
+}
+
+.wm-load-status .wm-load-status-retry {
+  min-inline-size: var(--wm-control-height);
+  min-block-size: var(--wm-control-height);
+  padding: var(--wm-space-1);
+  color: inherit;
+}
+
+.wm-load-status-loading {
+  color: var(--wm-color-text-muted);
+}
+
+.wm-load-status-retry:focus-visible {
+  outline: 2px solid var(--wm-color-accent);
+  outline-offset: -2px;
+}

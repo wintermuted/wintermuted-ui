@@ -37,6 +37,17 @@ try {
   }
   assert.ok(!reactPacked.files.some(file => /\.tsx?$/.test(file.path) && !file.path.endsWith(".d.ts")),
     "React package must not ship TypeScript implementation files.");
+  for (const name of ["LoadStatus", "RefreshAction", "ActionDisclosure"]) {
+    for (const suffix of [".js", ".d.ts"]) {
+      assert.ok(reactPacked.files.some(file => file.path === `src/components/${name}${suffix}`),
+        `Missing compiled component: ${name}${suffix}`);
+    }
+    const declarations = readFileSync(join(reactDist, "src", "components", `${name}.d.ts`), "utf8");
+    assert.doesNotMatch(declarations, /ui-staging|@overworld|vite\/client|\.css/);
+  }
+  const publicDeclarations = readFileSync(join(reactDist, "src", "index.d.ts"), "utf8");
+  for (const name of ["LoadIssue", "LoadStatusHelp", "LoadStatusProps", "RefreshActionProps",
+    "ActionDisclosureAction", "ActionDisclosureProps"]) assert.ok(publicDeclarations.includes(name), name);
   const packed = JSON.parse(runNpm(["pack", "--workspace=@wintermuted/ui-theme", "--json", "--pack-destination", temp], root))[0];
   const tarball = join(temp, packed.filename);
   const css = join(temp, "css-only");
@@ -63,6 +74,13 @@ try {
   const manifest = JSON.parse(readFileSync(join(installed, "package.json"), "utf8"));
   const legacyExports = [".", "./index.css", "./styles/tokens.css", "./styles/base.css", "./styles/components.css"];
   for (const key of legacyExports) assert.ok(existsSync(resolve(installed, manifest.exports[key])));
+  for (const name of ["load-status", "action-disclosure"]) {
+    const key = `./styles/components/${name}.css`;
+    assert.equal(manifest.exports[key], key);
+    const content = readFileSync(resolve(installed, key), "utf8");
+    assert.match(content, /\.wm-/);
+    assert.doesNotMatch(content, /ui-staging|@overworld|planner-|places-/);
+  }
   assert.equal(manifest.peerDependencies, undefined);
   assert.equal(manifest.dependencies, undefined);
   assert.ok(!existsSync(join(installed, "react")));
@@ -85,7 +103,7 @@ try {
 import assert from "node:assert/strict";
 import React from "react";
 import {renderToString} from "react-dom/server";
-import {Button, ThemeProvider, ToggleGroup, FacetFilter, SortableTableHeader, StatCard,
+import {Button, ThemeProvider, ToggleGroup, FacetFilter, SortableTableHeader, StatCard, LoadStatus, RefreshAction, ActionDisclosure,
   RankedBarList, Toast, ColorPicker, NumberStepper, LanguageSelector} from "@wintermuted/ui-react";
 import {initTheme, getThemeScript} from "@wintermuted/ui-react/theme";
 assert.match(renderToString(React.createElement(ThemeProvider, null,
@@ -94,6 +112,12 @@ assert.equal(initTheme(), "light");
 assert.ok(getThemeScript().includes("wintermuted:theme"));
 const h = React.createElement;
 const app = h("div", null,
+  h(LoadStatus, {issues: [{message: "Records unavailable"}], warnings: ["Some records are incomplete"],
+    labels: {retry: "Retry records", loading: "Loading records"}}),
+  h(RefreshAction, {loading: true, error: true, onRefresh() {},
+    labels: {idle: "Update records", loading: "Updating records", retry: "Retry records"}}),
+  h(ActionDisclosure, {title: "Record options", defaultExpanded: false,
+    action: {label: "Edit records", onClick() {}}}, h("input", {"aria-label": "Record name", defaultValue: "Draft"})),
   h(ToggleGroup, {label: "Documents", options: [{value: "orders", label: "Orders"}], value: "orders", onChange() {}}),
   h(FacetFilter, {label: "Departments", options: [], selected: [], onChange() {}, available: false,
     emptyLabel: "No departments", moreLabel: "More", fewerLabel: "Fewer",
@@ -112,14 +136,19 @@ const html = renderToString(app);
 assert.match(html, /Orders/);
 assert.match(html, /aria-sort="ascending"/);
 assert.match(html, /hidden=""/);
-assert.doesNotMatch(html, /wm-staged/);
+assert.match(html, /role="alert"[^>]*>Records unavailable Some records are incomplete/);
+assert.match(html, /aria-busy="true"[^>]*>Updating records/);
+assert.match(html, /aria-expanded="false"/);
+assert.match(html, /aria-label="Edit records"/);
+assert.doesNotMatch(html, /wm-staged|ui-staging|@overworld/);
 `], { cwd: css, stdio: "inherit" });
   if (!packageOnly) {
     writeFileSync(join(css, "without-select.tsx"), `
 import * as React from "react";
-import {Button, Card, ThemeProvider, ToggleGroup, FacetFilter, SortableTableHeader, StatCard,
+import {Button, Card, ThemeProvider, ToggleGroup, FacetFilter, SortableTableHeader, StatCard, LoadStatus, RefreshAction, ActionDisclosure,
   RankedBarList, Toast, ColorPicker, NumberStepper, LanguageSelector} from "@wintermuted/ui-react";
 import type {ButtonProps, ThemeContextValue, ToggleOption, FacetOption, SortableTableHeaderProps,
+  LoadIssue, LoadStatusHelp, LoadStatusProps, RefreshActionProps, ActionDisclosureAction, ActionDisclosureProps,
   ColorGroup, RankedBarItem, ColorPickerProps, NumberStepperProps, ToastProps, StatCardProps,
   ToggleGroupProps, FacetFilterProps, RankedBarListProps, LanguageOption, LanguageSelectorProps} from "@wintermuted/ui-react";
 import {initTheme} from "@wintermuted/ui-react/theme";
@@ -130,7 +159,25 @@ const toggles: ToggleOption<"orders" | "returns">[] = [{value: "orders", label: 
 const facets: FacetOption<"all">[] = [{value: "all", label: "All Services", count: 0}];
 const groups: ColorGroup[] = [{id: "brand", label: "Brand", choices: [{value: "#123456", label: "Ink"}]}];
 const rows: RankedBarItem[] = [{id: "shipping", label: "Shipping", value: 1, valueLabel: "1 order"}];
+const issues: readonly LoadIssue[] = [{message: "Records unavailable", retry() {}}];
+const warnings: readonly string[] = ["Some records are incomplete"];
+const refreshRef = React.createRef<HTMLButtonElement>();
+const actionRef = React.createRef<HTMLButtonElement>();
+const refresh: RefreshActionProps = {loading: false, error: false, labels: {idle: "Update", loading: "Updating", retry: "Retry"},
+  onRefresh: event => { const button: HTMLButtonElement = event.currentTarget; button.focus(); }, disabled: false};
+const action: ActionDisclosureAction = {label: "Edit records", buttonRef: actionRef, onClick() {}};
+const status: LoadStatusProps = {issues, warnings, labels: {retry: "Retry records", loading: "Loading records"},
+  renderHelp: (help: LoadStatusHelp) => { const tone: "error" | "warning" = help.tone; return <span>{help.message} {tone}</span>; }};
+const disclosure: ActionDisclosureProps = {title: "Record options", children: <input aria-label="Record name"/>,
+  headingLevel: 2, headingId: "records-title", action, classNames: {header: "host", heading: "host-title", action: "host-edit"}};
+// @ts-expect-error RefreshAction owns type=button; consumers cannot opt into submission.
+const submitRefresh: RefreshActionProps = {...refresh, type: "submit"};
+// @ts-expect-error Heading levels follow the supported semantic heading contract.
+const invalidHeading: ActionDisclosureProps = {...disclosure, headingLevel: 1};
 export const controls = <>
+  <LoadStatus {...status}/>
+  <RefreshAction {...refresh} ref={refreshRef} variant="secondary" size="sm" data-record="one"/>
+  <ActionDisclosure {...disclosure}/>
   <ToggleGroup options={toggles} value="orders" label="Documents" onChange={value => { const typed: "orders" | "returns" = value; }}/>
   <FacetFilter options={facets} selected={["all"]} label="Departments" available emptyLabel="Empty"
     moreLabel="More" fewerLabel="Fewer" onChange={values => { const typed: "all"[] = values; }}

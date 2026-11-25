@@ -39,7 +39,8 @@ test("transferred controls retain context-free sources, explicit CSS and public 
   const barrel = await readFile(new URL("index.tsx", reactRoot), "utf8");
   const interfaces = await readFile(new URL("interfaces.ts", reactRoot), "utf8");
   for (const name of ["ToggleGroup", "FacetFilter", "SortableTableHeader", "StatCard", "RankedBarList",
-    "Toast", "ColorPicker", "NumberStepper", "LanguageSelector", "PageHeader", "Breadcrumbs", "PreviewImage", "FilterPanel"]) {
+    "Toast", "ColorPicker", "NumberStepper", "LanguageSelector", "PageHeader", "Breadcrumbs", "PreviewImage", "FilterPanel",
+    "LoadStatus", "RefreshAction", "ActionDisclosure"]) {
     assert.ok(barrel.includes(`export { ${name} } from "./components/${name}.js"`), name);
     assert.ok(barrel.includes(`${name}Props`), `${name} public props`);
     assert.ok(interfaces.includes(`export interface ${name}Props`), name);
@@ -48,10 +49,34 @@ test("transferred controls retain context-free sources, explicit CSS and public 
     assert.doesNotMatch(source, /import\s+["'][^"']+\.css["']/);
     for (const match of source.matchAll(/from\s+["'](\.[^"']+)["']/g)) assert.ok(match[1].endsWith(".js"), match[1]);
   }
-  for (const name of ["color-picker", "ranked-bar-list", "number-stepper", "language-selector", "filter-panel"]) {
+  for (const name of ["color-picker", "ranked-bar-list", "number-stepper", "language-selector", "filter-panel",
+    "load-status", "action-disclosure"]) {
     const css = await readFile(new URL(`styles/components/${name}.css`, root), "utf8");
     assert.doesNotMatch(css, /wm-staged|grid-overlay-controls|play-about|App\.css/);
   }
+});
+
+test("loading and disclosure transfer resolves only package-owned modules without ambient CSS types", async () => {
+  const reactRoot = new URL("../ui-react/src/", root);
+  for (const name of ["LoadStatus", "RefreshAction", "ActionDisclosure"]) {
+    const source = await readFile(new URL(`components/${name}.tsx`, reactRoot), "utf8");
+    for (const [, specifier] of source.matchAll(/(?:from\s+|import\s*)["']([^"']+)["']/g)) {
+      if (specifier === "react") continue;
+      assert.match(specifier, /^\.\.?\/[^/]+\.js$/, `${name}: ${specifier}`);
+      const target = new URL(specifier.replace(/\.js$/, specifier.includes("interfaces") || specifier.includes("utils") ? ".ts" : ".tsx"),
+        new URL(`components/${name}.tsx`, reactRoot));
+      await access(target);
+    }
+    assert.doesNotMatch(source, /@overworld|ui-staging|react-router|mapbox|localStorage|sessionStorage|fetch\s*\(|Date\.now|navigator\.|TriMet|Portland|planner-|places-|arrival/i);
+    assert.doesNotMatch(source, /vite\/client|\.css["']/);
+  }
+  const barrel = await readFile(new URL("index.tsx", reactRoot), "utf8");
+  assert.equal(barrel.replace(/export[\s\S]*?from\s+["'][^"']+["'];/g, "").trim(), "");
+  for (const name of ["LoadIssue", "LoadStatusHelp", "ActionDisclosureAction"]) assert.ok(barrel.includes(name), name);
+  const storybook = JSON.parse(await readFile(new URL("../storybook/package.json", root), "utf8"));
+  const react = JSON.parse(await readFile(new URL("../ui-react/package.json", root), "utf8"));
+  assert.equal(storybook.dependencies["@wintermuted/ui-react"], react.version, "Stories must resolve canonical workspace components");
+  assert.equal(storybook.dependencies["@wintermuted/ui-theme"], pkg.version, "Stories must resolve canonical workspace CSS");
 });
 
 test("React integration depends on the theme, not the reverse", async () => {

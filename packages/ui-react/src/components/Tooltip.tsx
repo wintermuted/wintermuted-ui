@@ -17,6 +17,7 @@ export function Tooltip({ text, children, placement = "above" }: TooltipProps) {
     return () => document.removeEventListener("keydown", dismiss);
   }, [visible]);
   return <span className="wm-tooltip-anchor"
+    onKeyDown={event => { if (event.key === "Escape") setDismissed(true); }}
     onMouseEnter={() => { setHovered(true); setDismissed(false); }}
     onMouseLeave={() => setHovered(false)}
     onFocus={() => { setFocused(true); setDismissed(false); }}

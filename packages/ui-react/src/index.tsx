@@ -10,6 +10,9 @@ export { Nav } from "./components/Nav.js";
 export { Input } from "./components/Input.js";
 export { Select } from "./components/Select.js";
 export { Button } from "./components/Button.js";
+export { RefreshAction } from "./components/RefreshAction.js";
+export { LoadStatus } from "./components/LoadStatus.js";
+export { ActionDisclosure } from "./components/ActionDisclosure.js";
 export { Badge } from "./components/Badge.js";
 export { Alert } from "./components/Alert.js";
 export { Spinner } from "./components/Spinner.js";
@@ -27,6 +30,7 @@ export { useTheme } from "./useTheme.js";
 export type {
   Tone, ButtonProps, BadgeProps, AlertProps, FieldGroupProps, TabItem,
   TabsProps, MenuItem, ThemeContextValue,
+  RefreshActionProps, LoadIssue, LoadStatusHelp, LoadStatusProps, ActionDisclosureAction, ActionDisclosureProps,
 } from "./interfaces.js";
 export type { ThemePreference, ResolvedTheme } from "./theme.js";
 export { ToggleGroup } from "./components/ToggleGroup.js";
