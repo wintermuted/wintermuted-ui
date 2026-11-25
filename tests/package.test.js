@@ -74,9 +74,14 @@ test("loading and disclosure transfer resolves only package-owned modules withou
   assert.equal(barrel.replace(/export[\s\S]*?from\s+["'][^"']+["'];/g, "").trim(), "");
   for (const name of ["LoadIssue", "LoadStatusHelp", "ActionDisclosureAction"]) assert.ok(barrel.includes(name), name);
   const storybook = JSON.parse(await readFile(new URL("../storybook/package.json", root), "utf8"));
-  const react = JSON.parse(await readFile(new URL("../ui-react/package.json", root), "utf8"));
-  assert.equal(storybook.dependencies["@wintermuted/ui-react"], react.version, "Stories must resolve canonical workspace components");
-  assert.equal(storybook.dependencies["@wintermuted/ui-theme"], pkg.version, "Stories must resolve canonical workspace CSS");
+  const lock = JSON.parse(await readFile(new URL("../../package-lock.json", root), "utf8"));
+  for (const name of ["ui-react", "ui-theme"]) {
+    const dependency = `@wintermuted/${name}`;
+    assert.equal(storybook.dependencies[dependency], "*", "Private stories must follow workspace releases without stale version pins");
+    assert.equal(lock.packages[`node_modules/${dependency}`].resolved, `packages/${name}`);
+    assert.equal(lock.packages[`node_modules/${dependency}`].link, true);
+    assert.equal(lock.packages[`packages/storybook/node_modules/${dependency}`], undefined, "Stories must not install a separate published package");
+  }
 });
 
 test("React integration depends on the theme, not the reverse", async () => {

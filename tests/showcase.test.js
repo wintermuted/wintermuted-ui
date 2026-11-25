@@ -190,7 +190,11 @@ test("nested sources keep flat release filenames and deployment-relative asset U
   const config = viteConfig({ command: "build" });
   const plugin = showcaseSite(site, fileURLToPath(root));
   const sourceName = (page) => `pages/${page.source}`;
-  const urls = ["assets/shared.css", "assets/react.js", "logo.png", "showcase.js"];
+  const projectGallery = new JSDOM(readPage("projects.html"));
+  const icons = Array.from(projectGallery.window.document.querySelectorAll(".project-card-icon"), (image) =>
+    image.getAttribute("src").slice(1));
+  projectGallery.window.close();
+  const urls = ["assets/shared.css", "assets/react.js", "logo.png", "showcase.js", ...icons];
   const html = urls.map((url) => config.experimental.renderBuiltUrl(url, {
     hostType: "html", hostId: sourceName(site.pages[0]),
   })).join("\n");
@@ -213,7 +217,7 @@ test("nested sources keep flat release filenames and deployment-relative asset U
     assert.equal(bundle[page.file].fileName, page.file);
     for (const [index, url] of urls.entries()) {
       const reference = bundle[page.file].source.split("\n")[index];
-      for (const base of ["https://example.test/showcase/", "https://example.test/previews/pr-1/showcase/"]) {
+      for (const base of ["https://wintermuted.github.io/wintermuted-ui/showcase/", "https://wintermuted.github.io/wintermuted-ui/previews/pr-47/showcase/"]) {
         assert.equal(new URL(reference, `${base}${page.file}`).href, `${base}${url}`);
       }
     }
