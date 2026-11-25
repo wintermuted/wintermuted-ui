@@ -26,6 +26,7 @@ Legacy `vX.Y.Z` theme tags are retained. Do not rewrite them, move an existing p
 | `packages/*/package.json` | Public exports, package files, dependencies, pack/publish targets |
 | `scripts/release.mjs` | Dry run, preparation state, and GitHub release finalization |
 | `scripts/release-publication.mjs` | Per-package authentication fallback and exact downloadable-content verification |
+| `scripts/release-reconcile.mjs` | Merge newer main without moving prepared tags, then push Git refs atomically |
 | `scripts/release-changelog.mjs` | Finalize each changed project's notes from its own pre-release baseline |
 | `scripts/release-baseline.mjs` | Temporary legacy/first-React baselines and initial showcase release detection |
 | `scripts/stage-react.mjs` | Assemble the React package without bundling peers |
@@ -101,7 +102,7 @@ flowchart TD
     Theme -->|"No"| Done["Finish without theme dispatch"]
 ```
 
-Auto Release runs on pushes to `main` and serializes releases through its concurrency group. The release job uses the GitHub environment `wintermuted-ui-theme` for both packages.
+Auto Release runs on pushes to `main` and serializes releases through its concurrency group. After the compatibility gate, it fetches current `main` rather than preparing an obsolete queued event checkout. The release job uses the GitHub environment `wintermuted-ui-theme` for both packages.
 
 The wrapper has three modes:
 
@@ -121,7 +122,9 @@ React is staged **after** version preparation so `dist/packages/ui-react/package
 
 When showcase releases, CI builds it after version preparation, checks all built pages and relative assets, and creates `dist/showcase-X.Y.Z.tar.gz` from `dist/packages/showcase`. It extracts the archive into a fresh temporary directory and compares its complete contents with the built site before publication. The archive retains the `showcase/` directory for existing URLs. After finalization, `gh release upload --clobber` attaches it to the corresponding showcase release. Build/check/archive/upload errors fail the workflow. Showcase-only releases do not invoke npm publication or need npm publishing credentials.
 
-The release commit and all selected package tags are pushed together with `git push --atomic`. This protects Git references only. npm publication is a separate external operation and is not transactional across packages.
+Before any npm submission, CI uploads a `prepared-release-RUN_ID` artifact containing the original commit/history and tags in `.nx/prepared-release.bundle`, `.nx/release-state.json`, the staged React package, and any showcase archive. The artifact includes hidden files and is retained for 90 days. Artifact upload failure blocks publication.
+
+The release commit and all selected package tags are pushed together with `git push --atomic`. If main advanced, reconciliation merges it into the prepared commit without rebasing or moving the package tags. Thus new features remain on main but are not mislabeled as part of the already-published package tree. Conflicts stop explicitly; no force push or automatic conflict resolution is used. A push is retried (at most five attempts) only when a fresh fetch proves concurrent forward advancement of main. Other failures stop for recovery. Finalization switches back to the original prepared commit, so saved baselines, release notes, and the showcase archive retain the original release boundary. This protects Git references only. npm publication is a separate external operation and is not transactional across packages.
 
 ## Publication prerequisites
 
@@ -167,6 +170,18 @@ Identify the failed stage and inspect npm and GitHub before retrying. Never infe
 | Downstream dispatch | Packages, tags, and GitHub releases exist | Retry the dispatch for the existing theme version; do not create another package release. |
 
 If main advanced after a failed run, do not blindly rerun an older preparation and publish different content under an existing npm version. Compare the release logs, manifests, tags, and registry first. A published npm version is immutable.
+
+### Published packages with missing Git refs
+
+Prefer the saved prepared artifact: restore its bundle and state, verify the staged packages against the canonical registry, and reconcile from the saved commit. Do not prepare from newer main to recover an older publication.
+
+For older failed runs without a saved artifact, Auto Release also supports a deliberate `workflow_dispatch` with `recovery_source` set to the full original **source** SHA. This reconstructs Nx preparation from that source, builds in CI, saves a recovery artifact, and runs strict `--verify-only` content verification for every selected public package. Missing packages, checksum differences, or transport errors block all Git reconciliation; this path never calls either npm uploader. It then reconciles Git refs, finalizes from the original prepared tree, and attaches the original-source showcase archive. It does not notify downstream consumers or release newer main changes. If reconstruction differs (for example changelog dates or toolchain output), stop and investigate rather than changing published content or bypassing verification.
+
+```sh
+gh workflow run auto-release.yml --repo wintermuted/wintermuted-ui --ref REVIEWED_RECOVERY_BRANCH -f recovery_source=FULL_ORIGINAL_SOURCE_SHA
+```
+
+The workflow definition containing this recovery mode must be available on the selected ref. Review and verify that definition before execution; dispatch can update main/tags and create GitHub releases, but cannot upload missing npm packages. Newer unreleased source remains for a subsequent ordinary release.
 
 ### Complementary publication successes and staged conflicts
 

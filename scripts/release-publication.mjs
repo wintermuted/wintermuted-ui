@@ -45,7 +45,7 @@ export async function inspectPublication(name, version, request = fetch) {
     peerDependencies: manifest.peerDependencies, tarball: manifest.dist.tarball };
 }
 
-export async function publishProject({ name, version, shasum }, { inspect, trusted, fallback, sleep = setTimeout }) {
+export async function publishProject({ name, version, shasum }, { inspect, trusted, fallback, sleep = setTimeout, verifyOnly = false }) {
   const verify = async () => {
     const published = await inspect(name, version);
     if (published && published.shasum !== shasum) {
@@ -54,6 +54,7 @@ export async function publishProject({ name, version, shasum }, { inspect, trust
     return published;
   };
   if (await verify()) return;
+  if (verifyOnly) throw new Error(`Prepared package is not published: ${name}@${version}; recovery never uploads packages`);
   try {
     await trusted();
   } catch (error) {
@@ -77,6 +78,9 @@ export async function publishProject({ name, version, shasum }, { inspect, trust
 }
 
 async function main() {
+  if (process.argv[2] && !["--inspect", "--verify-only"].includes(process.argv[2])) {
+    throw new Error(`Unknown publication argument: ${process.argv[2]}`);
+  }
   if (process.argv[2] === "--inspect") {
     const tag = process.argv[3];
     const match = /^(ui-theme|ui-react)@(\d+\.\d+\.\d+)$/.exec(tag || "");
@@ -114,6 +118,7 @@ async function main() {
     }
     await publishProject({ ...manifest, shasum: packed.shasum }, {
       inspect: inspectPublication,
+      verifyOnly: process.argv[2] === "--verify-only",
       trusted: () => run(["run", "release:publish", "--", `--projects=${project}`]),
       fallback: () => {
         if (!process.env.NPM_TOKEN) throw new Error(`No authorized NPM_TOKEN fallback is configured for ${project}`);

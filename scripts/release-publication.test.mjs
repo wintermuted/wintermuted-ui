@@ -54,12 +54,26 @@ test("an exact existing version is skipped, but different content and registry e
   await publishProject(packageIdentity, {
     inspect: async () => packageIdentity, trusted: publish, fallback: publish
   });
+
   await assert.rejects(publishProject(packageIdentity, {
     inspect: async () => ({ shasum: "different-content" }), trusted: publish, fallback: publish
   }), /registry content differs/);
   await assert.rejects(publishProject(packageIdentity, {
     inspect: async () => { throw new Error("Registry unavailable"); }, trusted: publish, fallback: publish
   }), /Registry unavailable/);
+});
+
+test("read-only reconciliation requires an existing exact package and never invokes either uploader", async () => {
+  for (const published of [null, { shasum: "different-content" }, packageIdentity]) {
+    const operation = publishProject(packageIdentity, {
+      inspect: async () => published,
+      verifyOnly: true,
+      trusted: async () => assert.fail("Recovery must not upload"),
+      fallback: async () => assert.fail("Recovery must not upload")
+    });
+    if (published === packageIdentity) await operation;
+    else await assert.rejects(operation, published ? /registry content differs/ : /recovery never uploads/);
+  }
 });
 
 test("a failed trusted command that submitted the package is verified without fallback", async () => {
