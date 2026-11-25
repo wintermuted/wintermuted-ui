@@ -1,0 +1,16 @@
+import{n as e}from"./rolldown-runtime-sJBDdmOt.js";import{n as t}from"./iframe-CpC3fxPU.js";function n({label:e,value:t,children:n,tone:i=`neutral`,variant:a=`default`,className:o=``}){return(0,r.jsxs)(`article`,{className:`wm-stat-card${i===`neutral`?``:` wm-stat-card-${i}`}${a===`compact`?` wm-stat-card-compact`:``} ${o}`,children:[a===`compact`&&(0,r.jsx)(`p`,{className:`wm-stat-label`,children:e}),t!==void 0&&(0,r.jsx)(`p`,{className:`wm-stat-value`,children:t}),a==="default"&&(0,r.jsx)(`p`,{className:`wm-stat-label`,children:e}),n]})}var r;function i(){return(i=e((()=>{r=t(),n.__docgenInfo={description:``,methods:[],displayName:`StatCard`,props:{label:{required:!0,tsType:{name:`ReactReactNode`,raw:`React.ReactNode`},description:``},value:{required:!1,tsType:{name:`ReactReactNode`,raw:`React.ReactNode`},description:``},children:{required:!1,tsType:{name:`ReactReactNode`,raw:`React.ReactNode`},description:``},tone:{required:!1,tsType:{name:`union`,raw:`"neutral" | "info" | "success" | "warning" | "danger"`,elements:[{name:`literal`,value:`"neutral"`},{name:`literal`,value:`"info"`},{name:`literal`,value:`"success"`},{name:`literal`,value:`"warning"`},{name:`literal`,value:`"danger"`}]},description:``,defaultValue:{value:`"neutral"`,computed:!1}},variant:{required:!1,tsType:{name:`union`,raw:`"default" | "compact"`,elements:[{name:`literal`,value:`"default"`},{name:`literal`,value:`"compact"`}]},description:``,defaultValue:{value:`"default"`,computed:!1}},className:{required:!1,tsType:{name:`string`},description:``,defaultValue:{value:`""`,computed:!1}}}}})))()}var a,o,s,c,l,u,d;function f(){return(f=e((()=>{i(),a=t(),o={title:`Components/Data display/StatCard`,id:`components-statcard`,component:n,args:{label:`Example open tasks`,value:18,tone:`neutral`,variant:`default`},argTypes:{label:{control:`text`},value:{control:`text`},tone:{control:`select`,options:[`neutral`,`info`,`success`,`warning`,`danger`]},variant:{control:`select`,options:[`default`,`compact`]},children:{control:!1}}},s={},c={args:{variant:`compact`,tone:`success`,label:`Example completed tasks`,value:24}},l={args:{value:0}},u={args:{children:(0,a.jsx)(`p`,{children:`Illustrative task totals for a sample project.`})}},d=[`Playground`,`Compact`,`ZeroValue`,`WithDetail`],s.parameters={...s.parameters,docs:{...s.parameters?.docs,source:{originalSource:`{}`,...s.parameters?.docs?.source}}},c.parameters={...c.parameters,docs:{...c.parameters?.docs,source:{originalSource:`{
+  args: {
+    variant: "compact",
+    tone: "success",
+    label: "Example completed tasks",
+    value: 24
+  }
+}`,...c.parameters?.docs?.source}}},l.parameters={...l.parameters,docs:{...l.parameters?.docs,source:{originalSource:`{
+  args: {
+    value: 0
+  }
+}`,...l.parameters?.docs?.source}}},u.parameters={...u.parameters,docs:{...u.parameters?.docs,source:{originalSource:`{
+  args: {
+    children: <p>Illustrative task totals for a sample project.</p>
+  }
+}`,...u.parameters?.docs?.source}}}})))()}f();export{c as Compact,s as Playground,u as WithDetail,l as ZeroValue,d as __namedExportsOrder,o as default};
