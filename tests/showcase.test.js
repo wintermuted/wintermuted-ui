@@ -67,6 +67,34 @@ test("React and standalone profiles preserve their assets and theme ownership", 
   defaultMock.window.close();
 });
 
+test("project gallery exposes consumer sites and evidence without client-side rendering", () => {
+  const dom = render("projects.html");
+  const document = dom.window.document;
+  const projects = document.querySelectorAll(".docs-main article.component-card");
+  assert.equal(projects.length, 5);
+  for (const project of projects) {
+    const icon = project.querySelector("img.project-card-icon");
+    assert.ok(icon);
+    assert.equal(icon.alt, "");
+    assert.equal(icon.getAttribute("width"), "64");
+    assert.equal(icon.getAttribute("height"), "64");
+    assert.match(icon.getAttribute("src"), /^\/projects\/[a-z-]+\.(svg|png)$/);
+    assert.ok(readFileSync(new URL(`public${icon.getAttribute("src")}`, packageRoot)).length > 0);
+    const links = Array.from(project.querySelectorAll("a"));
+    assert.ok(project.querySelector("h3 a").textContent.trim());
+    assert.ok(links.every((link) => link.getAttribute("href").startsWith("https://")));
+    assert.ok(links.some((link) => link.textContent === "Source"));
+    assert.ok(links.some((link) => /Theme (dependency|import)/.test(link.textContent)));
+  }
+  assert.equal(document.querySelector(".docs-sidebar [aria-current=page]").getAttribute("href"), "./projects.html");
+  assert.ok(document.querySelector('a[href="https://github.com/wintermuted/wintermuted-ui/issues/new"]'));
+  const introduction = render("index.html");
+  assert.ok(introduction.window.document.querySelector('.docs-main a[href="./projects.html"]'));
+  assert.equal(site.pages.find((page) => page.file === "gallery.html").source, "data/gallery.html");
+  introduction.window.close();
+  dom.window.close();
+});
+
 test("shared vendors stay before page dependencies and runtime, and local head content survives", () => {
   const gallery = render("gallery.html");
   const sources = Array.from(gallery.window.document.scripts, (script) => script.getAttribute("src") ?? "inline");
@@ -162,7 +190,11 @@ test("nested sources keep flat release filenames and deployment-relative asset U
   const config = viteConfig({ command: "build" });
   const plugin = showcaseSite(site, fileURLToPath(root));
   const sourceName = (page) => `pages/${page.source}`;
-  const urls = ["assets/shared.css", "assets/react.js", "logo.png", "showcase.js"];
+  const projectGallery = new JSDOM(readPage("projects.html"));
+  const icons = Array.from(projectGallery.window.document.querySelectorAll(".project-card-icon"), (image) =>
+    image.getAttribute("src").slice(1));
+  projectGallery.window.close();
+  const urls = ["assets/shared.css", "assets/react.js", "logo.png", "showcase.js", ...icons];
   const html = urls.map((url) => config.experimental.renderBuiltUrl(url, {
     hostType: "html", hostId: sourceName(site.pages[0]),
   })).join("\n");
@@ -185,7 +217,7 @@ test("nested sources keep flat release filenames and deployment-relative asset U
     assert.equal(bundle[page.file].fileName, page.file);
     for (const [index, url] of urls.entries()) {
       const reference = bundle[page.file].source.split("\n")[index];
-      for (const base of ["https://example.test/showcase/", "https://example.test/previews/pr-1/showcase/"]) {
+      for (const base of ["https://wintermuted.github.io/wintermuted-ui/showcase/", "https://wintermuted.github.io/wintermuted-ui/previews/pr-47/showcase/"]) {
         assert.equal(new URL(reference, `${base}${page.file}`).href, `${base}${url}`);
       }
     }

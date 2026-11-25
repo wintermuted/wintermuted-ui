@@ -2,6 +2,11 @@
 
 Private React component development and interactive documentation alongside the [showcase](../showcase/README.md). Stories consume the canonical workspace exports and theme CSS; they do not copy components or change published package contents.
 
+The private Storybook workspace uses `*` ranges for `@wintermuted/ui-react` and
+`@wintermuted/ui-theme` so npm links the current workspace packages after every
+release. Do not pin these dependencies to published versions: Storybook is excluded
+from Nx Release, so those pins can become stale and install older nested copies.
+
 ## Development
 
 Install dependencies from the repository root with `npm ci`, then run:
