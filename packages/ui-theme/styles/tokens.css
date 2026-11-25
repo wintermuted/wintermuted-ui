@@ -34,6 +34,7 @@
   --wm-color-success-soft: #e6f4ea;
   --wm-color-success-border: #cfe6d4;
   --wm-color-warning: #ea8600;
+  --wm-color-warning-text: #946000;
   --wm-color-warning-soft: #fff7e0;
   --wm-color-warning-border: #f6d28b;
   --wm-color-danger: #c5221f;
@@ -71,6 +72,7 @@
   --wm-color-success-soft: #132719;
   --wm-color-success-border: #21452c;
   --wm-color-warning: #ffb95a;
+  --wm-color-warning-text: #ffb95a;
   --wm-color-warning-soft: #35250f;
   --wm-color-warning-border: #5e441d;
   --wm-color-danger: #ff978f;

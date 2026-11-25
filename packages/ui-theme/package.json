@@ -78,7 +78,9 @@
     "./styles/components/color-picker.css": "./styles/components/color-picker.css",
     "./styles/components/ranked-bar-list.css": "./styles/components/ranked-bar-list.css",
     "./styles/components/number-stepper.css": "./styles/components/number-stepper.css",
-    "./styles/components/language-selector.css": "./styles/components/language-selector.css"
+    "./styles/components/language-selector.css": "./styles/components/language-selector.css",
+    "./styles/components/load-status.css": "./styles/components/load-status.css",
+    "./styles/components/action-disclosure.css": "./styles/components/action-disclosure.css"
   },
   "scripts": {
     "lint": "stylelint \"styles/**/*.css\" \"index.css\""
