@@ -27,6 +27,9 @@ the React page also introduces its docs, controls, and examples. These links use
 `../storybook/` so production and PR previews open the sibling catalog from the
 same deployment. Standalone showcase archives do not include Storybook. During
 local development, run `npm run storybook:serve` and open its separate port 6006.
+The showcase output checker permits this exact sibling navigation link without
+requiring Storybook inside the showcase archive; Pages staging independently
+validates the Storybook artifact before publishing both sites together.
 
 ```text
 src/
