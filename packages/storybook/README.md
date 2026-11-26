@@ -19,6 +19,26 @@ Open `http://127.0.0.1:6006`. The port is fixed and Storybook does not open a br
 
 Use the theme toolbar to select light or dark. This applies the existing theme runtime to the preview document, including native dialogs and select menus, without reading or changing saved consumer theme preferences. It does not theme the Storybook manager. ThemeProvider and ThemeSelect examples use a story-specific `wintermuted:storybook:` storage key and mirror their selected appearance in the toolbar.
 
+## Other project catalogs
+
+Storybook composition adds independently hosted project catalogs to the sidebar:
+
+| Project | Production Storybook |
+| --- | --- |
+| Game of Life | https://wintermuted.github.io/game-of-life/storybook/ |
+| Icon Builder | https://wintermuted.github.io/icon-builder/storybook/ |
+| Overworld | https://wintermuted.github.io/overworld/storybook/ |
+
+References are configured in `.storybook/main.ts` and use stable production URLs,
+not temporary PR previews. All three production catalogs are published.
+Inventory is not included because its production Pages site does not yet serve
+a Storybook catalog.
+
+Remote stories remain owned, built, and styled by their source projects. The local
+theme toolbar and decorators do not apply to them. External hosting must allow
+the story index to be fetched and the preview to be framed; an unavailable remote
+catalog does not prevent local component development.
+
 ## Component coverage
 
 All 38 public React components are represented across 32 component groups. Card's six primitives share one Docs page and named slot examples; ListGroup and ListItem are documented together. The ThemeProvider example also demonstrates the `useTheme` hook.

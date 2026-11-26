@@ -3,6 +3,7 @@ import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync
 import { tmpdir } from "node:os";
 import { dirname, resolve } from "node:path";
 import { test } from "node:test";
+import { JSDOM } from "jsdom";
 import { checkStorybook, stagePages } from "./stage-pages.mjs";
 
 function fixture(t) {
@@ -73,6 +74,20 @@ test("invalid or incomplete output fails before replacing published content", (t
   rmSync(resolve(options.storybookDir, "index.json"));
   assert.throws(() => stagePages(options), /ENOENT/);
   assert.equal(readFileSync(resolve(options.pagesDir, "storybook/index.html"), "utf8"), "production");
+});
+
+test("showcase Storybook links resolve to the validated sibling catalog at both deployment depths", (t) => {
+  const options = fixture(t);
+  options.write(resolve(options.showcaseDir, "showcase/index.html"), '<a href="../storybook/">Storybook</a>');
+  for (const previewNumber of [undefined, 7]) {
+    stagePages({ ...options, previewNumber });
+    const target = previewNumber === undefined ? options.pagesDir : resolve(options.pagesDir, "previews/pr-7");
+    const dom = new JSDOM(readFileSync(resolve(target, "showcase/index.html"), "utf8"));
+    const href = dom.window.document.querySelector("a").getAttribute("href");
+    assert.ok(existsSync(resolve(target, "showcase", href, "index.html")));
+    dom.window.close();
+    checkStorybook(resolve(target, "storybook"));
+  }
 });
 
 test("missing showcase and empty Storybook indexes do not replace production", (t) => {

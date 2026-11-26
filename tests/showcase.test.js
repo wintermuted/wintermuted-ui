@@ -67,6 +67,31 @@ test("React and standalone profiles preserve their assets and theme ownership", 
   defaultMock.window.close();
 });
 
+test("docs navigation and React introduction link to the sibling Storybook deployment", () => {
+  for (const page of site.pages) {
+    const dom = render(page.file);
+    const document = dom.window.document;
+    const docs = (page.layout ?? "docs") === "docs";
+    const links = document.querySelectorAll('.docs-sidebar a[href="../storybook/"]');
+    assert.equal(links.length, docs ? 1 : 0, page.file);
+    if (docs) {
+      assert.equal(links[0].textContent, "Storybook");
+      assert.equal(links[0].hasAttribute("aria-current"), false);
+      for (const prefix of ["/wintermuted-ui/", "/wintermuted-ui/previews/pr-48/"]) {
+        const base = `https://wintermuted.github.io${prefix}showcase/${page.file}`;
+        assert.equal(new URL(links[0].getAttribute("href"), base).pathname, `${prefix}storybook/`);
+      }
+    }
+    if (page.file === "react.html") {
+      const link = document.querySelector('.docs-main a[href="../storybook/"]');
+      assert.ok(link);
+      assert.match(link.closest("section").textContent, /editable prop controls/);
+      assert.match(link.closest("section").textContent, /Game of Life, Icon Builder, and Overworld/);
+    }
+    dom.window.close();
+  }
+});
+
 test("project gallery exposes consumer sites and evidence without client-side rendering", () => {
   const dom = render("projects.html");
   const document = dom.window.document;
