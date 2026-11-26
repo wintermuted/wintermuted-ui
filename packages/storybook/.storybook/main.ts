@@ -4,6 +4,16 @@ const config: StorybookConfig = {
   framework: "@storybook/react-vite",
   stories: ["../src/stories/**/*.stories.tsx"],
   addons: ["@storybook/addon-docs", "@storybook/addon-a11y"],
+  refs: {
+    "game-of-life": {
+      title: "Game of Life",
+      url: "https://wintermuted.github.io/game-of-life/storybook/",
+    },
+    "icon-builder": {
+      title: "Icon Builder",
+      url: "https://wintermuted.github.io/icon-builder/storybook/",
+    },
+  },
   typescript: { reactDocgen: "react-docgen" },
   core: { disableTelemetry: true },
   viteFinal(config) {
