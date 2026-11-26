@@ -1,3 +1,13 @@
+## 1.2.1 (2026-11-26)
+
+### 🚀 Features
+
+- **ui:** migrate reusable Inventory primitives ([#45](https://github.com/wintermuted/wintermuted-ui/pull/45))
+
+### ❤️ Thank You
+
+- Jameson Nyeholt @wintermuted
+
 ## 1.2.0 (2026-11-25)
 
 ### 🚀 Features
