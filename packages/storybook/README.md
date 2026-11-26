@@ -27,12 +27,13 @@ Storybook composition adds independently hosted project catalogs to the sidebar:
 | --- | --- |
 | Game of Life | https://wintermuted.github.io/game-of-life/storybook/ |
 | Icon Builder | https://wintermuted.github.io/icon-builder/storybook/ |
+| Overworld | https://wintermuted.github.io/overworld/storybook/ |
 
 References are configured in `.storybook/main.ts` and use stable production URLs,
-not temporary PR previews. Icon Builder's production catalog was still pending
-deployment when this reference was added; it will become available after its
-Pages deployment publishes `storybook/`. Inventory and Overworld are not included
-because their production Pages sites do not yet serve a Storybook catalog.
+not temporary PR previews. Icon Builder and Overworld's production catalogs were
+still pending deployment when their references were added; each will become
+available after its Pages deployment publishes `storybook/`. Inventory is not
+included because its production Pages site does not yet serve a Storybook catalog.
 
 Remote stories remain owned, built, and styled by their source projects. The local
 theme toolbar and decorators do not apply to them. External hosting must allow

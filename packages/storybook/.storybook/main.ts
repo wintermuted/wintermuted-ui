@@ -13,6 +13,10 @@ const config: StorybookConfig = {
       title: "Icon Builder",
       url: "https://wintermuted.github.io/icon-builder/storybook/",
     },
+    overworld: {
+      title: "Overworld",
+      url: "https://wintermuted.github.io/overworld/storybook/",
+    },
   },
   typescript: { reactDocgen: "react-docgen" },
   core: { disableTelemetry: true },
