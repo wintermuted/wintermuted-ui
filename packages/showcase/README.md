@@ -22,6 +22,12 @@ The showcase uses lightweight build-time layouts within this package; it is not 
 
 `src/templates/layout.mjs` renders shared markup and validates the contract. `src/templates/vite-plugin.mjs` connects it to Vite. Keep page-specific styles, module entries, demo markup, and inline scripts in their HTML files. `public/showcase.js` enhances the rendered controls and provides the existing theme, outline, code-copy, and demo behavior; it does not construct site navigation.
 
+The shared sidebar links to the interactive Storybook catalog under Resources;
+the React page also introduces its docs, controls, and examples. These links use
+`../storybook/` so production and PR previews open the sibling catalog from the
+same deployment. Standalone showcase archives do not include Storybook. During
+local development, run `npm run storybook:serve` and open its separate port 6006.
+
 ```text
 src/
   site.config.mjs

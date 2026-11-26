@@ -110,7 +110,7 @@ function renderNavigation(site, page, pages) {
       const active = item.items.some((child) => (typeof child === "string" ? child : child.page) === page.file);
       return `<details class="docs-nav-disclosure${active ? " has-active" : ""}"${active ? " open" : ""}><summary>${escapeHtml(item.label)}<svg class="docs-nav-disclosure-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="6 9 12 15 18 9"/></svg></summary><div class="docs-nav-disclosure-body">${item.items.map((child) => link(child, true)).join("")}</div></details>`;
     }).join("")}`
-  ).join("")}</nav>`;
+  ).join("")}<p class="docs-nav-label">Resources</p><a class="docs-nav-link" href="../storybook/">Storybook</a></nav>`;
 }
 
 function renderDocsOpen(site, page, pages) {
