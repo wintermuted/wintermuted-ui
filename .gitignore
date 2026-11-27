@@ -2,5 +2,6 @@ node_modules/
 *.tgz
 .nx/
 dist/
+coverage/
 packages/ui-theme/react/
 .impeccable/hook.cache.json
