@@ -18,7 +18,7 @@ export function isPreSubmissionAuthRejection(error) {
     !/Published to |Added the dist-tag /.test(output);
 }
 
-export async function inspectPublication(name, version, request = fetch) {
+export async function inspectPublication(name, version, request = fetch, { includeTarball = false } = {}) {
   const response = await request(`${registry}/${encodeURIComponent(name)}/${encodeURIComponent(version)}`, {
     signal: AbortSignal.timeout(30000)
   });
@@ -42,7 +42,8 @@ export async function inspectPublication(name, version, request = fetch) {
     throw new Error(`Tarball integrity mismatch for ${name}@${version}`);
   }
   return { name, version, shasum: manifest.dist.shasum, integrity, dependencies: manifest.dependencies,
-    peerDependencies: manifest.peerDependencies, tarball: manifest.dist.tarball };
+    peerDependencies: manifest.peerDependencies, tarball: manifest.dist.tarball,
+    ...(includeTarball ? { bytes } : {}) };
 }
 
 export async function publishProject({ name, version, shasum }, { inspect, trusted, fallback, sleep = setTimeout }) {

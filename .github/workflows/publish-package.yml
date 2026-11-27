@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       release_tag:
-        description: "Existing package tag to republish (ui-theme@X.Y.Z or ui-react@X.Y.Z)"
+        description: "Exact package version tag to inspect, recover assets for, or republish"
         required: true
       project:
         description: "Package to republish"
@@ -19,6 +19,10 @@ on:
         description: "Only download and verify the registry version; no tag is required and nothing is published"
         type: boolean
         default: false
+      assets_only:
+        description: "Attach the verified npm tarball to its existing GitHub release; never build or publish"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -29,7 +33,33 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  assets:
+    if: inputs.assets_only
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Validate recovery mode
+        env:
+          VERIFY_ONLY: ${{ inputs.verify_only }}
+        run: |
+          if [ "$VERIFY_ONLY" = "true" ]; then
+            echo "Select only one recovery mode."
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check release asset recovery behavior
+        run: node --test scripts/release-assets.test.mjs scripts/release-publication.test.mjs
+      - name: Recover the verified package release asset without npm publication
+        env:
+          RELEASE_TAG: ${{ inputs.release_tag }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: node scripts/release-assets.mjs "$RELEASE_TAG"
   publish:
+    if: ${{ !inputs.assets_only }}
     runs-on: ubuntu-latest
     environment: wintermuted-ui-theme
     env:
@@ -40,6 +70,10 @@ jobs:
         with:
           ref: ${{ inputs.verify_only && github.sha || inputs.release_tag }}
           fetch-depth: 0
+      - uses: actions/setup-node@v4
+        if: inputs.verify_only
+        with:
+          node-version: 22
       - name: Inspect the exact registry version and verify its tarball
         if: inputs.verify_only
         env:

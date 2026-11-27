@@ -8,6 +8,7 @@ Wintermuted UI separates visual styling from optional React behavior. Use the CS
 | --- | --- |
 | Upgrade an existing 0.x consumer | [Migrating to 1.0](migration-to-v1.md) |
 | Understand package ownership and dependency direction | [Architecture](architecture.md) |
+| Evaluate shared-component migrations across consumer projects | [Component consolidation plan](component-consolidation-plan.md) |
 | Extend tokens, CSS layers, or component styles | [Theme architecture](../packages/ui-theme/docs/architecture.md) |
 | Extend React behavior, declarations, or theme synchronization | [React architecture](../packages/ui-react/docs/architecture.md) |
 | Prepare, publish, or recover a package release | [Release runbook](releases.md) |

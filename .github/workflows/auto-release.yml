@@ -83,6 +83,12 @@ jobs:
         run: npm run release -- --finalize
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Attach verified npm tarballs to their GitHub releases
+        if: steps.release.outputs.projects != ''
+        run: node scripts/release-assets.mjs --released
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_PROJECTS: ${{ steps.release.outputs.projects }}
       - name: Attach the static site to its GitHub release
         if: steps.release.outputs.showcase_released == 'true'
         env:

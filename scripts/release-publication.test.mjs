@@ -164,6 +164,9 @@ test("inspection verifies exact metadata and downloaded SHA-1 and SHA-512 digest
   const result = await inspectPublication(manifest.name, manifest.version, request);
   assert.equal(result.shasum, manifest.dist.shasum);
   assert.deepEqual(result.dependencies, manifest.dependencies);
+  assert.equal(Object.hasOwn(result, "bytes"), false);
+  const downloaded = await inspectPublication(manifest.name, manifest.version, request, { includeTarball: true });
+  assert.deepEqual(downloaded.bytes, bytes);
   manifest.dist.integrity = "sha512-invalid";
   await assert.rejects(inspectPublication(manifest.name, manifest.version, request), /integrity mismatch/);
   manifest.dist.shasum = "invalid";
