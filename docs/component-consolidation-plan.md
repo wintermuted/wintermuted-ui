@@ -37,9 +37,15 @@ Authenticated GitHub default-branch source reads and an account-wide indexed dep
 | Game of Life | `3bbd2ce1174e543e34f76f38615b2bcc9f691bea` | Already consumes ui-react, including ToggleGroup, LanguageSelector and NumberStepper; some local primitives remain. |
 | Overworld | `0716a9940a676c74910ea5a00b4db602fe8b3d81` | App consumes ui-react `1.2.0` and theme `1.0.3`; presentation package adapts shared primitives around transit-specific content. |
 
+**Inventory source access:** Inventory is a private repository; readers and review integrations need repository access to follow its evidence links. A 404 without that access does not establish that the pinned revision is missing. On November 27, authenticated repository and commit API reads resolved `7ce47279aeb0b60aa5b259653f87240899037083`. Direct reads of its [root manifest](https://github.com/wintermuted/inventory/blob/7ce47279aeb0b60aa5b259653f87240899037083/package.json) confirmed theme `^0.21.5` and no root ui-react dependency; its UI and FilterPanel sources imported `@inventory/ui-staging`. The [catalog README](https://github.com/wintermuted/inventory/blob/7ce47279aeb0b60aa5b259653f87240899037083/apps/inventory-storybook/README.md) and [production Pages workflow](https://github.com/wintermuted/inventory/blob/7ce47279aeb0b60aa5b259653f87240899037083/.github/workflows/deploy-pages.yml) confirmed PR-only catalogs and no stable production Storybook at that snapshot.
+
 GitHub release records showed ui-react `1.2.1` and ui-theme `1.0.4`. **npm availability was not confirmed:** the configured package proxy returned missing-package/version errors, and direct public-registry queries failed TLS negotiation. Verify installable package versions before dependency changes; a GitHub release alone is not proof of npm publication.
 
 The review did not render the applications or establish visual parity. Browser parity remains an implementation acceptance criterion.
+
+### Follow-up after the evaluation snapshot
+
+Inventory phase-one adoption subsequently merged in [wintermuted/inventory#81](https://github.com/wintermuted/inventory/pull/81) on November 27, 2026, at `03d98424d9a73b8da9e259afa29f463cbac2e24a`. Its [merged manifest](https://github.com/wintermuted/inventory/blob/03d98424d9a73b8da9e259afa29f463cbac2e24a/package.json) consumes the recovered official ui-react `1.2.1` and ui-theme `1.0.4` GitHub tarballs. That supersedes the adoption status in the historical table, not the pinned evidence or remaining roadmap. Stable production Inventory Storybook publication and central composition remain a separate gate; merging primitive adoption does not satisfy it.
 
 ## 1. Adopt existing central components instead of transferring duplicates
 
