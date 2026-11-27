@@ -1,3 +1,13 @@
+## 1.3.0 (2026-11-27)
+
+### 🚀 Features
+
+- **ui-react:** extend dialog and field compatibility ([#51](https://github.com/wintermuted/wintermuted-ui/pull/51))
+
+### ❤️ Thank You
+
+- Jameson Nyeholt @wintermuted
+
 ## 1.2.1 (2026-11-26)
 
 ### 🚀 Features
