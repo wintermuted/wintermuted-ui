@@ -4,7 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>React Components | Wintermuted UI Library Docs</title>
-    <script type="module" crossorigin src="./assets/react-CRqGNKt3.js"></script>
+    <script type="module" crossorigin src="./assets/react-C3KwrGkm.js"></script>
     <link rel="stylesheet" crossorigin href="./assets/react-DpEs0fid.css">
     <link rel="stylesheet" crossorigin href="./assets/showcase-s9fdJVj4.css">
   </head>
@@ -102,6 +102,11 @@ initTheme({ storageKey: "my-app:theme" }); // before createRoot
           <p>Tabs use arrow keys, Home and End with roving focus. Menus use arrow keys, Enter, Escape and Tab.
             Dialog uses the browser's modal top layer, focus containment and Escape; the caller owns its open state.
             Accordions use native details/summary. Tooltips show on focus and hover and dismiss with Escape.</p>
+          <p>FieldGroup keeps hint and error content visible together and links both to the control, preserving
+            existing descriptions. Supply <code>hintId</code> and <code>errorId</code> for explicit IDs.
+            Dialog accepts <code>titleId</code> for its heading and a <code>closeAction</code> node to replace
+            the default Close button. Custom close actions need an accessible name and must invoke the
+            controlled close callback; native Escape handling and focus restoration remain unchanged.</p>
           <p>Theme starts in System mode. Light/Dark overrides persist; returning to System follows OS changes.
             Put <code>getThemeScript()</code> in an inline head script with your CSP nonce for SSR first paint.
             Theme changes touch only document theme attributes and color-scheme, never map layers.</p>

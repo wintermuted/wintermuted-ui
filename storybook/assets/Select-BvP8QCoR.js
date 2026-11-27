@@ -1,1 +1,0 @@
-import{n as e}from"./rolldown-runtime-sJBDdmOt.js";import{n as t,t as n}from"./primitive-DZLhURTC.js";var r;function i(){return(i=e((()=>{n(),r=t(`select`,`wm-select`)})))()}export{i as n,r as t};
