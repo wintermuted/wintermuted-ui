@@ -20,6 +20,8 @@ on:
       - "scripts/stage-pages*"
       - "scripts/pages-workflows.test.mjs"
       - "scripts/check-showcase.mjs"
+      - "scripts/coverage-reporter*"
+      - "tests/**"
       - "package*.json"
       - ".github/workflows/deploy-showcase-pages.yml"
       - ".github/workflows/cleanup-showcase-preview.yml"
@@ -36,6 +38,8 @@ on:
       - "scripts/stage-pages*"
       - "scripts/pages-workflows.test.mjs"
       - "scripts/check-showcase.mjs"
+      - "scripts/coverage-reporter*"
+      - "tests/**"
       - "package*.json"
       - ".github/workflows/deploy-showcase-pages.yml"
       - ".github/workflows/cleanup-showcase-preview.yml"
@@ -58,6 +62,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
       deployment_id: ${{ steps.create_deployment.outputs.deployment_id }}
@@ -73,6 +78,13 @@ jobs:
           cache: npm
 
       - run: npm ci --no-audit --no-fund
+      - run: npm run test:coverage
+      - name: Upload React unit coverage
+        uses: actions/upload-artifact@v4
+        with:
+          name: react-unit-coverage
+          path: coverage
+          if-no-files-found: error
       - run: npm run showcase:build
       - run: npm run storybook:build
       - run: npm run test:showcase-output
@@ -115,8 +127,10 @@ jobs:
           fi
           if [ "${{ github.event_name }}" = "pull_request" ]; then
             node scripts/stage-pages.mjs "${{ github.event.pull_request.number }}"
+            cp -R coverage "gh-pages-out/previews/pr-${{ github.event.pull_request.number }}/coverage"
           else
             node scripts/stage-pages.mjs
+            cp -R coverage gh-pages-out/coverage
           fi
 
           cd gh-pages-out

@@ -55,6 +55,29 @@ test("Pages deploy and cleanup queue pending runs instead of replacing cleanup e
   }
 });
 
+test("Pages publishes measured coverage beside the matching production or preview site", () => {
+  const workflow = readWorkflow("deploy-showcase-pages");
+  assert.ok(workflow.indexOf("npm run test:coverage") < workflow.indexOf("node scripts/stage-pages.mjs"));
+  assert.match(workflow, /name: react-unit-coverage\n\s+path: coverage\n\s+if-no-files-found: error/);
+  assert.ok(workflow.includes('node scripts/stage-pages.mjs "${{ github.event.pull_request.number }}"\n            cp -R coverage "gh-pages-out/previews/pr-${{ github.event.pull_request.number }}/coverage"'));
+  assert.ok(workflow.includes("node scripts/stage-pages.mjs\n            cp -R coverage gh-pages-out/coverage"));
+  for (const event of ["push", "pull_request"]) {
+    const trigger = workflow.split(`  ${event}:\n`)[1].split(/^  \w/m)[0];
+    assert.ok(trigger.includes('"tests/**"'), event);
+    assert.ok(trigger.includes('"scripts/coverage-reporter*"'), event);
+  }
+});
+
+test("Pages restricts deployment to main or pull-request previews before any staging", () => {
+  const workflow = readWorkflow("deploy-showcase-pages");
+  const deployJob = workflow.slice(workflow.indexOf("\n  deploy:\n"), workflow.indexOf("\n  publish:\n"));
+  const jobSettings = deployJob.slice(0, deployJob.indexOf("\n    steps:\n"));
+  assert.match(jobSettings, /^    if: github\.event_name == 'pull_request' \|\| github\.ref == 'refs\/heads\/main'$/m);
+  const publishJob = workflow.slice(workflow.indexOf("\n  publish:\n"));
+  assert.match(publishJob, /^    needs: deploy$/m);
+  assert.doesNotMatch(publishJob, /always\(\)/);
+});
+
 test("cleanup limits Pages and OIDC permissions to the publication job", () => {
   const permissions = cleanup.match(/^permissions:\n((?:  [^\n]*\n)*)/m)?.[1];
   assert.equal(permissions?.trim(), "contents: write");

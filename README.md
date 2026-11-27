@@ -1,6 +1,18 @@
 # Wintermuted UI
 
+[![Build and compatibility](https://github.com/wintermuted/wintermuted-ui/actions/workflows/react-package.yml/badge.svg?branch=main)](https://github.com/wintermuted/wintermuted-ui/actions/workflows/react-package.yml?query=branch%3Amain)
+[![CSS lint](https://github.com/wintermuted/wintermuted-ui/actions/workflows/lint.yml/badge.svg?branch=main)](https://github.com/wintermuted/wintermuted-ui/actions/workflows/lint.yml?query=branch%3Amain)
+
+[![ui-theme unpacked size](https://img.shields.io/npm/unpacked-size/%40wintermuted%2Fui-theme?label=ui-theme%20unpacked)](https://www.npmjs.com/package/@wintermuted/ui-theme)
+[![ui-react unpacked size](https://img.shields.io/npm/unpacked-size/%40wintermuted%2Fui-react?label=ui-react%20unpacked)](https://www.npmjs.com/package/@wintermuted/ui-react)
+
+[![React unit line coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fwintermuted.github.io%2Fwintermuted-ui%2Fcoverage%2Flines.json)](https://github.com/wintermuted/wintermuted-ui/actions/workflows/deploy-showcase-pages.yml?query=branch%3Amain)
+[![React unit branch coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fwintermuted.github.io%2Fwintermuted-ui%2Fcoverage%2Fbranches.json)](https://github.com/wintermuted/wintermuted-ui/actions/workflows/deploy-showcase-pages.yml?query=branch%3Amain)
+[![React unit function coverage](https://img.shields.io/endpoint?url=https%3A%2F%2Fwintermuted.github.io%2Fwintermuted-ui%2Fcoverage%2Ffunctions.json)](https://github.com/wintermuted/wintermuted-ui/actions/workflows/deploy-showcase-pages.yml?query=branch%3Amain)
+
 Nx-powered design-system monorepo using npm workspaces and one root lockfile.
+
+Size badges show each latest npm release's unpacked package size, not a minified browser bundle or its dependencies. Coverage badges measure runtime-transformed React library code exercised by component and integration unit tests, excluding tests, tooling, and CSS. The Pages workflow publishes coverage from successful `main` deployments (available after the first deployment with coverage enabled); PR previews cannot replace production coverage. Download the `react-unit-coverage` artifact from a workflow run for the per-file report.
 
 | Workspace | Nx project | Purpose |
 | --- | --- | --- |
@@ -76,6 +88,7 @@ CI owns lint, typecheck, and build validation. Behavioral and package checks are
 
 ```sh
 npm test
+npm run test:coverage
 npm run test:pack
 npm run test:browser
 ```
@@ -95,7 +108,7 @@ These Bash helpers resolve relative paths from the invoking directory and link t
 
 Production documentation remains at [Showcase](https://wintermuted.github.io/wintermuted-ui/showcase/), with [Storybook](https://wintermuted.github.io/wintermuted-ui/storybook/) alongside it. Pushes to `main` publish both sites together. Pull requests publish `/previews/pr-<number>/showcase/` and `/previews/pr-<number>/storybook/`; the preview comment links to both after a successful Pages deployment. Closing a PR removes both preview directories and republishes the remaining site.
 
-Deployments consume built output, not copied source. Production replacements preserve all PR previews, and a PR deployment replaces only its own preview. The shared `pages` concurrency group serializes deployment and cleanup workflows with `queue: max` so pending cleanup runs are not replaced by newer runs (up to GitHub's 100-pending-run limit). Cleanup republishes an existing Pages tree even if the PR directory is already absent, allowing a retry to reconcile a previous publication failure. The workflow can also be dispatched manually; dispatch from `main` to refresh production.
+Deployments consume built output, not copied source. Production replacements preserve all PR previews, and a PR deployment replaces only its own preview. The shared `pages` concurrency group serializes deployment and cleanup workflows with `queue: max` so pending cleanup runs are not replaced by newer runs (up to GitHub's 100-pending-run limit). Cleanup republishes an existing Pages tree even if the PR directory is already absent, allowing a retry to reconcile a previous publication failure. The workflow can also be dispatched manually; dispatch from `main` to refresh production. Manual runs on other refs are skipped before staging or publishing documentation and coverage.
 
 ## Nx Release
 

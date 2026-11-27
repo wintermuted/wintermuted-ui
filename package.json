@@ -8,6 +8,7 @@
   "workspaces": ["packages/*"],
   "scripts": {
     "test": "node --test tests/*.test.js scripts/*.test.mjs",
+    "test:coverage": "node --test --experimental-test-coverage --test-coverage-include=\"packages/ui-react/src/**\" --test-reporter=spec --test-reporter=./scripts/coverage-reporter.mjs --test-reporter-destination=stdout --test-reporter-destination=stdout tests/react-components.test.js tests/react.test.js",
     "test:browser": "node --test browser-tests/*.test.js",
     "test:pack": "node tests/consumers.mjs --package-only",
     "test:consumers": "node tests/consumers.mjs",
