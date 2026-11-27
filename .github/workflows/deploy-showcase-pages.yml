@@ -62,6 +62,7 @@ concurrency:
 
 jobs:
   deploy:
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     outputs:
       deployment_id: ${{ steps.create_deployment.outputs.deployment_id }}
