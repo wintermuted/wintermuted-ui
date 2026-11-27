@@ -590,12 +590,12 @@
           "count": 194
         },
         {
-          "line": 9,
-          "count": 60
-        },
-        {
           "line": 10,
           "count": 5
+        },
+        {
+          "line": 9,
+          "count": 60
         }
       ],
       "lines": [
@@ -1870,6 +1870,16 @@
           "line": 25
         },
         {
+          "name": "onCancel",
+          "count": 3,
+          "line": 52
+        },
+        {
+          "name": "onClose",
+          "count": 5,
+          "line": 57
+        },
+        {
           "name": "",
           "count": 15,
           "line": 35
@@ -1893,16 +1903,6 @@
           "name": "",
           "count": 6,
           "line": 43
-        },
-        {
-          "name": "onCancel",
-          "count": 3,
-          "line": 52
-        },
-        {
-          "name": "onClose",
-          "count": 5,
-          "line": 57
         }
       ],
       "branches": [
@@ -1924,11 +1924,11 @@
         },
         {
           "line": 11,
-          "count": 1
+          "count": 4
         },
         {
-          "line": 11,
-          "count": 4
+          "line": 12,
+          "count": 1
         },
         {
           "line": 14,
@@ -1940,11 +1940,11 @@
         },
         {
           "line": 11,
-          "count": 4
+          "count": 1
         },
         {
-          "line": 12,
-          "count": 1
+          "line": 11,
+          "count": 4
         },
         {
           "line": 15,
@@ -2027,6 +2027,26 @@
           "count": 1
         },
         {
+          "line": 52,
+          "count": 3
+        },
+        {
+          "line": 53,
+          "count": 1
+        },
+        {
+          "line": 56,
+          "count": 1
+        },
+        {
+          "line": 57,
+          "count": 5
+        },
+        {
+          "line": 58,
+          "count": 1
+        },
+        {
           "line": 35,
           "count": 15
         },
@@ -2073,26 +2093,6 @@
         {
           "line": 43,
           "count": 0
-        },
-        {
-          "line": 52,
-          "count": 3
-        },
-        {
-          "line": 53,
-          "count": 1
-        },
-        {
-          "line": 56,
-          "count": 1
-        },
-        {
-          "line": 57,
-          "count": 5
-        },
-        {
-          "line": 58,
-          "count": 1
         }
       ],
       "lines": [
@@ -2888,14 +2888,6 @@
           "count": 2
         },
         {
-          "line": 16,
-          "count": 6
-        },
-        {
-          "line": 16,
-          "count": 2
-        },
-        {
           "line": 17,
           "count": 14
         },
@@ -2918,6 +2910,14 @@
         {
           "line": 19,
           "count": 2
+        },
+        {
+          "line": 16,
+          "count": 2
+        },
+        {
+          "line": 16,
+          "count": 6
         }
       ],
       "lines": [
@@ -4741,15 +4741,15 @@
         },
         {
           "line": 15,
-          "count": 1
-        },
-        {
-          "line": 15,
           "count": 5
         },
         {
           "line": 15,
           "count": 6
+        },
+        {
+          "line": 15,
+          "count": 1
         },
         {
           "line": 15,
@@ -4792,6 +4792,10 @@
           "count": 6
         },
         {
+          "line": 30,
+          "count": 1
+        },
+        {
           "line": 31,
           "count": 5
         },
@@ -4809,27 +4813,7 @@
         },
         {
           "line": 38,
-          "count": 1
-        },
-        {
-          "line": 38,
           "count": 5
-        },
-        {
-          "line": 39,
-          "count": 1
-        },
-        {
-          "line": 39,
-          "count": 3
-        },
-        {
-          "line": 30,
-          "count": 1
-        },
-        {
-          "line": 36,
-          "count": 0
         },
         {
           "line": 39,
@@ -4838,6 +4822,22 @@
         {
           "line": 39,
           "count": 1
+        },
+        {
+          "line": 36,
+          "count": 0
+        },
+        {
+          "line": 38,
+          "count": 1
+        },
+        {
+          "line": 39,
+          "count": 1
+        },
+        {
+          "line": 39,
+          "count": 3
         },
         {
           "line": 34,
@@ -7149,12 +7149,12 @@
           "count": 2
         },
         {
-          "line": 19,
-          "count": 1
-        },
-        {
           "line": 21,
           "count": 2
+        },
+        {
+          "line": 19,
+          "count": 1
         },
         {
           "line": 22,
@@ -8369,11 +8369,11 @@
         },
         {
           "line": 25,
-          "count": 77
+          "count": 11
         },
         {
           "line": 25,
-          "count": 11
+          "count": 77
         },
         {
           "line": 26,
@@ -8967,16 +8967,16 @@
           "count": 7
         },
         {
-          "line": 18,
-          "count": 0
-        },
-        {
           "line": 19,
           "count": 3
         },
         {
           "line": 19,
           "count": 2
+        },
+        {
+          "line": 18,
+          "count": 0
         },
         {
           "line": 20,
@@ -9011,16 +9011,16 @@
           "count": 4
         },
         {
+          "line": 38,
+          "count": 2
+        },
+        {
+          "line": 38,
+          "count": 2
+        },
+        {
           "line": 37,
           "count": 1
-        },
-        {
-          "line": 38,
-          "count": 2
-        },
-        {
-          "line": 38,
-          "count": 2
         }
       ],
       "lines": [
