@@ -26,12 +26,13 @@ Legacy `vX.Y.Z` theme tags are retained. Do not rewrite them, move an existing p
 | `packages/*/package.json` | Public exports, package files, dependencies, pack/publish targets |
 | `scripts/release.mjs` | Dry run, preparation state, and GitHub release finalization |
 | `scripts/release-publication.mjs` | Per-package authentication fallback and exact downloadable-content verification |
+| `scripts/release-assets.mjs` | Attach checksum-verified npm tarballs to existing matching GitHub releases without overwriting assets |
 | `scripts/release-changelog.mjs` | Finalize each changed project's notes from its own pre-release baseline |
 | `scripts/release-baseline.mjs` | Temporary legacy/first-React baselines and initial showcase release detection |
 | `scripts/stage-react.mjs` | Assemble the React package without bundling peers |
 | `.github/workflows/react-package.yml` | Compatibility workflow reused as the release gate |
 | `.github/workflows/auto-release.yml` | Publication, atomic Git push, finalization, and theme downstream dispatch |
-| `.github/workflows/publish-package.yml` | Republish an existing tagged package without changing versions |
+| `.github/workflows/publish-package.yml` | Inspect publication, recover package assets, or deliberately republish an existing tagged package |
 | `.github/workflows/bump-downstream.yml` | Notify configured downstream theme consumers |
 
 ## Version selection
@@ -95,7 +96,8 @@ flowchart TD
     Result -->|"Yes"| Push["Atomically push release commit + package tags"]
     Retry -->|"Yes"| Push
     Push --> Finalize["Create GitHub package releases"]
-    Finalize --> Archive["Attach any showcase static archive"]
+    Finalize --> Assets["Attach verified npm package tarballs"]
+    Assets --> Archive["Attach any showcase static archive"]
     Archive --> Theme{"Theme released?"}
     Theme -->|"Yes"| Notify["Dispatch downstream theme update"]
     Theme -->|"No"| Done["Finish without theme dispatch"]
@@ -118,6 +120,8 @@ Publication processes public projects individually. Before publishing, it checks
 Finalization generates notes separately for each changed project, from its saved baseline to the prepared commit. The React baseline advances independently of the theme, preventing earlier React-only changes from appearing again in later releases. Finalization depends on that state; a fresh tagged checkout alone cannot reconstruct it.
 
 React is staged **after** version preparation so `dist/packages/ui-react/package.json` contains the released version and current dependency ranges, not stale compatibility-build metadata.
+
+After finalization, CI downloads each released public package directly from npm, verifies its exact metadata identity and SHA-1/SHA-512 checksums, and attaches those original bytes as `wintermuted-ui-theme-X.Y.Z.tgz` or `wintermuted-ui-react-X.Y.Z.tgz` to the matching GitHub release. It downloads the attached asset again and compares the bytes. An identical existing asset is accepted; a different asset fails without deletion or overwrite. Upload failures are not retried automatically. These are installable npm packages, not GitHub source archives.
 
 When showcase releases, CI builds it after version preparation, checks all built pages and relative assets, and creates `dist/showcase-X.Y.Z.tar.gz` from `dist/packages/showcase`. It extracts the archive into a fresh temporary directory and compares its complete contents with the built site before publication. The archive retains the `showcase/` directory for existing URLs. After finalization, `gh release upload --clobber` attaches it to the corresponding showcase release. Build/check/archive/upload errors fail the workflow. Showcase-only releases do not invoke npm publication or need npm publishing credentials.
 
@@ -163,6 +167,7 @@ Identify the failed stage and inspect npm and GitHub before retrying. Never infe
 | Both npm attempts | One package may have published; Git refs have not been pushed by this run | Correct permissions/content problems, then recover the failed release run. Do not reuse a published version with different content. |
 | Atomic Git push | npm packages may exist; release Git refs were not updated by that push | Resolve remote advancement/access issues and verify the exact published content before retrying. Do not force-push main. |
 | GitHub finalization | npm packages and Git tags exist | Recover GitHub release creation using the prepared state from the same release context or deliberate maintainer recovery; do not republish just to create a release page. |
+| Package asset upload | npm packages and matching GitHub releases exist | Use assets-only recovery to attach the checksum-verified registry tarball. Never republish npm or overwrite a different existing asset. |
 | Showcase archive upload | Git tags and GitHub releases exist; the static asset may be absent | Recover the exact tagged site's checked static archive and upload it to the matching showcase release. Do not bump versions or republish npm packages. |
 | Downstream dispatch | Packages, tags, and GitHub releases exist | Retry the dispatch for the existing theme version; do not create another package release. |
 
@@ -197,6 +202,14 @@ Recovery must treat theme `1.0.3` as already published and immutable. React publ
 4. With maintainer approval, publish only a confirmed missing React package, verify its downloadable content, then reconcile the prepared release commit/tags against current `main` without force-pushing or losing newer changes. Finalize project releases and attach the matching checked showcase archive from that same recovered state. Do not use the existing-tag recovery workflow for tags that were never pushed.
 
 ### Existing-tag publication recovery
+
+To recover only an installable GitHub package asset, select `assets_only=true`:
+
+```powershell
+gh workflow run publish-package.yml --repo wintermuted/wintermuted-ui -f release_tag=ui-theme@1.0.4 -f assets_only=true
+```
+
+Run it separately for a React tag when required. Assets-only mode runs the workflow revision's recovery script, requires an existing matching public GitHub release, and downloads the exact published npm bytes with checksum verification. It does not install dependencies, build packages, publish npm versions, create releases, or change tags. `project` and `dry_run` apply only to publication mode; `assets_only=true` explicitly requests an upload. Do not combine it with `verify_only=true`. A mismatched existing asset requires maintainer investigation; recovery never clobbers it.
 
 The manual **Publish package (recovery)** workflow accepts an existing matching package tag and a package selection. It checks out that tag, verifies the manifest version, stages React when selected, and publishes only that project through Nx. It defaults to a dry run and never bumps versions.
 
