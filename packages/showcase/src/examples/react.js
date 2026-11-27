@@ -158,7 +158,7 @@ function Showcase() {
         h(FieldGroup, { label: "Stop name", hint: "Enter part of a stop name." }, h(Input, { placeholder: "e.g. Main Street" })),
         h(FieldGroup, { label: "Direction" }, h(Select, null,
           h("option", null, "All directions"), h("option", null, "Northbound"), h("option", null, "Southbound"))),
-        h(FieldGroup, { label: "Stop number", error: "Enter a numeric stop number." }, h(Input, { defaultValue: "ABC" })),
+        h(FieldGroup, { label: "Stop number", hint: "Find the number on the stop sign.", error: "Enter a numeric stop number." }, h(Input, { defaultValue: "ABC" })),
         h(FieldGroup, { label: "Search stops", hint: "Select one or more stops." },
           h(MultiSelect, {
             options: [{ value: 1, label: "North at Main" }, { value: 2, label: "South at Main" }],

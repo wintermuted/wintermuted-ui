@@ -75,6 +75,7 @@ export interface TableProps extends React.TableHTMLAttributes<HTMLTableElement> 
 export interface ControlProps extends React.AriaAttributes { id?: string; inputId?: string }
 export interface FieldGroupProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "children"> {
   label: React.ReactNode; htmlFor?: string; hint?: React.ReactNode; error?: React.ReactNode;
+  hintId?: string; errorId?: string;
   children: React.ReactElement;
 }
 export interface AccordionProps extends Omit<React.DetailsHTMLAttributes<HTMLDetailsElement>, "title"> {
@@ -97,6 +98,7 @@ export interface MenuProps extends Omit<React.HTMLAttributes<HTMLDivElement>, "c
 export interface TooltipProps { text: string; children: React.ReactElement; placement?: "above" | "right" }
 export interface DialogProps extends Omit<React.DialogHTMLAttributes<HTMLDialogElement>, "open" | "onClose" | "title"> {
   open: boolean; onClose: () => void; title: React.ReactNode;
+  titleId?: string; closeAction?: React.ReactNode;
 }
 
 export interface ThemeContextValue {

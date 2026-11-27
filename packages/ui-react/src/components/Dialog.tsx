@@ -4,11 +4,12 @@ import type { DialogProps } from "../interfaces.js";
 import { cx, useClientLayoutEffect } from "../utils.js";
 import { Button } from "./Button.js";
 
-export function Dialog({ open, onClose, title, children, className, ...props }: DialogProps) {
+export function Dialog({ open, onClose, title, titleId, closeAction, children, className, ...props }: DialogProps) {
   const ref = useRef<HTMLDialogElement>(null);
   const restoreTarget = useRef<HTMLElement | SVGElement | null>(null);
   const internalCloses = useRef(0);
-  const titleId = useId();
+  const generatedTitleId = useId();
+  const resolvedTitleId = titleId ?? generatedTitleId;
   useClientLayoutEffect(() => {
     const dialog = ref.current;
     if (!open || !dialog) return;
@@ -53,7 +54,7 @@ export function Dialog({ open, onClose, title, children, className, ...props }: 
       event.preventDefault(); first.focus();
     }
   }
-  return <dialog {...props} ref={ref} aria-labelledby={titleId}
+  return <dialog {...props} ref={ref} aria-labelledby={resolvedTitleId}
     tabIndex={props.tabIndex ?? -1} onKeyDown={trapFocus}
     className={cx("wm-dialog", className)}
     onCancel={event => {
@@ -66,8 +67,10 @@ export function Dialog({ open, onClose, title, children, className, ...props }: 
       if (internalCloses.current > 0) internalCloses.current -= 1;
       else if (open) onClose();
     }}>
-    <header className="wm-dialog-header"><h3 id={titleId}>{title}</h3>
-      <Button variant="ghost" onClick={onClose} aria-label="Close dialog">Close</Button>
+    <header className="wm-dialog-header"><h3 id={resolvedTitleId}>{title}</h3>
+      {closeAction === undefined
+        ? <Button variant="ghost" onClick={onClose} aria-label="Close dialog">Close</Button>
+        : closeAction}
     </header>
     <div className="wm-dialog-body">{children}</div>
   </dialog>;

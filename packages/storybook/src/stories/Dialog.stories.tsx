@@ -17,6 +17,19 @@ function DialogExample(args: DialogProps) {
   </>;
 }
 
+function CustomCloseExample(args: DialogProps) {
+  const [, updateArgs] = useArgs<DialogProps>();
+  const close = () => {
+    updateArgs({ open: false });
+    args.onClose();
+  };
+  return <>
+    <Button onClick={() => updateArgs({ open: true })}>Open preferences</Button>
+    <Dialog {...args} onClose={close}
+      closeAction={<Button variant="ghost" aria-label="Close preferences" onClick={close}><span aria-hidden="true">X</span></Button>} />
+  </>;
+}
+
 const meta = {
   title: "Components/Overlays/Dialog",
   id: "components-dialog",
@@ -42,3 +55,8 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Playground: Story = {};
+export const CustomCloseAction: Story = {
+  render: CustomCloseExample,
+  args: { title: "Preferences", titleId: "storybook-preferences-title" },
+  parameters: { docs: { description: { story: "titleId labels the native dialog through its heading. closeAction replaces the default button; supply an accessible name and wire its handler to the same controlled close callback." } } },
+};
