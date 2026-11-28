@@ -6,6 +6,7 @@ import { JSDOM } from "jsdom";
 import { site } from "../packages/showcase/src/site.config.mjs";
 import { validateSite } from "../packages/showcase/src/templates/layout.mjs";
 import { discoverPages } from "../packages/showcase/src/templates/vite-plugin.mjs";
+import { agentDocumentation } from "../packages/showcase/src/templates/agent-docs.mjs";
 
 const source = fileURLToPath(new URL("../packages/showcase/src/pages/", import.meta.url));
 const registry = validateSite(site, discoverPages(source));
@@ -46,6 +47,9 @@ export function checkShowcase(output) {
   }
   assert.ok(existsSync(resolve(output, "showcase.js")), "Missing shared classic showcase script");
   assert.ok(existsSync(resolve(output, "logo.png")), "Missing logo used by the shared script's runtime header image");
+  for (const [filename, content] of agentDocumentation()) {
+    assert.equal(readFileSync(resolve(output, filename), "utf8"), content, `Missing or stale agent documentation: ${filename}`);
+  }
   return pages.length;
 }
 

@@ -6,6 +6,12 @@ Run `npm ci` from the repository root, then `npm run showcase:serve`. The site r
 
 CI builds the site into `dist/packages/showcase/showcase`. Relative asset URLs allow the same output to run under production `/showcase/` and nested PR previews without rebuilding.
 
+## Agent-readable documentation
+
+`/showcase/llms.txt` links to plain Markdown installation, CSS, React, MultiSelect, migration, theming, and component guides under `agent-docs/`. `src/templates/agent-docs.mjs` generates these assets from the existing guides and React README contracts, checking that every core component export has a contract. The Vite plugin serves the same content during development and emits it into static builds and release archives. Relative index links preserve PR preview isolation; no client-side JavaScript or additional service is required.
+
+Update the canonical Markdown guides and component contract table, not generated files. Supporting relative links in copied guides point back to their original repository locations. Documentation follows the deployed source revision, so agents must check installed exports/declarations rather than assume every documented API has been published.
+
 ## Releases
 
 The first release is `0.1.0`. Nx manages subsequent independent versions, `CHANGELOG.md`, and `showcase@X.Y.Z` Git tags. Direct releasable changes and version updates to the declared theme/React dependencies trigger showcase releases.
