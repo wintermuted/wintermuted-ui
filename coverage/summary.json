@@ -2,6 +2,401 @@
   "workingDirectory": "/home/runner/work/wintermuted-ui/wintermuted-ui",
   "files": [
     {
+      "path": "/home/runner/work/wintermuted-ui/wintermuted-ui/packages/ui-react-select/src/components/MultiSelect.tsx",
+      "totalLineCount": 48,
+      "totalBranchCount": 24,
+      "totalFunctionCount": 12,
+      "coveredLineCount": 39,
+      "coveredBranchCount": 22,
+      "coveredFunctionCount": 12,
+      "coveredLinePercent": 81.25,
+      "coveredBranchPercent": 91.66666666666666,
+      "coveredFunctionPercent": 100,
+      "functions": [
+        {
+          "name": "themeStyles",
+          "count": 4,
+          "line": 5
+        },
+        {
+          "name": "control",
+          "count": 17,
+          "line": 6
+        },
+        {
+          "name": "menu",
+          "count": 9,
+          "line": 12
+        },
+        {
+          "name": "menuPortal",
+          "count": 2,
+          "line": 15
+        },
+        {
+          "name": "option",
+          "count": 7,
+          "line": 16
+        },
+        {
+          "name": "singleValue",
+          "count": 2,
+          "line": 22
+        },
+        {
+          "name": "input",
+          "count": 17,
+          "line": 23
+        },
+        {
+          "name": "placeholder",
+          "count": 7,
+          "line": 24
+        },
+        {
+          "name": "multiValue",
+          "count": 10,
+          "line": 25
+        },
+        {
+          "name": "multiValueLabel",
+          "count": 10,
+          "line": 28
+        },
+        {
+          "name": "multiValueRemove",
+          "count": 10,
+          "line": 29
+        },
+        {
+          "name": "MultiSelect",
+          "count": 4,
+          "line": 31
+        }
+      ],
+      "branches": [
+        {
+          "line": 1,
+          "count": 2
+        },
+        {
+          "line": 5,
+          "count": 4
+        },
+        {
+          "line": 6,
+          "count": 17
+        },
+        {
+          "line": 8,
+          "count": 9
+        },
+        {
+          "line": 9,
+          "count": 8
+        },
+        {
+          "line": 10,
+          "count": 9
+        },
+        {
+          "line": 11,
+          "count": 8
+        },
+        {
+          "line": 12,
+          "count": 9
+        },
+        {
+          "line": 15,
+          "count": 2
+        },
+        {
+          "line": 16,
+          "count": 7
+        },
+        {
+          "line": 19,
+          "count": 3
+        },
+        {
+          "line": 19,
+          "count": 2
+        },
+        {
+          "line": 18,
+          "count": 0
+        },
+        {
+          "line": 20,
+          "count": 0
+        },
+        {
+          "line": 22,
+          "count": 2
+        },
+        {
+          "line": 23,
+          "count": 17
+        },
+        {
+          "line": 24,
+          "count": 7
+        },
+        {
+          "line": 25,
+          "count": 10
+        },
+        {
+          "line": 28,
+          "count": 10
+        },
+        {
+          "line": 29,
+          "count": 10
+        },
+        {
+          "line": 31,
+          "count": 4
+        },
+        {
+          "line": 38,
+          "count": 2
+        },
+        {
+          "line": 38,
+          "count": 2
+        },
+        {
+          "line": 37,
+          "count": 1
+        }
+      ],
+      "lines": [
+        {
+          "line": 1,
+          "count": 2
+        },
+        {
+          "line": 2,
+          "count": 2
+        },
+        {
+          "line": 3,
+          "count": 2
+        },
+        {
+          "line": 4,
+          "count": 2
+        },
+        {
+          "line": 5,
+          "count": 2
+        },
+        {
+          "line": 6,
+          "count": 4
+        },
+        {
+          "line": 7,
+          "count": 17
+        },
+        {
+          "line": 8,
+          "count": 17
+        },
+        {
+          "line": 9,
+          "count": 17
+        },
+        {
+          "line": 10,
+          "count": 17
+        },
+        {
+          "line": 11,
+          "count": 17
+        },
+        {
+          "line": 12,
+          "count": 4
+        },
+        {
+          "line": 13,
+          "count": 9
+        },
+        {
+          "line": 14,
+          "count": 9
+        },
+        {
+          "line": 15,
+          "count": 4
+        },
+        {
+          "line": 16,
+          "count": 4
+        },
+        {
+          "line": 17,
+          "count": 7
+        },
+        {
+          "line": 18,
+          "count": 7
+        },
+        {
+          "line": 19,
+          "count": 7
+        },
+        {
+          "line": 20,
+          "count": 7
+        },
+        {
+          "line": 21,
+          "count": 7
+        },
+        {
+          "line": 22,
+          "count": 4
+        },
+        {
+          "line": 23,
+          "count": 4
+        },
+        {
+          "line": 24,
+          "count": 4
+        },
+        {
+          "line": 25,
+          "count": 4
+        },
+        {
+          "line": 26,
+          "count": 10
+        },
+        {
+          "line": 27,
+          "count": 4
+        },
+        {
+          "line": 28,
+          "count": 4
+        },
+        {
+          "line": 29,
+          "count": 4
+        },
+        {
+          "line": 30,
+          "count": 10
+        },
+        {
+          "line": 31,
+          "count": 2
+        },
+        {
+          "line": 32,
+          "count": 4
+        },
+        {
+          "line": 33,
+          "count": 4
+        },
+        {
+          "line": 34,
+          "count": 4
+        },
+        {
+          "line": 35,
+          "count": 4
+        },
+        {
+          "line": 36,
+          "count": 4
+        },
+        {
+          "line": 37,
+          "count": 4
+        },
+        {
+          "line": 38,
+          "count": 4
+        },
+        {
+          "line": 39,
+          "count": 4
+        },
+        {
+          "line": 40,
+          "count": 0
+        },
+        {
+          "line": 41,
+          "count": 0
+        },
+        {
+          "line": 42,
+          "count": 0
+        },
+        {
+          "line": 43,
+          "count": 0
+        },
+        {
+          "line": 44,
+          "count": 0
+        },
+        {
+          "line": 45,
+          "count": 0
+        },
+        {
+          "line": 46,
+          "count": 0
+        },
+        {
+          "line": 47,
+          "count": 0
+        },
+        {
+          "line": 48,
+          "count": 0
+        }
+      ]
+    },
+    {
+      "path": "/home/runner/work/wintermuted-ui/wintermuted-ui/packages/ui-react-select/src/index.tsx",
+      "totalLineCount": 2,
+      "totalBranchCount": 1,
+      "totalFunctionCount": 0,
+      "coveredLineCount": 1,
+      "coveredBranchCount": 1,
+      "coveredFunctionCount": 0,
+      "coveredLinePercent": 50,
+      "coveredBranchPercent": 100,
+      "coveredFunctionPercent": 100,
+      "functions": [],
+      "branches": [
+        {
+          "line": 1,
+          "count": 2
+        }
+      ],
+      "lines": [
+        {
+          "line": 1,
+          "count": 2
+        },
+        {
+          "line": 2,
+          "count": 0
+        }
+      ]
+    },
+    {
       "path": "/home/runner/work/wintermuted-ui/wintermuted-ui/packages/ui-react/src/components/Accordion.tsx",
       "totalLineCount": 8,
       "totalBranchCount": 2,
@@ -8896,372 +9291,6 @@
       ]
     },
     {
-      "path": "/home/runner/work/wintermuted-ui/wintermuted-ui/packages/ui-react/src/select.tsx",
-      "totalLineCount": 48,
-      "totalBranchCount": 24,
-      "totalFunctionCount": 12,
-      "coveredLineCount": 39,
-      "coveredBranchCount": 22,
-      "coveredFunctionCount": 12,
-      "coveredLinePercent": 81.25,
-      "coveredBranchPercent": 91.66666666666666,
-      "coveredFunctionPercent": 100,
-      "functions": [
-        {
-          "name": "themeStyles",
-          "count": 4,
-          "line": 5
-        },
-        {
-          "name": "control",
-          "count": 17,
-          "line": 6
-        },
-        {
-          "name": "menu",
-          "count": 9,
-          "line": 12
-        },
-        {
-          "name": "menuPortal",
-          "count": 2,
-          "line": 15
-        },
-        {
-          "name": "option",
-          "count": 7,
-          "line": 16
-        },
-        {
-          "name": "singleValue",
-          "count": 2,
-          "line": 22
-        },
-        {
-          "name": "input",
-          "count": 17,
-          "line": 23
-        },
-        {
-          "name": "placeholder",
-          "count": 7,
-          "line": 24
-        },
-        {
-          "name": "multiValue",
-          "count": 10,
-          "line": 25
-        },
-        {
-          "name": "multiValueLabel",
-          "count": 10,
-          "line": 28
-        },
-        {
-          "name": "multiValueRemove",
-          "count": 10,
-          "line": 29
-        },
-        {
-          "name": "MultiSelect",
-          "count": 4,
-          "line": 31
-        }
-      ],
-      "branches": [
-        {
-          "line": 1,
-          "count": 2
-        },
-        {
-          "line": 5,
-          "count": 4
-        },
-        {
-          "line": 6,
-          "count": 17
-        },
-        {
-          "line": 8,
-          "count": 9
-        },
-        {
-          "line": 9,
-          "count": 8
-        },
-        {
-          "line": 10,
-          "count": 9
-        },
-        {
-          "line": 11,
-          "count": 8
-        },
-        {
-          "line": 12,
-          "count": 9
-        },
-        {
-          "line": 15,
-          "count": 2
-        },
-        {
-          "line": 16,
-          "count": 7
-        },
-        {
-          "line": 19,
-          "count": 3
-        },
-        {
-          "line": 19,
-          "count": 2
-        },
-        {
-          "line": 18,
-          "count": 0
-        },
-        {
-          "line": 20,
-          "count": 0
-        },
-        {
-          "line": 22,
-          "count": 2
-        },
-        {
-          "line": 23,
-          "count": 17
-        },
-        {
-          "line": 24,
-          "count": 7
-        },
-        {
-          "line": 25,
-          "count": 10
-        },
-        {
-          "line": 28,
-          "count": 10
-        },
-        {
-          "line": 29,
-          "count": 10
-        },
-        {
-          "line": 31,
-          "count": 4
-        },
-        {
-          "line": 38,
-          "count": 2
-        },
-        {
-          "line": 38,
-          "count": 2
-        },
-        {
-          "line": 37,
-          "count": 1
-        }
-      ],
-      "lines": [
-        {
-          "line": 1,
-          "count": 2
-        },
-        {
-          "line": 2,
-          "count": 2
-        },
-        {
-          "line": 3,
-          "count": 2
-        },
-        {
-          "line": 4,
-          "count": 2
-        },
-        {
-          "line": 5,
-          "count": 2
-        },
-        {
-          "line": 6,
-          "count": 4
-        },
-        {
-          "line": 7,
-          "count": 17
-        },
-        {
-          "line": 8,
-          "count": 17
-        },
-        {
-          "line": 9,
-          "count": 17
-        },
-        {
-          "line": 10,
-          "count": 17
-        },
-        {
-          "line": 11,
-          "count": 17
-        },
-        {
-          "line": 12,
-          "count": 4
-        },
-        {
-          "line": 13,
-          "count": 9
-        },
-        {
-          "line": 14,
-          "count": 9
-        },
-        {
-          "line": 15,
-          "count": 4
-        },
-        {
-          "line": 16,
-          "count": 4
-        },
-        {
-          "line": 17,
-          "count": 7
-        },
-        {
-          "line": 18,
-          "count": 7
-        },
-        {
-          "line": 19,
-          "count": 7
-        },
-        {
-          "line": 20,
-          "count": 7
-        },
-        {
-          "line": 21,
-          "count": 7
-        },
-        {
-          "line": 22,
-          "count": 4
-        },
-        {
-          "line": 23,
-          "count": 4
-        },
-        {
-          "line": 24,
-          "count": 4
-        },
-        {
-          "line": 25,
-          "count": 4
-        },
-        {
-          "line": 26,
-          "count": 10
-        },
-        {
-          "line": 27,
-          "count": 4
-        },
-        {
-          "line": 28,
-          "count": 4
-        },
-        {
-          "line": 29,
-          "count": 4
-        },
-        {
-          "line": 30,
-          "count": 10
-        },
-        {
-          "line": 31,
-          "count": 2
-        },
-        {
-          "line": 32,
-          "count": 4
-        },
-        {
-          "line": 33,
-          "count": 4
-        },
-        {
-          "line": 34,
-          "count": 4
-        },
-        {
-          "line": 35,
-          "count": 4
-        },
-        {
-          "line": 36,
-          "count": 4
-        },
-        {
-          "line": 37,
-          "count": 4
-        },
-        {
-          "line": 38,
-          "count": 4
-        },
-        {
-          "line": 39,
-          "count": 4
-        },
-        {
-          "line": 40,
-          "count": 0
-        },
-        {
-          "line": 41,
-          "count": 0
-        },
-        {
-          "line": 42,
-          "count": 0
-        },
-        {
-          "line": 43,
-          "count": 0
-        },
-        {
-          "line": 44,
-          "count": 0
-        },
-        {
-          "line": 45,
-          "count": 0
-        },
-        {
-          "line": 46,
-          "count": 0
-        },
-        {
-          "line": 47,
-          "count": 0
-        },
-        {
-          "line": 48,
-          "count": 0
-        }
-      ]
-    },
-    {
       "path": "/home/runner/work/wintermuted-ui/wintermuted-ui/packages/ui-react/src/theme.ts",
       "totalLineCount": 43,
       "totalBranchCount": 17,
@@ -9714,14 +9743,14 @@
     }
   ],
   "totals": {
-    "totalLineCount": 1441,
-    "totalBranchCount": 550,
+    "totalLineCount": 1443,
+    "totalBranchCount": 551,
     "totalFunctionCount": 178,
-    "coveredLineCount": 1274,
-    "coveredBranchCount": 527,
+    "coveredLineCount": 1275,
+    "coveredBranchCount": 528,
     "coveredFunctionCount": 174,
-    "coveredLinePercent": 88.41082581540597,
-    "coveredBranchPercent": 95.81818181818181,
+    "coveredLinePercent": 88.35758835758836,
+    "coveredBranchPercent": 95.82577132486388,
     "coveredFunctionPercent": 97.75280898876404
   },
   "thresholds": {
