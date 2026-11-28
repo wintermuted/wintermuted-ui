@@ -12,6 +12,16 @@
   "nx": {
     "name": "showcase",
     "tags": ["type:docs"],
+    "targets": {
+      "build": {
+        "inputs": [
+          "default",
+          "^default",
+          "{workspaceRoot}/docs/agent-usage.md",
+          "{workspaceRoot}/docs/migration-to-v1.md"
+        ]
+      }
+    },
     "release": {
       "version": { "fallbackCurrentVersionResolver": "disk" }
     }

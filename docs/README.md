@@ -6,6 +6,7 @@ Wintermuted UI separates visual styling from optional React behavior. Use the CS
 
 | Your goal | Read |
 | --- | --- |
+| Integrate components through agent chat | [Agent usage and documentation](agent-usage.md) |
 | Upgrade an existing 0.x consumer | [Migrating to 1.0](migration-to-v1.md) |
 | Understand package ownership and dependency direction | [Architecture](architecture.md) |
 | Evaluate shared-component migrations across consumer projects | [Component consolidation plan](component-consolidation-plan.md) |

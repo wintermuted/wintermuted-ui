@@ -26,6 +26,8 @@ Size badges show each latest npm release's unpacked package size, not a minified
 
 Start with the [documentation index](docs/README.md) for package selection and upgrade paths. The [architecture guide](docs/architecture.md) explains source ownership, dependency direction, styling, React boundaries, SSR, and showcase deployment. The [release runbook](docs/releases.md) covers version selection, publication prerequisites, the 1.0 launch, and recovery.
 
+For agent chat, use the [agent usage guide](docs/agent-usage.md). Showcase deployments include an [agent-readable index](https://wintermuted.github.io/wintermuted-ui/showcase/llms.txt) linking to plain Markdown guides and individual component contracts, generated from the existing documentation.
+
 ## Setup
 
 Use Node.js 22.23.5 or newer and npm 10 or newer. Volta pins the development runtime.

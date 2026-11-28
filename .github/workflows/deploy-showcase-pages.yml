@@ -11,6 +11,8 @@ on:
     branches:
       - main
     paths:
+      - "docs/agent-usage.md"
+      - "docs/migration-to-v1.md"
       - "packages/showcase/**"
       - "packages/storybook/**"
       - "packages/ui-theme/**"
@@ -30,6 +32,8 @@ on:
     branches:
       - main
     paths:
+      - "docs/agent-usage.md"
+      - "docs/migration-to-v1.md"
       - "packages/showcase/**"
       - "packages/storybook/**"
       - "packages/ui-theme/**"
@@ -90,7 +94,7 @@ jobs:
       - run: npm run showcase:build
       - run: npm run storybook:build
       - run: npm run test:showcase-output
-      - run: node --test scripts/stage-pages.test.mjs scripts/pages-workflows.test.mjs
+      - run: node --test scripts/agent-docs.test.mjs scripts/stage-pages.test.mjs scripts/pages-workflows.test.mjs
 
       - name: Configure Pages
         id: pages

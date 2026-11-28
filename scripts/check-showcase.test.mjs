@@ -7,10 +7,16 @@ import { JSDOM } from "jsdom";
 import { site } from "../packages/showcase/src/site.config.mjs";
 import { renderPage } from "../packages/showcase/src/templates/layout.mjs";
 import { checkShowcase } from "./check-showcase.mjs";
+import { agentDocumentation } from "../packages/showcase/src/templates/agent-docs.mjs";
 
 function fixture(t) {
   const output = mkdtempSync(resolve(tmpdir(), "wintermuted-showcase-"));
   t.after(() => rmSync(output, { recursive: true, force: true }));
+  for (const [filename, content] of agentDocumentation()) {
+    const path = resolve(output, filename);
+    mkdirSync(dirname(path), { recursive: true });
+    writeFileSync(path, content);
+  }
   for (const page of site.pages) {
     const docs = (page.layout ?? "docs") === "docs";
     const html = `<!doctype html><html><head><!-- site:head --></head><body>
@@ -36,6 +42,15 @@ function fixture(t) {
 test("showcase output accepts the sibling Storybook link without bundling its artifact", (t) => {
   const output = fixture(t);
   assert.equal(checkShowcase(output), site.pages.length);
+});
+
+test("showcase output rejects missing or stale agent documentation", (t) => {
+  const output = fixture(t);
+  const component = resolve(output, "agent-docs/components/Dialog.md");
+  writeFileSync(component, "# Outdated contract\n");
+  assert.throws(() => checkShowcase(output), /stale agent documentation/);
+  rmSync(component);
+  assert.throws(() => checkShowcase(output), /ENOENT/);
 });
 
 test("the Storybook link exception does not bypass missing local links or assets", (t) => {

@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { defineConfig } from "vite";
 import { site } from "./src/site.config.mjs";
 import { showcaseSite } from "./src/templates/vite-plugin.mjs";
+import { agentDocsPlugin } from "./src/templates/agent-docs.mjs";
 
 const packageRoot = fileURLToPath(new URL(".", import.meta.url));
 const root = resolve(packageRoot, "src");
@@ -15,7 +16,7 @@ const input = Object.fromEntries(
 export default defineConfig(({ command }) => ({
   root,
   publicDir: resolve(packageRoot, "public"),
-  plugins: [sitePlugin],
+  plugins: [sitePlugin, agentDocsPlugin()],
   base: command === "serve" ? "/showcase/" : "./",
   experimental: {
     // Page source directories are flattened in the published site.
