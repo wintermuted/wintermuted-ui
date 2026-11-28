@@ -11,6 +11,13 @@ const registry = "https://registry.npmjs.org";
 const packageRoots = { "ui-theme": "packages/ui-theme", "ui-react": "dist/packages/ui-react",
   "ui-react-select": "dist/packages/ui-react-select" };
 
+class TarballNotVisibleError extends Error {
+  constructor(name, version, shasum) {
+    super(`Tarball download failed for ${name}@${version}: HTTP 404`);
+    this.shasum = shasum;
+  }
+}
+
 export function isPreSubmissionAuthRejection(error) {
   if (!Number.isInteger(error.status) || error.status === 0) return false;
   const output = stripVTControlCharacters(`${error.stdout || ""}\n${error.stderr || ""}`).replaceAll("\r", "");
@@ -32,6 +39,7 @@ export async function inspectPublication(name, version, request = fetch, { inclu
   const tarballUrl = new URL(manifest.dist.tarball);
   if (tarballUrl.origin !== registry) throw new Error("Unexpected npm tarball origin");
   const tarball = await request(tarballUrl, { signal: AbortSignal.timeout(30000), redirect: "error" });
+  if (tarball.status === 404) throw new TarballNotVisibleError(name, version, manifest.dist.shasum);
   if (!tarball.ok) throw new Error(`Tarball download failed for ${name}@${version}: HTTP ${tarball.status}`);
   const bytes = Buffer.from(await tarball.arrayBuffer());
   if (createHash("sha1").update(bytes).digest("hex") !== manifest.dist.shasum) {
@@ -48,8 +56,17 @@ export async function inspectPublication(name, version, request = fetch, { inclu
 }
 
 export async function publishProject({ name, version, shasum }, { inspect, trusted, fallback, sleep = setTimeout }) {
-  const verify = async () => {
-    const published = await inspect(name, version);
+  const verify = async (submissionSucceeded = false) => {
+    let published;
+    try {
+      published = await inspect(name, version);
+    } catch (error) {
+      if (!submissionSucceeded || !(error instanceof TarballNotVisibleError)) throw error;
+      if (error.shasum !== shasum) {
+        throw new Error(`Refusing to reuse ${name}@${version}: registry content differs from the prepared package`);
+      }
+      return null;
+    }
     if (published && published.shasum !== shasum) {
       throw new Error(`Refusing to reuse ${name}@${version}: registry content differs from the prepared package`);
     }
@@ -68,12 +85,12 @@ export async function publishProject({ name, version, shasum }, { inspect, trust
       await fallback();
     }
   }
-  if (await verify()) return;
+  if (await verify(true)) return;
   console.log(`Waiting up to 10 minutes for registry visibility of ${name}@${version}; publication will not be retried`);
-  // npm can accept an upload before its exact-version metadata becomes visible.
+  // npm metadata and tarballs can become visible at different times after acceptance.
   for (let attempt = 0; attempt < 40; attempt += 1) {
     await sleep(15000);
-    if (await verify()) return;
+    if (await verify(true)) return;
   }
   throw new Error(`Publication is not downloadable for ${name}@${version}; do not finalize or blindly retry`);
 }
