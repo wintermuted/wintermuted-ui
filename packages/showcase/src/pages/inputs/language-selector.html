@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
+  </head>
+  <body>
+    <!-- site:docs-open -->
+    <main class="docs-main">
+      <header class="page-header">
+        <h1 class="page-title">Language selector</h1>
+        <p>Native select and custom listbox variants, equivalent to React LanguageSelector.</p>
+      </header>
+      <h3 id="language-selector">Native select</h3>
+      <p>Prefer the native <code>.wm-select</code> when a custom popup is unnecessary.
+        The application owns translation and persistence; this component only chooses a value.</p>
+      <div id="native-language" class="component-demo" data-demo="static">
+        <label for="native-language-value">Language</label>
+        <select id="native-language-value" class="wm-select">
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="de" disabled>German (unavailable)</option>
+        </select>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="native-language"></code></pre>
+      </div>
+      <h3>Custom listbox</h3>
+      <p>Use <code>.wm-language</code>, <code>.wm-language-trigger</code>, <code>.wm-language-menu</code>
+        and <code>.wm-language-option</code> from <code>styles/components/language-selector.css</code>.
+        Opening focuses the selected enabled option. Arrows wrap, Home/End jump, Enter/Space select,
+        Escape restores trigger focus, and Tab or outside activity dismisses without trapping focus.</p>
+      <div id="language-example" class="component-demo component-demo-popover" data-demo="language">
+        <div class="wm-language">
+          <button class="wm-language-trigger" type="button" aria-label="Language: English"
+            aria-haspopup="listbox" aria-controls="language-options" aria-expanded="false"><span>English</span></button>
+          <div id="language-options" class="wm-language-menu" role="listbox" aria-label="Language" hidden>
+            <button class="wm-language-option is-active" type="button" role="option" tabindex="-1" aria-selected="true">English</button>
+            <button class="wm-language-option" type="button" role="option" tabindex="-1" aria-selected="false" disabled>German</button>
+            <button class="wm-language-option" type="button" role="option" tabindex="-1" aria-selected="false">French</button>
+          </div>
+        </div>
+        <output aria-live="polite">Selected language: English</output>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="language-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="javascript">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-javascript" data-demo-script="language-example"></code></pre>
+      </div>
+      <p>The trigger is disabled if all options are disabled. Labels and options belong to the caller.
+        <a href="./react.html">React counterpart</a>.</p>
+    </main>
+    <!-- site:docs-close -->
+    <!-- site:vendors -->
+    <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
+  </body>
+</html>

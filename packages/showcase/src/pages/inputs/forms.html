@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
   </head>
   <body>
     <!-- site:docs-open -->
@@ -173,10 +174,31 @@
   &lt;button class="btn btn-secondary btn-sm" type="button"&gt;↓ Desc&lt;/button&gt;
 &lt;/div&gt;</code></pre>
           </div>
+        <h3 id="field-group">FieldGroup: hints and errors together</h3>
+        <p>Use <code>.wm-field</code>, <code>.wm-field-hint</code> and <code>.wm-field-error</code> from
+          <code>styles/components/field.css</code>. Associate the label with the control and preserve existing
+          descriptions when adding hint/error IDs. Both messages stay visible; mark invalid controls explicitly.</p>
+        <div id="field-example" class="component-demo wm-field" data-demo="static">
+          <label for="document-name">Document name</label>
+          <input id="document-name" class="wm-input" value="" aria-invalid="true"
+            aria-describedby="name-context name-hint name-error" />
+          <p id="name-context">Names are visible to workspace members.</p>
+          <div id="name-hint" class="wm-field-hint">Use a descriptive title.</div>
+          <div id="name-error" class="wm-field-error">Enter a document name.</div>
+          <label for="document-visibility">Visibility</label>
+          <select id="document-visibility" class="wm-select"><option>Workspace</option><option>Private</option></select>
+        </div>
+        <div class="code-sample" data-lang="html">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-html" data-demo-markup="field-example"></code></pre>
+        </div>
+        <p>Validation belongs to the application. <a href="./filters.html">Facets and responsive FilterPanel</a> ·
+          <a href="./document-primitives.html">PageHeader</a> · <a href="./react.html">React FieldGroup</a>.</p>
       </main>
     <!-- site:docs-close -->
 
     <!-- site:vendors -->
     <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
   </body>
 </html>

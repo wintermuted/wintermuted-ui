@@ -14,6 +14,50 @@ const root = new URL("src/pages/", packageRoot);
 const readPage = (file) => readFileSync(new URL(site.pages.find((page) => page.file === file).source, root), "utf8");
 const render = (file, config = site) => new JSDOM(renderPage(readPage(file), file, config));
 
+test("every React component has a registered HTML counterpart or explicit context-only exception", () => {
+  const barrel = readFileSync(new URL("../packages/ui-react/src/index.tsx", import.meta.url), "utf8");
+  const components = [...barrel.matchAll(/export \{ (\w+) \} from "\.\/components\//g)].map(match => match[1]);
+  const dom = render("react.html");
+  const documented = [];
+  const exceptions = [];
+  for (const row of dom.window.document.querySelectorAll("[data-react-components]")) {
+    const names = row.dataset.reactComponents.split(" ");
+    documented.push(...names);
+    if (row.hasAttribute("data-react-only")) exceptions.push(...names);
+    const link = row.querySelector("a");
+    assert.ok(link, names.join(", "));
+    const [file, anchor] = link.getAttribute("href").replace(/^\.\//, "").split("#");
+    assert.ok(site.pages.some(page => page.file === file), file);
+    const target = render(file);
+    if (anchor) assert.ok(target.window.document.getElementById(anchor), `${file}#${anchor}`);
+    target.window.close();
+  }
+  assert.deepEqual(documented.sort(), components.sort());
+  assert.deepEqual(exceptions, ["ThemeProvider"]);
+  assert.match(dom.window.document.querySelector("#html-counterparts").parentElement.textContent, /MultiSelect.*wraps react-select/s);
+  dom.window.close();
+});
+
+test("vanilla demo pages retain scoped roots, copyable sample slots and standalone script ordering", () => {
+  for (const page of site.pages) {
+    const dom = render(page.file);
+    const document = dom.window.document;
+    const demos = [...document.querySelectorAll("[data-demo]")];
+    if (demos.length) {
+      assert.equal(document.querySelectorAll('script[src="/component-demos.js"]').length, 1, page.file);
+      assert.ok(document.querySelector('link[href="/styles/component-demos.css"]'), page.file);
+      const scripts = [...document.scripts].map(script => script.getAttribute("src"));
+      assert.ok(scripts.indexOf("/component-demos.js") > scripts.indexOf("/showcase.js?v=10"), page.file);
+      assert.equal(new Set(demos.map(demo => demo.id)).size, demos.length, page.file);
+      for (const code of document.querySelectorAll("[data-demo-markup], [data-demo-script]")) {
+        const id = code.dataset.demoMarkup ?? code.dataset.demoScript;
+        assert.ok(document.getElementById(id)?.hasAttribute("data-demo"), `${page.file}: ${id}`);
+      }
+    }
+    dom.window.close();
+  }
+});
+
 test("every registered source page expands its slots and retains its content", () => {
   const files = discoverPages(fileURLToPath(root));
   validateSite(site, files);

@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
+  </head>
+  <body>
+    <!-- site:docs-open -->
+    <main class="docs-main">
+      <header class="page-header">
+        <h1 class="page-title">Document primitives</h1>
+        <p>Page headings, breadcrumb trails and image fallbacks with the same styles as their React counterparts.</p>
+      </header>
+      <h3 id="page-header">PageHeader</h3>
+      <p>Use <code>.wm-view-header.wm-page-header</code> and the title/action slots from
+        <code>styles/components/view-header.css</code>. The heading, description, optional icon and actions are caller-owned.
+        Use an h1 for the actual page title; the embedded example uses h2 to preserve this document's hierarchy.</p>
+      <div id="page-header-example" class="component-demo" data-demo="static">
+        <header class="wm-view-header wm-page-header">
+          <div>
+            <div class="wm-page-header-title"><h2>Document library</h2></div>
+            <p>Guides and reference material for your workspace.</p>
+          </div>
+          <div class="wm-page-header-action"><a class="wm-btn wm-btn-secondary" href="./installation.html">Installation guide</a></div>
+        </header>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="page-header-example"></code></pre>
+      </div>
+      <h3 id="breadcrumbs">Breadcrumbs</h3>
+      <p>Use <code>.wm-nav.wm-breadcrumbs</code> from <code>styles/components/nav.css</code>.
+        Name the navigation, use an ordered list and mark the current item with <code>aria-current="page"</code>.
+        Normal anchors work with or without a router.</p>
+      <div id="breadcrumbs-example" class="component-demo" data-demo="static">
+        <nav class="wm-nav wm-breadcrumbs" aria-label="Document trail">
+          <ol>
+            <li><a href="./index.html">Introduction</a></li>
+            <li><a href="./installation.html">Installation</a></li>
+            <li><span aria-current="page">Document primitives</span></li>
+          </ol>
+        </nav>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="breadcrumbs-example"></code></pre>
+      </div>
+      <h3 id="preview-image">PreviewImage</h3>
+      <p>Use <code>.wm-preview-image</code> and <code>.wm-preview-image-fallback</code> from
+        <code>styles/components/gallery.css</code>. Provide image alt text and a separately labeled fallback.
+        Missing/failed sources show the fallback; a changed source retries. Loading defaults to lazy.</p>
+      <div id="preview-example" class="component-demo" data-demo="preview" data-source="./logo.png">
+        <img class="wm-preview-image" src="/logo.png" alt="Wintermuted project preview" loading="lazy" />
+        <div class="wm-preview-image wm-preview-image-fallback" role="img" aria-label="Preview unavailable" hidden>No preview available</div>
+        <div class="component-demo-flow">
+          <button class="wm-btn wm-btn-secondary" type="button" data-missing-image>Use missing image</button>
+          <button class="wm-btn wm-btn-secondary" type="button" data-restore-image>Restore image</button>
+        </div>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="preview-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="javascript">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-javascript" data-demo-script="preview-example"></code></pre>
+      </div>
+      <p>For an initially missing source, render only the labeled fallback. Replace the sample logo path
+        with your own asset. <a href="./gallery.html">Gallery patterns</a> · <a href="./react.html">React counterparts</a>.</p>
+    </main>
+    <!-- site:docs-close -->
+    <!-- site:vendors -->
+    <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
+  </body>
+</html>

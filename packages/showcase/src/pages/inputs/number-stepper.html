@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
+  </head>
+  <body>
+    <!-- site:docs-open -->
+    <main class="docs-main">
+      <header class="page-header">
+        <h1 class="page-title">Number stepper</h1>
+        <p>Bounded incremental values with the same button-based interaction as React NumberStepper.</p>
+      </header>
+      <h3 id="number-stepper">Bounds and fractional steps</h3>
+      <p>Use <code>.wm-stepper</code> and <code>.wm-stepper-value</code> from
+        <code>styles/components/number-stepper.css</code>. Both buttons use native Enter/Space activation.
+        Values must be finite and within bounds; step must be positive.
+        Clamp the final step and round decimal increments to avoid floating-point display artifacts.</p>
+      <div id="stepper-example" class="component-demo wm-stepper" role="group" aria-label="Playback speed"
+        data-demo="stepper" data-min="0.5" data-max="2" data-step="0.1">
+        <button class="wm-btn wm-btn-secondary wm-btn-sm" type="button" aria-label="Decrease speed" data-decrease>-</button>
+        <span class="wm-stepper-value" tabindex="0" aria-label="Playback speed value" aria-live="polite">1</span>
+        <button class="wm-btn wm-btn-secondary wm-btn-sm" type="button" aria-label="Increase speed" data-increase>+</button>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="stepper-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="javascript">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-javascript" data-demo-script="stepper-example"></code></pre>
+      </div>
+      <h3>Disabled state</h3>
+      <div id="disabled-stepper" class="component-demo wm-stepper" role="group" aria-label="Locked speed"
+        data-demo="stepper" data-min="0.5" data-max="2" data-step="0.1" data-disabled="true">
+        <button class="wm-btn wm-btn-secondary wm-btn-sm" type="button" aria-label="Decrease locked speed" data-decrease disabled>-</button>
+        <span class="wm-stepper-value" tabindex="0" aria-label="Locked speed value">1</span>
+        <button class="wm-btn wm-btn-secondary wm-btn-sm" type="button" aria-label="Increase locked speed" data-increase disabled>+</button>
+      </div>
+      <p>Set <code>data-disabled="true"</code> to disable both actions. At either bound, only the unavailable
+        action is disabled. Optional descriptions can use <a href="./tooltip.html">Tooltip</a>.
+        <a href="./react.html">React counterpart</a>.</p>
+    </main>
+    <!-- site:docs-close -->
+    <!-- site:vendors -->
+    <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
+  </body>
+</html>

@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
+  </head>
+  <body>
+    <!-- site:docs-open -->
+    <main class="docs-main">
+      <header class="page-header">
+        <h1 class="page-title">Color picker</h1>
+        <p>Named swatches and custom colors with the same structure as React ColorPicker.</p>
+      </header>
+      <h3 id="color-picker">Swatches and custom input</h3>
+      <p>Use the <code>.wm-color-picker</code> family from <code>styles/components/color-picker.css</code>.
+        The default popup sits above its trigger. <code>.wm-color-picker-right</code> moves it to the right,
+        returning above on narrow screens. Group and color labels must describe the choices without relying on color alone.</p>
+      <div id="color-example" class="component-demo component-demo-popover" data-demo="color">
+        <details class="wm-color-picker" aria-label="Document accent">
+          <summary class="wm-color-picker-trigger" aria-label="Document accent">
+            <span class="wm-color-picker-dot" style="background-color: #2a4a8a;" aria-hidden="true"></span>
+          </summary>
+          <div class="wm-color-picker-panel">
+            <p class="wm-color-picker-title">Document accent</p>
+            <div>
+              <p class="wm-color-group-label">Palette</p>
+              <div class="wm-color-swatch-grid" role="group" aria-label="Palette">
+                <button class="wm-color-swatch wm-color-swatch-active" type="button" aria-label="Blue" aria-pressed="true" data-color="#2a4a8a" style="background-color: #2a4a8a;"></button>
+                <button class="wm-color-swatch" type="button" aria-label="Green" aria-pressed="false" data-color="#137333" style="background-color: #137333;"></button>
+                <button class="wm-color-swatch" type="button" aria-label="Red" aria-pressed="false" data-color="#c5221f" style="background-color: #c5221f;"></button>
+                <button class="wm-color-swatch" type="button" aria-label="Gold (unavailable)" aria-pressed="false" data-color="#ea8600" style="background-color: #ea8600;" disabled></button>
+              </div>
+            </div>
+            <div class="wm-custom-color-row">
+              <label class="wm-custom-color-label" for="accent-native">Custom color</label>
+              <div class="wm-custom-color-inputs">
+                <input id="accent-native" class="wm-color-native-input" type="color" value="#2a4a8a" aria-label="Custom color" />
+                <input class="wm-color-hex-input" type="text" value="#2a4a8a" aria-label="Hex color" aria-invalid="false" />
+              </div>
+              <span id="accent-error" class="wm-color-error" role="alert" hidden>Enter three or six hexadecimal digits, for example #137333.</span>
+            </div>
+          </div>
+        </details>
+        <output aria-live="polite">Selected color: #2a4a8a</output>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="color-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="javascript">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-javascript" data-demo-script="color-example"></code></pre>
+      </div>
+      <p>A swatch selects and closes. Custom input normalizes three/six-digit hex on blur; Enter commits
+        and closes only valid input. Invalid input retains the previous selection and announces an error.
+        Escape restores summary focus; outside clicks dismiss. Set <code>disabled</code> on swatches and
+        both inputs for a read-only picker. These explicit sample colors are user data, not theme tokens.
+        <a href="./react.html">React counterpart</a>.</p>
+    </main>
+    <!-- site:docs-close -->
+    <!-- site:vendors -->
+    <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
+  </body>
+</html>

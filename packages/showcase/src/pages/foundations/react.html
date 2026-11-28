@@ -20,6 +20,50 @@
         </section>
         <div id="react-showcase"></div>
         <section class="react-doc-section">
+          <h3 id="html-counterparts">HTML/CSS counterparts</h3>
+          <p>The same component styles work without React. The linked pages include native markup, working vanilla
+            demos and copyable initialization code. Demo JavaScript belongs to the showcase, not the CSS-only package.</p>
+          <div class="table-responsive">
+            <table>
+              <caption>React component documentation equivalents</caption>
+              <thead><tr><th scope="col">React export</th><th scope="col">Non-React documentation</th></tr></thead>
+              <tbody>
+                <tr data-react-components="Card CardHeader CardBody CardTitle CardText CardFooter"><td>Card and slots</td><td><a href="./cards.html#card-primitives">Canonical card primitives</a></td></tr>
+                <tr data-react-components="ListGroup ListItem"><td>ListGroup, ListItem</td><td><a href="./tags.html#list-group">Divided list rows</a></td></tr>
+                <tr data-react-components="Nav Breadcrumbs"><td>Nav, Breadcrumbs</td><td><a href="./document-primitives.html#breadcrumbs">Navigation and breadcrumb markup</a></td></tr>
+                <tr data-react-components="Input Select FieldGroup"><td>Input, Select, FieldGroup</td><td><a href="./forms.html#field-group">Labeled fields, hints and errors</a></td></tr>
+                <tr data-react-components="Button"><td>Button</td><td><a href="./buttons.html">Buttons</a></td></tr>
+                <tr data-react-components="RefreshAction LoadStatus"><td>RefreshAction, LoadStatus</td><td><a href="./loading-actions.html#refresh-action">Refresh and recovery feedback</a></td></tr>
+                <tr data-react-components="ActionDisclosure"><td>ActionDisclosure</td><td><a href="./loading-actions.html#action-disclosure">Independent header action</a></td></tr>
+                <tr data-react-components="Badge Alert"><td>Badge, Alert</td><td><a href="./feedback.html#canonical-feedback">Canonical tonal feedback</a></td></tr>
+                <tr data-react-components="Spinner"><td>Spinner</td><td><a href="./feedback.html#spinner">Named loading status</a></td></tr>
+                <tr data-react-components="ProgressBar"><td>ProgressBar</td><td><a href="./feedback.html#progress-bar">Native progress</a></td></tr>
+                <tr data-react-components="Table SortableTableHeader"><td>Table, SortableTableHeader</td><td><a href="./tables.html#sortable-table-header">Responsive sortable table</a></td></tr>
+                <tr data-react-components="Accordion"><td>Accordion</td><td><a href="./accordion.html#accordion">Native disclosure</a></td></tr>
+                <tr data-react-components="Tabs"><td>Tabs</td><td><a href="./navigation.html#tabs">Keyboard tabs and panels</a></td></tr>
+                <tr data-react-components="Menu"><td>Menu</td><td><a href="./menu.html#menu">Action menu</a></td></tr>
+                <tr data-react-components="Tooltip"><td>Tooltip</td><td><a href="./tooltip.html#tooltip">Hover/focus descriptions</a></td></tr>
+                <tr data-react-components="Dialog"><td>Dialog</td><td><a href="./modal.html#dialog">Native modal dialog</a></td></tr>
+                <tr data-react-components="ThemeProvider" data-react-only><td>ThemeProvider</td><td>React context only; <a href="./installation.html#theme-select">plain-JavaScript theming</a> needs no provider.</td></tr>
+                <tr data-react-components="ThemeSelect"><td>ThemeSelect</td><td><a href="./installation.html#theme-select">Light/dark/system selector</a></td></tr>
+                <tr data-react-components="ToggleGroup"><td>ToggleGroup</td><td><a href="./toggle-group.html">Exclusive value selector</a></td></tr>
+                <tr data-react-components="FacetFilter FilterPanel"><td>FacetFilter, FilterPanel</td><td><a href="./filters.html#filter-panel">Facets and responsive disclosure</a></td></tr>
+                <tr data-react-components="StatCard"><td>StatCard</td><td><a href="./data-display.html#stat-card">Default and compact metrics</a></td></tr>
+                <tr data-react-components="RankedBarList"><td>RankedBarList</td><td><a href="./ranked-bar-list.html#ranked-bar-list">Relative bars</a></td></tr>
+                <tr data-react-components="Toast"><td>Toast</td><td><a href="./toast.html">Notifications</a></td></tr>
+                <tr data-react-components="ColorPicker"><td>ColorPicker</td><td><a href="./color-picker.html#color-picker">Swatches and custom colors</a></td></tr>
+                <tr data-react-components="NumberStepper"><td>NumberStepper</td><td><a href="./number-stepper.html#number-stepper">Bounded increments</a></td></tr>
+                <tr data-react-components="LanguageSelector"><td>LanguageSelector</td><td><a href="./language-selector.html#language-selector">Native and custom selectors</a></td></tr>
+                <tr data-react-components="PageHeader"><td>PageHeader</td><td><a href="./document-primitives.html#page-header">Document heading and actions</a></td></tr>
+                <tr data-react-components="PreviewImage"><td>PreviewImage</td><td><a href="./document-primitives.html#preview-image">Image fallback and retry</a></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <p><code>useTheme</code> is a React context hook, not a visual component. The optional
+            <code>MultiSelect</code> export from <code>ui-react/select</code> wraps react-select and has no
+            direct vanilla equivalent; the native Select above is not a searchable multi-select substitute.</p>
+        </section>
+        <section class="react-doc-section">
           <h3>Document primitives</h3>
           <p><code>PageHeader</code> uses canonical view-header styling; <code>Breadcrumbs</code>
             composes Nav and accepts a router-independent <code>renderLink</code>.

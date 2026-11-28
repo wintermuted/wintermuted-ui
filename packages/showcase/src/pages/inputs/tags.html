@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
   </head>
   <body>
     <!-- site:docs-open -->
@@ -157,10 +158,28 @@
 &lt;hr class="wm-separator" /&gt;
 &lt;p&gt;Content below.&lt;/p&gt;</code></pre>
           </div>
+        <h3 id="list-group">ListGroup and ListItem</h3>
+        <p>Use <code>.wm-list-group</code> and <code>.wm-list-item</code> from
+          <code>styles/components/list-group.css</code> for divided rows rather than the bullet-list utility above.
+          React ListGroup defaults to ul, ListItem to li; choose ordered-list markup when sequence matters.</p>
+        <div id="list-group-example" class="component-demo" data-demo="static">
+          <ul class="wm-list-group" aria-label="Document resources">
+            <li class="wm-list-item"><a href="./installation.html">Installation guide</a></li>
+            <li class="wm-list-item">Component reference</li>
+            <li class="wm-list-item">Release notes</li>
+          </ul>
+        </div>
+        <div class="code-sample" data-lang="html">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-html" data-demo-markup="list-group-example"></code></pre>
+        </div>
+        <p>Use real links or buttons inside rows for actions; do not make a li clickable without native semantics.
+          <a href="./react.html">React counterparts</a>.</p>
       </main>
     <!-- site:docs-close -->
 
     <!-- site:vendors -->
     <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
   </body>
 </html>

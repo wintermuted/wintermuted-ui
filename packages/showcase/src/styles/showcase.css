@@ -1004,6 +1004,7 @@ pre[class*="language-"].code-block {
 
   body.docs-sidebar-enhanced .docs-sidebar {
     position: fixed;
+    align-self: stretch;
     top: 3.1rem;
     left: 0;
     bottom: 0;

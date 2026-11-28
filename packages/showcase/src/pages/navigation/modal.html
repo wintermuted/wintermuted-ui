@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
     <style>
       /* Demo: make .modal-overlay relative for inline display */
       .modal-demo-wrap {
@@ -141,10 +142,41 @@
           </ul>
         <hr>
 
+        <h3 id="dialog">Native Dialog</h3>
+        <p>React Dialog uses a native dialog in the browser's modal top layer, unlike the legacy overlay above.
+          Use <code>.wm-dialog</code>, <code>.wm-dialog-header</code> and <code>.wm-dialog-body</code> from
+          <code>styles/components/dialog.css</code>. Open with <code>showModal()</code>, not the open attribute.
+          The browser makes background content inert; this example wraps Tab focus within the dialog.
+          Native Escape closes it and close restores the invoking control's focus.</p>
+        <div id="dialog-example" class="component-demo" data-demo="dialog">
+          <button class="wm-btn wm-btn-secondary" type="button" data-open-dialog>Open document dialog</button>
+          <dialog class="wm-dialog" aria-labelledby="native-dialog-title" tabindex="-1">
+            <header class="wm-dialog-header">
+              <h3 id="native-dialog-title">Edit document</h3>
+              <button class="wm-btn wm-btn-ghost" type="button" data-close-dialog aria-label="Close document dialog">Close</button>
+            </header>
+            <div class="wm-dialog-body">
+              <label for="dialog-name">Document title</label>
+              <input id="dialog-name" class="wm-input" value="Installation guide" />
+              <p>Only use modality for a task that needs protected focus.</p>
+            </div>
+          </dialog>
+        </div>
+        <div class="code-sample" data-lang="html">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-html" data-demo-markup="dialog-example"></code></pre>
+        </div>
+        <div class="code-sample" data-lang="javascript">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-javascript" data-demo-script="dialog-example"></code></pre>
+        </div>
+        <p>A custom close action must have an accessible name and call close. A native dialog does not dismiss
+          on backdrop click by default. <a href="./filters.html">Non-modal FilterPanel</a> · <a href="./react.html">React Dialog</a>.</p>
       </main>
     <!-- site:docs-close -->
 
     <!-- site:vendors -->
     <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
   </body>
 </html>

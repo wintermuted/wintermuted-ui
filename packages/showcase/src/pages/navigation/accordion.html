@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
+  </head>
+  <body>
+    <!-- site:docs-open -->
+    <main class="docs-main">
+      <header class="page-header">
+        <h1 class="page-title">Accordion</h1>
+        <p>Native disclosure with the same markup and styles as React Accordion.</p>
+      </header>
+      <h3 id="accordion">Details and summary</h3>
+      <p>Use <code>.wm-accordion</code> and <code>.wm-accordion-body</code> from
+        <code>styles/components/accordion.css</code>. Enter or Space toggles the summary;
+        the browser supplies expanded semantics. Add <code>open</code> for an initially expanded item.</p>
+      <div id="accordion-example" class="component-demo" data-demo="static">
+        <details class="wm-accordion" open>
+          <summary>Installation requirements</summary>
+          <div class="wm-accordion-body">Load the theme stylesheet once. No React or JavaScript is needed.</div>
+        </details>
+        <details class="wm-accordion">
+          <summary>Can multiple sections stay open?</summary>
+          <div class="wm-accordion-body">Yes. Each disclosure is independent; hidden content remains mounted.</div>
+        </details>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="accordion-example"></code></pre>
+      </div>
+      <p>For a separate header action, use <a href="./loading-actions.html#action-disclosure">ActionDisclosure</a>,
+        not an interactive button nested inside summary. <a href="./react.html">React counterpart</a>.</p>
+    </main>
+    <!-- site:docs-close -->
+    <!-- site:vendors -->
+    <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
+  </body>
+</html>
