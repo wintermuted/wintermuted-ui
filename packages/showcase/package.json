@@ -18,6 +18,7 @@
           "default",
           "^default",
           "{workspaceRoot}/docs/agent-usage.md",
+          "{workspaceRoot}/docs/recipes.md",
           "{workspaceRoot}/docs/migration-to-v1.md"
         ]
       }

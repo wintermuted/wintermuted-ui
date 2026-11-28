@@ -6,6 +6,19 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { agentDocumentation, agentDocsPlugin } from "../packages/showcase/src/templates/agent-docs.mjs";
 
+test("the task index links to four focused recipes generated from the canonical guide", () => {
+  const files = agentDocumentation();
+  for (const name of ["validated-form", "sortable-table", "responsive-filters", "dark-mode-ssr"]) {
+    const filename = `agent-docs/recipes/${name}.md`;
+    assert.ok(files.has(filename), `Missing ${name}`);
+    assert.ok(files.get("llms.txt").includes(`](./${filename})`));
+    assert.match(files.get(filename), /import .+ from "@wintermuted\/ui-react/);
+  }
+  assert.match(files.get("agent-docs/recipes.md"), /Build a validated form/);
+  assert.doesNotMatch(files.get("agent-docs/recipes/validated-form.md"), /export function InvoiceTable/);
+  assert.doesNotMatch(files.get("agent-docs/recipes/sortable-table.md"), /export function ContactForm/);
+});
+
 test("the index and component guides have resolvable Markdown links at production and preview depths", () => {
   const files = agentDocumentation();
   const barrel = readFileSync(new URL("../packages/ui-react/src/index.tsx", import.meta.url), "utf8");
@@ -33,7 +46,7 @@ test("new component exports without canonical contracts fail generation", (t) =>
   const root = mkdtempSync(resolve(tmpdir(), "wintermuted-agent-docs-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   for (const source of [
-    "docs/agent-usage.md", "docs/migration-to-v1.md",
+    "docs/agent-usage.md", "docs/migration-to-v1.md", "docs/recipes.md",
     "packages/ui-theme/README.md", "packages/ui-react/README.md",
     "packages/ui-react-select/README.md", "packages/ui-react/src/index.tsx",
   ]) {
@@ -91,7 +104,10 @@ test("the real Vite development server exposes the index and Markdown without cl
     await server.listen();
     const address = server.httpServer.address();
     const base = `http://127.0.0.1:${address.port}/showcase/`;
-    for (const filename of ["llms.txt", "agent-docs/components/Dialog.md", "agent-docs/theming.md"]) {
+    for (const filename of ["llms.txt", "agent-docs/components/Dialog.md", "agent-docs/theming.md",
+      "agent-docs/recipes.md", "agent-docs/recipes/validated-form.md",
+      "agent-docs/recipes/sortable-table.md", "agent-docs/recipes/responsive-filters.md",
+      "agent-docs/recipes/dark-mode-ssr.md"]) {
       const response = await fetch(new URL(filename, base));
       assert.equal(response.status, 200);
       assert.equal(await response.text(), agentDocumentation().get(filename));

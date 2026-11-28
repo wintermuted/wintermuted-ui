@@ -11,6 +11,13 @@ const guides = [
   ["react", "packages/ui-react/README.md", "React usage, component contracts, and examples"],
   ["select", "packages/ui-react-select/README.md", "MultiSelect installation and adapter contract"],
   ["migration", "docs/migration-to-v1.md", "Removed exports and consumer migration"],
+  ["recipes", "docs/recipes.md", "Task-oriented recipes with complete imports and application-owned state"],
+];
+const recipes = [
+  ["validated-form", "Build a validated form"],
+  ["sortable-table", "Create a sortable table"],
+  ["responsive-filters", "Add responsive filters"],
+  ["dark-mode-ssr", "Initialize dark mode with SSR"],
 ];
 
 function section(markdown, heading) {
@@ -36,6 +43,23 @@ export function agentDocumentation(root = repositoryRoot) {
   const react = read("packages/ui-react/README.md");
   const theming = `${section(react, "Theme preferences and SSR")}\n`;
   files.set("agent-docs/theming.md", theming);
+  const recipeSource = read("docs/recipes.md");
+  for (const [name, heading] of recipes) {
+    files.set(`agent-docs/recipes/${name}.md`, `# ${heading}
+
+Install \`@wintermuted/ui-react\`, \`@wintermuted/ui-theme\`, React and React DOM. Check your installed exports and declarations before using these source-revision examples.
+
+${section(recipeSource, heading).replace(/^## .+\n/, "").trim()}
+
+## References
+
+- [Installation and package selection](../installation.md)
+- [All task-oriented recipes](../recipes.md)
+- [React component contracts](../react.md)
+- [CSS imports and dependencies](../theme.md)
+- [Theme preferences and SSR](../theming.md)
+`);
+  }
 
   const contracts = new Map();
   for (const row of section(react, "Component contracts").split("\n")) {
@@ -91,6 +115,10 @@ ${guides.map(([name, , description]) => `- [${description}](./agent-docs/${name}
 ## Components
 
 ${componentLinks.join("\n")}
+
+## Recipes
+
+${recipes.map(([name, heading]) => `- [${heading}](./agent-docs/recipes/${name}.md): Complete imports and application-owned state.`).join("\n")}
 `);
   return files;
 }

@@ -55,7 +55,14 @@ React applications import `initTheme` and `getThemeScript` from the React-free `
 
 ## Agent-readable documentation
 
-The showcase serves `llms.txt` and `agent-docs/*.md` without requiring JavaScript. The index links to installation, CSS, React, searchable-select, migration, theming, and individual component contracts.
+The showcase serves `llms.txt` and `agent-docs/**/*.md` without requiring JavaScript. The index links to installation, CSS, React, searchable-select, migration, theming, individual component contracts, and [task-oriented recipes](recipes.md):
+
+- Build a validated form with application-owned validation and save callbacks.
+- Create a sortable table with controlled column/direction and sorted records.
+- Add responsive filters with controlled search, category selections, and counts.
+- Initialize dark mode with SSR, first-paint bootstrap, and hydration-safe controls.
+
+Recipes are authored in `docs/recipes.md`; the existing generator emits both the complete guide and focused `agent-docs/recipes/*.md` assets. Update the source guide, not generated assets. The same Markdown is served in development and emitted for production/PR previews.
 
 Component Markdown is generated from the canonical React README and checked against component exports. Update those existing contracts rather than editing generated output. Applications continue to own routing, fetching, filtering, sorting, formatting, translations, and notification timing.
 
