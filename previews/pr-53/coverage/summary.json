@@ -116,16 +116,16 @@
           "count": 7
         },
         {
+          "line": 18,
+          "count": 0
+        },
+        {
           "line": 19,
           "count": 3
         },
         {
           "line": 19,
           "count": 2
-        },
-        {
-          "line": 18,
-          "count": 0
         },
         {
           "line": 20,
@@ -160,16 +160,16 @@
           "count": 4
         },
         {
-          "line": 38,
-          "count": 2
-        },
-        {
-          "line": 38,
-          "count": 2
-        },
-        {
           "line": 37,
           "count": 1
+        },
+        {
+          "line": 38,
+          "count": 2
+        },
+        {
+          "line": 38,
+          "count": 2
         }
       ],
       "lines": [
@@ -985,12 +985,12 @@
           "count": 194
         },
         {
-          "line": 10,
-          "count": 5
-        },
-        {
           "line": 9,
           "count": 60
+        },
+        {
+          "line": 10,
+          "count": 5
         }
       ],
       "lines": [
@@ -2265,16 +2265,6 @@
           "line": 26
         },
         {
-          "name": "onCancel",
-          "count": 5,
-          "line": 53
-        },
-        {
-          "name": "onClose",
-          "count": 6,
-          "line": 58
-        },
-        {
           "name": "",
           "count": 17,
           "line": 36
@@ -2298,6 +2288,16 @@
           "name": "",
           "count": 7,
           "line": 44
+        },
+        {
+          "name": "onCancel",
+          "count": 5,
+          "line": 53
+        },
+        {
+          "name": "onClose",
+          "count": 6,
+          "line": 58
         }
       ],
       "branches": [
@@ -2331,11 +2331,11 @@
         },
         {
           "line": 12,
-          "count": 4
+          "count": 3
         },
         {
-          "line": 13,
-          "count": 1
+          "line": 12,
+          "count": 6
         },
         {
           "line": 15,
@@ -2347,11 +2347,11 @@
         },
         {
           "line": 12,
-          "count": 3
+          "count": 4
         },
         {
-          "line": 12,
-          "count": 6
+          "line": 13,
+          "count": 1
         },
         {
           "line": 16,
@@ -2434,30 +2434,6 @@
           "count": 1
         },
         {
-          "line": 53,
-          "count": 5
-        },
-        {
-          "line": 54,
-          "count": 1
-        },
-        {
-          "line": 57,
-          "count": 3
-        },
-        {
-          "line": 58,
-          "count": 6
-        },
-        {
-          "line": 59,
-          "count": 2
-        },
-        {
-          "line": 59,
-          "count": 1
-        },
-        {
           "line": 36,
           "count": 17
         },
@@ -2504,6 +2480,30 @@
         {
           "line": 44,
           "count": 0
+        },
+        {
+          "line": 53,
+          "count": 5
+        },
+        {
+          "line": 54,
+          "count": 1
+        },
+        {
+          "line": 57,
+          "count": 3
+        },
+        {
+          "line": 58,
+          "count": 6
+        },
+        {
+          "line": 59,
+          "count": 2
+        },
+        {
+          "line": 59,
+          "count": 1
         }
       ],
       "lines": [
@@ -3279,6 +3279,14 @@
           "count": 18
         },
         {
+          "line": 6,
+          "count": 8
+        },
+        {
+          "line": 8,
+          "count": 8
+        },
+        {
           "line": 10,
           "count": 10
         },
@@ -3312,42 +3320,34 @@
         },
         {
           "line": 17,
-          "count": 4
-        },
-        {
-          "line": 18,
-          "count": 14
-        },
-        {
-          "line": 18,
-          "count": 4
-        },
-        {
-          "line": 21,
-          "count": 14
-        },
-        {
-          "line": 21,
-          "count": 4
-        },
-        {
-          "count": 14
-        },
-        {
-          "line": 6,
-          "count": 8
-        },
-        {
-          "line": 8,
-          "count": 8
-        },
-        {
-          "line": 17,
           "count": 2
         },
         {
           "line": 17,
           "count": 8
+        },
+        {
+          "line": 17,
+          "count": 4
+        },
+        {
+          "line": 18,
+          "count": 14
+        },
+        {
+          "line": 18,
+          "count": 4
+        },
+        {
+          "line": 21,
+          "count": 14
+        },
+        {
+          "line": 21,
+          "count": 4
+        },
+        {
+          "count": 14
         }
       ],
       "lines": [
@@ -5179,15 +5179,15 @@
         },
         {
           "line": 15,
+          "count": 1
+        },
+        {
+          "line": 15,
           "count": 5
         },
         {
           "line": 15,
           "count": 6
-        },
-        {
-          "line": 15,
-          "count": 1
         },
         {
           "line": 15,
@@ -5230,10 +5230,6 @@
           "count": 6
         },
         {
-          "line": 30,
-          "count": 1
-        },
-        {
           "line": 31,
           "count": 5
         },
@@ -5251,23 +5247,11 @@
         },
         {
           "line": 38,
-          "count": 5
-        },
-        {
-          "line": 39,
-          "count": 2
-        },
-        {
-          "line": 39,
           "count": 1
-        },
-        {
-          "line": 36,
-          "count": 0
         },
         {
           "line": 38,
-          "count": 1
+          "count": 5
         },
         {
           "line": 39,
@@ -5276,6 +5260,22 @@
         {
           "line": 39,
           "count": 3
+        },
+        {
+          "line": 30,
+          "count": 1
+        },
+        {
+          "line": 36,
+          "count": 0
+        },
+        {
+          "line": 39,
+          "count": 2
+        },
+        {
+          "line": 39,
+          "count": 1
         },
         {
           "line": 34,
@@ -7587,12 +7587,12 @@
           "count": 2
         },
         {
-          "line": 21,
-          "count": 2
-        },
-        {
           "line": 19,
           "count": 1
+        },
+        {
+          "line": 21,
+          "count": 2
         },
         {
           "line": 22,
@@ -8807,11 +8807,11 @@
         },
         {
           "line": 25,
-          "count": 11
+          "count": 77
         },
         {
           "line": 25,
-          "count": 77
+          "count": 11
         },
         {
           "line": 26,
