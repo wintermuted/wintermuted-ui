@@ -88,7 +88,7 @@ test("Pages watches every library consumed by showcase and Storybook for product
 test("agent guide changes invalidate the showcase build and trigger both deployment types", () => {
   const manifest = JSON.parse(readFileSync(new URL("../packages/showcase/package.json", import.meta.url), "utf8"));
   const workflow = readWorkflow("deploy-showcase-pages");
-  for (const source of ["docs/agent-usage.md", "docs/migration-to-v1.md"]) {
+  for (const source of ["docs/agent-usage.md", "docs/migration-to-v1.md", "docs/recipes.md"]) {
     assert.ok(manifest.nx.targets.build.inputs.includes(`{workspaceRoot}/${source}`));
     for (const event of ["push", "pull_request"]) {
       const trigger = workflow.split(`  ${event}:\n`)[1].split(/^  \w/m)[0];

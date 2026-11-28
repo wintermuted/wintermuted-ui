@@ -12,6 +12,7 @@ on:
       - main
     paths:
       - "docs/agent-usage.md"
+      - "docs/recipes.md"
       - "docs/migration-to-v1.md"
       - "packages/showcase/**"
       - "packages/storybook/**"
@@ -33,6 +34,7 @@ on:
       - main
     paths:
       - "docs/agent-usage.md"
+      - "docs/recipes.md"
       - "docs/migration-to-v1.md"
       - "packages/showcase/**"
       - "packages/storybook/**"
