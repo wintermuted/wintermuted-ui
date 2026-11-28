@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
   </head>
   <body>
     <!-- site:docs-open -->
@@ -275,10 +276,27 @@
           </div>
         <hr>
 
+        <h3 id="card-primitives">Canonical Card primitives</h3>
+        <p>React Card defaults to section, with semantic header/footer slots and div body.
+          CardTitle and CardText use <code>.wm-card-title</code> and <code>.wm-card-text</code>.
+          All styles live in <code>styles/components/card.css</code>; choose heading levels for your document.</p>
+        <div id="card-primitives-example" class="component-demo" data-demo="static">
+          <section class="wm-card" aria-labelledby="resource-title">
+            <header class="wm-card-header"><h4 id="resource-title" class="wm-card-title">Document resources</h4></header>
+            <div class="wm-card-body"><p class="wm-card-text">Installation guidance and component references.</p></div>
+            <footer class="wm-card-footer"><a href="./installation.html">Read the installation guide</a></footer>
+          </section>
+        </div>
+        <div class="code-sample" data-lang="html">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-html" data-demo-markup="card-primitives-example"></code></pre>
+        </div>
+        <p><a href="./react.html">React Card, CardHeader, CardBody, CardTitle, CardText and CardFooter</a>.</p>
       </main>
     <!-- site:docs-close -->
 
     <!-- site:vendors -->
     <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
   </body>
 </html>

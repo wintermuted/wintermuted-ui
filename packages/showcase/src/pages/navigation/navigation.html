@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
   </head>
   <body>
     <!-- site:docs-open -->
@@ -222,10 +223,40 @@
           </div>
         <hr>
 
+        <h3 id="tabs">Tabs with associated panels</h3>
+        <p>This is the behavioral counterpart to React Tabs, not just the static tab bar above.
+          Use <code>.wm-tabs</code>, <code>.wm-tab-bar</code>, <code>.wm-tab-btn</code> and
+          <code>.wm-tab-panel</code> from <code>styles/components/tab-bar.css</code>.
+          Arrows, Home and End select and focus enabled tabs. Each tab controls a labeled panel;
+          hidden panels stay mounted and only the active tab is in the tab order.</p>
+        <div id="tabs-example" class="component-demo wm-tabs" data-demo="tabs">
+          <div class="wm-tab-bar" role="tablist" aria-label="Document views">
+            <button id="tab-guides" class="wm-tab-btn wm-tab-btn-active" type="button" role="tab"
+              aria-selected="true" aria-controls="panel-guides">Guides</button>
+            <button id="tab-archived" class="wm-tab-btn" type="button" role="tab"
+              aria-selected="false" aria-controls="panel-archived" tabindex="-1" disabled>Archived</button>
+            <button id="tab-reference" class="wm-tab-btn" type="button" role="tab"
+              aria-selected="false" aria-controls="panel-reference" tabindex="-1">Reference</button>
+          </div>
+          <div id="panel-guides" class="wm-tab-panel" role="tabpanel" aria-labelledby="tab-guides" tabindex="0">Installation and setup guides.</div>
+          <div id="panel-archived" class="wm-tab-panel" role="tabpanel" aria-labelledby="tab-archived" tabindex="0" hidden>Archived content.</div>
+          <div id="panel-reference" class="wm-tab-panel" role="tabpanel" aria-labelledby="tab-reference" tabindex="0" hidden>Component API reference.</div>
+        </div>
+        <div class="code-sample" data-lang="html">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-html" data-demo-markup="tabs-example"></code></pre>
+        </div>
+        <div class="code-sample" data-lang="javascript">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-javascript" data-demo-script="tabs-example"></code></pre>
+        </div>
+        <p><a href="./filters.html">Facet filters</a> · <a href="./menu.html">Menu</a> ·
+          <a href="./document-primitives.html#breadcrumbs">Breadcrumbs</a> · <a href="./react.html">React counterparts</a>.</p>
       </main>
     <!-- site:docs-close -->
 
     <!-- site:vendors -->
     <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
   </body>
 </html>

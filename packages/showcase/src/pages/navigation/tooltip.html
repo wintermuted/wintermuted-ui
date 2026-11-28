@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
+  </head>
+  <body>
+    <!-- site:docs-open -->
+    <main class="docs-main">
+      <header class="page-header">
+        <h1 class="page-title">Tooltip</h1>
+        <p>Supplementary descriptions on hover and keyboard focus, equivalent to React Tooltip.</p>
+      </header>
+      <h3 id="tooltip">Above and right placement</h3>
+      <p>Use <code>.wm-tooltip-anchor</code>, <code>.wm-tooltip</code> and optional
+        <code>.wm-tooltip-right</code> from <code>styles/components/tooltip.css</code>.
+        Escape dismisses the tooltip until a new hover/focus interaction.
+        Existing descriptions are preserved while the tooltip ID is added to <code>aria-describedby</code>.</p>
+      <div id="tooltip-example" class="component-demo component-demo-flow" data-demo="tooltip">
+        <span class="wm-tooltip-anchor">
+          <button type="button" class="wm-btn wm-btn-secondary" aria-describedby="save-hint">Save draft</button>
+          <span id="save-tooltip" class="wm-tooltip" role="tooltip" hidden>Save without publishing</span>
+        </span>
+        <span class="wm-tooltip-anchor">
+          <button type="button" class="wm-btn wm-btn-secondary">More</button>
+          <span id="more-tooltip" class="wm-tooltip wm-tooltip-right" role="tooltip" hidden>Additional actions</span>
+        </span>
+        <p id="save-hint">Your draft stays private.</p>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="tooltip-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="javascript">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-javascript" data-demo-script="tooltip-example"></code></pre>
+      </div>
+      <p>Keep tooltips non-interactive. Put essential instructions in visible text, and always give the
+        trigger an accessible name independent of its tooltip. <a href="./react.html">React counterpart</a>.</p>
+    </main>
+    <!-- site:docs-close -->
+    <!-- site:vendors -->
+    <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
+  </body>
+</html>

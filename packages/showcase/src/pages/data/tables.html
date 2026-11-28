@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
   </head>
   <body>
     <!-- site:docs-open -->
@@ -86,10 +87,47 @@
           <li>Avoid more than 6-7 visible columns on desktop without horizontal segmentation.</li>
           <li>Represent status with concise text and consistent vocabulary.</li>
         </ul>
+        <h3 id="sortable-table-header">SortableTableHeader</h3>
+        <p>Use <code>.wm-sort-head</code>, <code>.wm-sort-btn</code> and <code>.wm-sort-dir-btn</code> from
+          <code>styles/components/table.css</code>. The column button selects the sort column;
+          the separate direction button selects that column and reverses direction. Set aria-sort on the th,
+          not the button. The application owns sorting; this demo actually reorders rows.</p>
+        <div id="sorting-example" class="component-demo wm-table-responsive" role="region" aria-label="Sortable documents"
+          tabindex="0" data-demo="sorting">
+          <table class="wm-table">
+            <caption>Documents sorted by merchant and amount</caption>
+            <thead><tr>
+              <th scope="col" data-column="merchant" aria-sort="ascending"><div class="wm-sort-head">
+                <button class="wm-sort-btn is-active" type="button" data-sort>Merchant</button>
+                <button class="wm-sort-dir-btn is-active" type="button" data-direction aria-label="Sort merchant descending">Reverse</button>
+              </div></th>
+              <th scope="col" data-column="amount" aria-sort="none"><div class="wm-sort-head">
+                <button class="wm-sort-btn" type="button" data-sort>Amount</button>
+                <button class="wm-sort-dir-btn" type="button" data-direction aria-label="Sort amount descending">Reverse</button>
+              </div></th>
+            </tr></thead>
+            <tbody>
+              <tr data-merchant="Adobe" data-amount="239.99"><td>Adobe</td><td>$239.99</td></tr>
+              <tr data-merchant="Figma" data-amount="15"><td>Figma</td><td>$15.00</td></tr>
+              <tr data-merchant="Netflix" data-amount="18.99"><td>Netflix</td><td>$18.99</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="code-sample" data-lang="html">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-html" data-demo-markup="sorting-example"></code></pre>
+        </div>
+        <div class="code-sample" data-lang="javascript">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-javascript" data-demo-script="sorting-example"></code></pre>
+        </div>
+        <p>The responsive wrapper is focusable for horizontal scrolling. Keep display values separate from
+          numeric sort values. <a href="./react.html">React Table and SortableTableHeader</a>.</p>
       </main>
     <!-- site:docs-close -->
 
     <!-- site:vendors -->
     <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
   </body>
 </html>

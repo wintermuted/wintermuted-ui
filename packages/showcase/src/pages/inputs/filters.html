@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
+  </head>
+  <body>
+    <!-- site:docs-open -->
+    <main class="docs-main">
+      <header class="page-header">
+        <h1 class="page-title">Filters</h1>
+        <p>Faceted selection and a responsive non-modal panel, equivalent to React FacetFilter and FilterPanel.</p>
+      </header>
+      <h3 id="filter-panel">Responsive FilterPanel</h3>
+      <p>Use <code>.wm-filter-bar.wm-filter-panel</code> and its slots from
+        <code>styles/components/filter-panel.css</code>. Controls are inline above 48rem and disclosed below it.
+        Close, scrim and unconsumed Escape restore toggle focus. Controls stay mounted; there is no focus trap or scroll lock.
+        A nested disclosure consumes Escape before the outer panel.</p>
+      <div id="filters-example" class="component-demo wm-filter-bar wm-filter-panel" data-demo="filters">
+        <div class="wm-filter-panel-search">
+          <label for="document-search">Search documents</label>
+          <input id="document-search" class="wm-input" type="search" placeholder="Document title" />
+        </div>
+        <button class="wm-btn wm-btn-secondary wm-filter-panel-toggle" type="button"
+          aria-label="Open document filters" aria-controls="document-filters" aria-expanded="false">Filters</button>
+        <button class="wm-filter-panel-scrim" type="button" aria-label="Dismiss document filters" hidden></button>
+        <aside id="document-filters" class="wm-filter-panel-controls" aria-label="Document filters">
+          <div class="wm-filter-panel-header">
+            <strong>Document filters</strong>
+            <button class="wm-btn wm-btn-ghost" type="button" data-close-filters aria-label="Close document filters">Close</button>
+          </div>
+          <details class="wm-facet-filter" data-facet open>
+            <summary class="wm-facet-filter-summary">Category</summary>
+            <div class="wm-checkbox-filter-group" role="group" aria-label="Category">
+              <label class="wm-checkbox-filter-label"><input type="checkbox" data-reset checked />
+                <span class="wm-checkbox-filter-name">All categories</span><span class="wm-checkbox-filter-count">8</span></label>
+              <label class="wm-checkbox-filter-label"><input type="checkbox" data-value="Guides" />
+                <span class="wm-checkbox-filter-name">Guides</span><span class="wm-checkbox-filter-count">5</span></label>
+              <label class="wm-checkbox-filter-label"><input type="checkbox" data-value="Reference" />
+                <span class="wm-checkbox-filter-name">Reference</span><span class="wm-checkbox-filter-count">2</span></label>
+              <label class="wm-checkbox-filter-label" data-extra hidden><input type="checkbox" data-value="all" />
+                <span class="wm-checkbox-filter-name">Literal value: all</span><span class="wm-checkbox-filter-count">1</span></label>
+              <label class="wm-checkbox-filter-label" data-extra hidden><input type="checkbox" data-value="Archived" disabled />
+                <span class="wm-checkbox-filter-name">Archived</span><span class="wm-checkbox-filter-count">0</span></label>
+              <button class="wm-facet-more" type="button" data-more aria-expanded="false">Show more</button>
+            </div>
+            <output aria-live="polite">All categories</output>
+          </details>
+          <details class="wm-accordion" data-filter-help>
+            <summary>Filter help</summary>
+            <div class="wm-accordion-body">Reset clears selection. Escape closes this help before the mobile panel.</div>
+          </details>
+        </aside>
+        <p class="wm-filter-panel-summary">Selection controls only; connect these values to your own results.</p>
+      </div>
+      <h3 id="facet-filter">FacetFilter reset, counts and empty state</h3>
+      <p>Use <code>.wm-facet-filter</code> and <code>.wm-checkbox-filter-*</code> from
+        <code>styles/components/checkbox-filter.css</code>. Reset is separate from a real value named <code>all</code>.
+        Counts, unavailable options and the show-more labels belong to the caller. Hiding extra options must not discard selection.</p>
+      <div id="empty-facet" class="component-demo" data-demo="static">
+        <details class="wm-facet-filter" open>
+          <summary class="wm-facet-filter-summary">Owners</summary>
+          <div class="wm-checkbox-filter-group" role="group" aria-label="Owners">
+            <p class="wm-facet-empty">No owners available</p>
+          </div>
+        </details>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="filters-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="javascript">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-javascript" data-demo-script="filters-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="empty-facet"></code></pre>
+      </div>
+      <p><a href="./forms.html">Basic filter bar</a> · <a href="./react.html">React counterparts</a></p>
+    </main>
+    <!-- site:docs-close -->
+    <!-- site:vendors -->
+    <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
+  </body>
+</html>

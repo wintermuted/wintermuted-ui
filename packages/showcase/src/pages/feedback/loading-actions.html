@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
+  </head>
+  <body>
+    <!-- site:docs-open -->
+    <main class="docs-main">
+      <header class="page-header">
+        <h1 class="page-title">Loading and action disclosures</h1>
+        <p>Refresh, recovery feedback and independent header actions, equivalent to React RefreshAction, LoadStatus and ActionDisclosure.</p>
+      </header>
+      <h3 id="refresh-action">RefreshAction</h3>
+      <p>Compose <code>.wm-btn</code> from <code>styles/components/button.css</code> with an explicit
+        <code>type="button"</code>. Loading takes precedence over error/idle text, sets <code>aria-busy</code>
+        and disables activation. The application owns the operation and completion, not a built-in timer.</p>
+      <h3 id="load-status">LoadStatus</h3>
+      <p>Use <code>.wm-load-status</code>, <code>.wm-load-status-warning</code> and retry/loading slots from
+        <code>styles/components/load-status.css</code>. Idle has no visible or announced status.
+        Errors use alert semantics, warnings use status semantics, and retry calls each supplied recovery action once.
+        Optional help should receive the exact combined message and error/warning tone.</p>
+      <div id="loading-example" class="component-demo" data-demo="loading">
+        <div class="component-demo-flow">
+          <button class="wm-btn wm-btn-secondary" type="button" data-refresh aria-busy="false">Refresh</button>
+          <span class="wm-load-status" hidden>
+            <span data-message role="status" hidden></span>
+            <button class="wm-btn wm-btn-ghost wm-load-status-retry" type="button" data-retry aria-label="Retry all failed sources" hidden>Retry sources</button>
+            <span class="wm-load-status-loading" data-loading role="status" aria-label="Loading documents" hidden>Loading documents</span>
+          </span>
+        </div>
+        <p>Choose a simulated operation result:</p>
+        <div class="component-demo-flow">
+          <button class="wm-btn wm-btn-secondary" type="button" data-state="idle">Complete successfully</button>
+          <button class="wm-btn wm-btn-secondary" type="button" data-state="error">Show errors</button>
+          <button class="wm-btn wm-btn-secondary" type="button" data-state="warning">Show warning</button>
+        </div>
+        <output aria-live="polite">Recovery callbacks: 0</output>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="loading-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="javascript">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-javascript" data-demo-script="loading-example"></code></pre>
+      </div>
+      <h3 id="action-disclosure">ActionDisclosure</h3>
+      <p>Use the <code>.wm-action-disclosure</code> slots from <code>styles/components/action-disclosure.css</code>.
+        The heading trigger and labeled header action are separate buttons. Start expanded, keep hidden content mounted,
+        run collapse cleanup before hiding, and expand before the action callback. Post-render focus belongs to the host.</p>
+      <div id="disclosure-example" class="component-demo wm-action-disclosure" data-demo="disclosure">
+        <header class="wm-action-disclosure-header">
+          <h4 class="wm-action-disclosure-heading">
+            <button class="wm-btn wm-btn-ghost wm-action-disclosure-trigger" type="button"
+              aria-controls="document-notes" aria-expanded="true">
+              <span class="wm-action-disclosure-indicator" aria-hidden="true">&gt;</span>Notes
+            </button>
+          </h4>
+          <button class="wm-btn wm-btn-ghost wm-action-disclosure-action" type="button" aria-label="Edit notes">Edit notes</button>
+        </header>
+        <div id="document-notes" data-disclosure-content>
+          <label for="notes-value">Draft note</label>
+          <input id="notes-value" class="wm-input" value="Keep this draft when collapsed" />
+        </div>
+        <output aria-live="polite">Expanded; draft stays mounted</output>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="disclosure-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="javascript">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-javascript" data-demo-script="disclosure-example"></code></pre>
+      </div>
+      <p>For simple content without a separate action, use <a href="./accordion.html">Accordion</a>.
+        <a href="./feedback.html">Spinner and progress</a> · <a href="./react.html">React counterparts</a>.</p>
+    </main>
+    <!-- site:docs-close -->
+    <!-- site:vendors -->
+    <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
+  </body>
+</html>

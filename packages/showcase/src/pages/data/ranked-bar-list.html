@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
+  </head>
+  <body>
+    <!-- site:docs-open -->
+    <main class="docs-main">
+      <header class="page-header">
+        <h1 class="page-title">Ranked bar list</h1>
+        <p>Relative values with explicit text labels, equivalent to React RankedBarList.</p>
+      </header>
+      <h3 id="ranked-bar-list">Values relative to a supplied maximum</h3>
+      <p>Use the <code>.wm-ranked-*</code> family from <code>styles/components/ranked-bar-list.css</code>.
+        Supply the order, labels and maximum yourself. Clamp widths to 100%; a zero maximum produces zero-width bars.
+        Values and maximum must be finite and nonnegative; minimum visible width must be between 0 and 100.</p>
+      <div id="ranked-example" class="component-demo wm-ranked-list" role="list" aria-label="Documents by category"
+        data-demo="ranked" data-maximum="10" data-minimum="0">
+        <div class="wm-ranked-item" role="listitem" data-value="10">
+          <div class="wm-ranked-item-header"><span class="wm-ranked-label">Guides</span><span class="wm-ranked-count">10 documents</span></div>
+          <div class="wm-ranked-track" aria-hidden="true"><div class="wm-ranked-fill" style="width: 100%;"></div></div>
+        </div>
+        <div class="wm-ranked-item" role="listitem" data-value="5">
+          <div class="wm-ranked-item-header"><span class="wm-ranked-label">Reference</span><span class="wm-ranked-count">5 documents</span></div>
+          <div class="wm-ranked-track" aria-hidden="true"><div class="wm-ranked-fill" style="width: 50%;"></div></div>
+        </div>
+        <div class="wm-ranked-item" role="listitem" data-value="0">
+          <div class="wm-ranked-item-header"><span class="wm-ranked-label">Archived</span><span class="wm-ranked-count">0 documents</span></div>
+          <div class="wm-ranked-track" aria-hidden="true"><div class="wm-ranked-fill" style="width: 0%;"></div></div>
+        </div>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="ranked-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="javascript">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-javascript" data-demo-script="ranked-example"></code></pre>
+      </div>
+      <h3>Empty state</h3>
+      <div id="ranked-empty" class="component-demo wm-ranked-list" role="list" aria-label="Archived documents" data-demo="static">
+        <p class="wm-ranked-empty">No archived documents</p>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="ranked-empty"></code></pre>
+      </div>
+      <p>Bars are decorative and hidden from assistive technology; text conveys the values. Optional
+        <code>.wm-ranked-chip</code> and fill colors use caller-supplied data. This display does not sort or fetch.
+        <a href="./data-display.html">Stat cards</a> · <a href="./react.html">React counterpart</a>.</p>
+    </main>
+    <!-- site:docs-close -->
+    <!-- site:vendors -->
+    <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
+  </body>
+</html>

@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
+  </head>
+  <body>
+    <!-- site:docs-open -->
+    <main class="docs-main">
+      <header class="page-header">
+        <h1 class="page-title">Menu</h1>
+        <p>Action menus with explicit focus and dismissal behavior, equivalent to React Menu.</p>
+      </header>
+      <h3 id="menu">Actions and disabled items</h3>
+      <p>Use <code>.wm-menu</code> and <code>.wm-menu-items</code> from
+        <code>styles/components/menu.css</code>. Arrow Down opens at the first enabled item;
+        Arrow Up opens at the last. Arrows wrap, Home/End jump, Enter activates, and Escape restores trigger focus.
+        Tab closes without trapping focus. Outside pointer activity and focus leaving the menu dismiss it.</p>
+      <div id="menu-example" class="component-demo" data-demo="menu">
+        <div class="wm-menu">
+          <button class="wm-btn wm-btn-secondary" type="button" aria-haspopup="menu"
+            aria-expanded="false" aria-controls="document-actions">Document actions</button>
+          <ul id="document-actions" class="wm-menu-items" role="menu" aria-label="Document actions" hidden>
+            <li role="none"><button type="button" role="menuitem" tabindex="-1">Duplicate</button></li>
+            <li role="none"><button type="button" role="menuitem" tabindex="-1" aria-disabled="true">Archive (unavailable)</button></li>
+            <li role="none"><a role="menuitem" tabindex="-1" href="./installation.html">Installation guide</a></li>
+          </ul>
+        </div>
+        <output aria-live="polite">No action selected</output>
+      </div>
+      <div class="code-sample" data-lang="html">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-html" data-demo-markup="menu-example"></code></pre>
+      </div>
+      <div class="code-sample" data-lang="javascript">
+        <button class="code-copy-btn" type="button" data-copy>Copy</button>
+        <pre class="code-block"><code class="language-javascript" data-demo-script="menu-example"></code></pre>
+      </div>
+      <p>CSS positions the menu but does not supply behavior. Copy both samples after loading the theme.
+        Replace the output update with your action; do not suppress normal link navigation.
+        <a href="./react.html">React counterpart</a>.</p>
+    </main>
+    <!-- site:docs-close -->
+    <!-- site:vendors -->
+    <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
+  </body>
+</html>

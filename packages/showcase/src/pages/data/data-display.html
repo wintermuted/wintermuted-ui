@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
   </head>
   <body>
     <!-- site:docs-open -->
@@ -119,10 +120,31 @@
             </a>
           </div>
 
+        <h3 id="stat-card">StatCard default and compact variants</h3>
+        <p>React StatCard uses <code>.wm-stat-card</code> from <code>styles/components/stat-card.css</code>.
+          Default places value first; <code>.wm-stat-card-compact</code> places label first.
+          Info, success, warning and danger tones affect the value; keep the label explicit.</p>
+        <div id="stat-card-example" class="component-demo component-demo-flow" data-demo="static">
+          <article class="wm-stat-card">
+            <p class="wm-stat-value">18</p><p class="wm-stat-label">Documents</p>
+          </article>
+          <article class="wm-stat-card wm-stat-card-compact wm-stat-card-success">
+            <p class="wm-stat-label">Published</p><p class="wm-stat-value">12</p>
+          </article>
+          <article class="wm-stat-card wm-stat-card-compact wm-stat-card-warning">
+            <p class="wm-stat-label">Pending review</p><p class="wm-stat-value">6</p>
+          </article>
+        </div>
+        <div class="code-sample" data-lang="html">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-html" data-demo-markup="stat-card-example"></code></pre>
+        </div>
+        <p><a href="./ranked-bar-list.html">RankedBarList</a> · <a href="./react.html">React StatCard</a>.</p>
       </main>
     <!-- site:docs-close -->
 
     <!-- site:vendors -->
     <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
   </body>
 </html>

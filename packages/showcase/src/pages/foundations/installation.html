@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
   </head>
   <body>
     <!-- site:docs-open -->
@@ -77,6 +78,25 @@ if (saved === 'dark') {
         <hr>
 
         <!-- Design tokens -->
+          <h3 id="theme-select">Light/dark/system selector without React</h3>
+          <p>The HTML equivalent of React ThemeSelect is a labeled native select. No ThemeProvider or React hook is needed.
+            The initializer below follows the OS in System mode and persists explicit choices.
+            Run it before presenting your application where possible to avoid a first-paint flash.
+            Change the sample storage key for your application; storage errors are not silently ignored.</p>
+          <div id="appearance-example" class="component-demo wm-field" data-demo="appearance" data-storage-key="wm-showcase-theme">
+            <label for="appearance-value">Appearance</label>
+            <select id="appearance-value" class="wm-select">
+              <option value="system">System</option><option value="light">Light</option><option value="dark">Dark</option>
+            </select>
+          </div>
+          <div class="code-sample" data-lang="html">
+            <button class="code-copy-btn" type="button" data-copy>Copy</button>
+            <pre class="code-block"><code class="language-html" data-demo-markup="appearance-example"></code></pre>
+          </div>
+          <div class="code-sample" data-lang="javascript">
+            <button class="code-copy-btn" type="button" data-copy>Copy</button>
+            <pre class="code-block"><code class="language-javascript" data-demo-script="appearance-example"></code></pre>
+          </div>
           <h3>Design Tokens</h3>
           <p>
             All tokens are CSS custom properties on <code>:root</code>. Dark overrides live on
@@ -183,5 +203,6 @@ export default defineConfig({
 
     <!-- site:vendors -->
     <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
   </body>
 </html>

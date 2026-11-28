@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <!-- site:head -->
+    <link rel="stylesheet" href="/styles/component-demos.css" />
   </head>
   <body>
     <!-- site:docs-open -->
@@ -106,10 +107,53 @@
 &lt;div class="inline-panel inline-panel-warning"&gt;Pending.&lt;/div&gt;
 &lt;div class="inline-panel inline-panel-danger"&gt;Failed.&lt;/div&gt;</code></pre>
           </div>
+        <h3 id="canonical-feedback">Canonical Badge and Alert</h3>
+        <p>React Badge and Alert use <code>.wm-badge-*</code> and <code>.wm-alert-*</code> tone classes from
+          <code>styles/components/badge.css</code> and <code>styles/components/alert.css</code>.
+          Alert defaults to a polite status; use role alert for an urgent error. Text must convey the meaning of the tone.</p>
+        <div id="canonical-feedback-example" class="component-demo" data-demo="static">
+          <span class="wm-badge wm-badge-success">Published</span>
+          <div class="wm-alert wm-alert-info" role="status">Your draft was saved.</div>
+          <div class="wm-alert wm-alert-danger" role="alert">Document upload failed. Choose a smaller file and retry.</div>
+        </div>
+        <div class="code-sample" data-lang="html">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-html" data-demo-markup="canonical-feedback-example"></code></pre>
+        </div>
+        <h3 id="spinner">Spinner</h3>
+        <p>Use <code>.wm-spinner</code> and <code>.wm-spinner-indicator</code> from
+          <code>styles/components/spinner.css</code>. The status has a text label; hide only the decorative indicator.
+          The stylesheet respects reduced motion.</p>
+        <div id="spinner-example" class="component-demo" data-demo="static">
+          <span class="wm-spinner" role="status">
+            <span class="wm-spinner-indicator" aria-hidden="true"></span>
+            <span class="wm-sr-only">Loading documents</span>
+          </span>
+        </div>
+        <div class="code-sample" data-lang="html">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-html" data-demo-markup="spinner-example"></code></pre>
+        </div>
+        <h3 id="progress-bar">ProgressBar</h3>
+        <p>Use native progress and <code>.wm-progress</code> from <code>styles/components/progress.css</code>.
+          Supply a positive maximum and clamp the value between zero and that maximum.
+          A progress element without value is indeterminate; React ProgressBar defaults to a determinate zero.</p>
+        <div id="progress-example" class="component-demo" data-demo="static">
+          <label for="document-progress">Document import: 6 of 10</label>
+          <progress id="document-progress" class="wm-progress" max="10" value="6">6 of 10</progress>
+          <label for="pending-progress">Waiting for import size</label>
+          <progress id="pending-progress" class="wm-progress">Waiting</progress>
+        </div>
+        <div class="code-sample" data-lang="html">
+          <button class="code-copy-btn" type="button" data-copy>Copy</button>
+          <pre class="code-block"><code class="language-html" data-demo-markup="progress-example"></code></pre>
+        </div>
+        <p><a href="./loading-actions.html">Refresh and recovery states</a> · <a href="./react.html">React counterparts</a>.</p>
       </main>
     <!-- site:docs-close -->
 
     <!-- site:vendors -->
     <!-- site:scripts -->
+    <script src="/component-demos.js"></script>
   </body>
 </html>
