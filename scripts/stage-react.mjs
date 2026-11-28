@@ -4,8 +4,12 @@ import { createRequire } from "node:module";
 import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const source = new URL("../packages/ui-react/", import.meta.url);
-const target = new URL("../dist/packages/ui-react/", import.meta.url);
+const project = process.argv[2] ?? "ui-react";
+if (process.argv.length > 3 || !["ui-react", "ui-react-select"].includes(project)) {
+  throw new Error("Stage ui-react or ui-react-select.");
+}
+const source = new URL(`../packages/${project}/`, import.meta.url);
+const target = new URL(`../dist/packages/${project}/`, import.meta.url);
 
 rmSync(target, { recursive: true, force: true });
 mkdirSync(target, { recursive: true });
@@ -23,12 +27,17 @@ const manifest = JSON.parse(readFileSync(new URL("package.json", source), "utf8"
 delete manifest.nx;
 delete manifest.scripts.prepack;
 if (Object.keys(manifest.scripts).length === 0) delete manifest.scripts;
-manifest.main = "./src/index.js";
-manifest.types = "./src/index.d.ts";
-manifest.exports = {
-  ".": { types: "./src/index.d.ts", default: "./src/index.js" },
-  "./select": { types: "./src/select.d.ts", default: "./src/select.js" },
-  "./theme": { types: "./src/theme.d.ts", default: "./src/theme.js" },
-};
-manifest.typesVersions = { "*": { select: ["src/select.d.ts"], theme: ["src/theme.d.ts"] } };
+const compiled = (path, types = false) => path.replace(/\.tsx?$/, types ? ".d.ts" : ".js");
+manifest.main = compiled(manifest.main);
+manifest.types = compiled(manifest.types, true);
+manifest.exports = Object.fromEntries(Object.entries(manifest.exports).map(([name, targets]) => [
+  name, { types: compiled(targets.types, true), default: compiled(targets.default) },
+]));
+if (manifest.typesVersions) {
+  manifest.typesVersions = Object.fromEntries(Object.entries(manifest.typesVersions).map(([range, paths]) => [
+    range, Object.fromEntries(Object.entries(paths).map(([name, targets]) => [
+      name, targets.map(path => compiled(path, true)),
+    ])),
+  ]));
+}
 writeFileSync(new URL("package.json", target), `${JSON.stringify(manifest, null, 2)}\n`);

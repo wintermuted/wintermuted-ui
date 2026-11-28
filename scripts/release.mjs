@@ -13,7 +13,7 @@ for (const arg of args) {
 if (args.size > 1) throw new Error("Choose one of --dry-run, --prepare, or --finalize.");
 const dryRun = !args.has("--prepare") && !args.has("--finalize");
 const statePath = new URL("../.nx/release-state.json", import.meta.url);
-const projects = ["ui-theme", "ui-react", "showcase"];
+const projects = ["ui-theme", "ui-react", "ui-react-select", "showcase"];
 const git = (...command) => execFileSync("git", command, { encoding: "utf8" }).trim();
 
 if (args.has("--finalize")) {
@@ -41,15 +41,20 @@ if (args.has("--finalize")) {
     git: { push: false }
   });
   const firstShowcaseRelease = process.env.WM_FIRST_SHOWCASE_RELEASE === "true";
+  const firstSelectRelease = process.env.WM_FIRST_SELECT_RELEASE === "true";
+  const firstProjects = [
+    ...(firstSelectRelease ? ["ui-react-select"] : []),
+    ...(firstShowcaseRelease ? ["showcase"] : []),
+  ];
   const versionOptions = { dryRun, stageChanges: !dryRun, gitCommit: false, gitTag: false };
   const { projectsVersionData } = await client.releaseVersion({
     ...versionOptions,
-    projects: firstShowcaseRelease ? projects.filter((project) => project !== "showcase") : projects
+    projects: projects.filter(project => !firstProjects.includes(project))
   });
-  if (firstShowcaseRelease) {
+  for (const project of firstProjects) {
     const initial = await client.releaseVersion({
       ...versionOptions,
-      projects: ["showcase"],
+      projects: [project],
       firstRelease: true,
       specifier: "0.1.0"
     });
@@ -65,7 +70,7 @@ if (args.has("--finalize")) {
       projects: [project],
       versionData: { [project]: data },
       from: baselines[project],
-      firstRelease: project === "showcase" && firstShowcaseRelease,
+      firstRelease: firstProjects.includes(project),
       dryRun,
       stageChanges: !dryRun,
       gitCommit: false,
@@ -92,10 +97,10 @@ if (args.has("--finalize")) {
   }
 } else {
   // Nx can exit on configuration errors; isolate it so baseline cleanup still runs.
-  await withThemeBaseline(async ({ baselines, firstShowcaseRelease }) => {
+  await withThemeBaseline(async ({ baselines, firstShowcaseRelease, firstSelectRelease }) => {
     execFileSync(process.execPath, [fileURLToPath(import.meta.url), ...args], {
       stdio: "inherit",
-      env: { ...process.env, WM_RELEASE_WORKER: "true", WM_RELEASE_BASELINES: JSON.stringify(baselines), WM_FIRST_SHOWCASE_RELEASE: String(firstShowcaseRelease) }
+      env: { ...process.env, WM_RELEASE_WORKER: "true", WM_RELEASE_BASELINES: JSON.stringify(baselines), WM_FIRST_SHOWCASE_RELEASE: String(firstShowcaseRelease), WM_FIRST_SELECT_RELEASE: String(firstSelectRelease) }
     });
   });
 }

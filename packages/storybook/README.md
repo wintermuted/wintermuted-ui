@@ -2,7 +2,7 @@
 
 Private React component development and interactive documentation alongside the [showcase](../showcase/README.md). Stories consume the canonical workspace exports and theme CSS; they do not copy components or change published package contents.
 
-The private Storybook workspace uses `*` ranges for `@wintermuted/ui-react` and
+The private Storybook workspace uses `*` ranges for `@wintermuted/ui-react`, `@wintermuted/ui-react-select`, and
 `@wintermuted/ui-theme` so npm links the current workspace packages after every
 release. Do not pin these dependencies to published versions: Storybook is excluded
 from Nx Release, so those pins can become stale and install older nested copies.
@@ -64,7 +64,7 @@ The sidebar organizes component pages into Actions, Forms, Layout, Navigation, D
 | Tabs | Controlled selection, keyboard navigation, and a disabled item |
 | Menu, Tooltip | Keyboard navigation, dismissal, focus, and placement |
 | Dialog | Native modal with an opening trigger, close/Escape handling, and focus restoration |
-| MultiSelect | Labeled typed options, selection, and disabled state via the optional select entry point |
+| MultiSelect | Labeled typed options, selection, and disabled state via the standalone select package |
 | ToggleGroup | Segmented, outline, vertical, swatch, and disabled states |
 | FacetFilter | Selection, reset, hidden/disabled options, and unavailable state |
 | StatCard, RankedBarList | Compact metrics, zero values, ranked sample data, and empty state |
@@ -80,7 +80,7 @@ The Accessibility panel provides manual inspection, not an automated accessibili
 
 ## Adding stories
 
-Add a typed `*.stories.tsx` file under `src/stories` with a `Components/<section>/<Component>` title and stable `components-<component>` ID. Reuse an existing sidebar section when it fits. Import components from `@wintermuted/ui-react`, MultiSelect from `@wintermuted/ui-react/select`, and theme helpers from `@wintermuted/ui-react/theme`.
+Add a typed `*.stories.tsx` file under `src/stories` with a `Components/<section>/<Component>` title and stable `components-<component>` ID. Reuse an existing sidebar section when it fits. Import components from `@wintermuted/ui-react`, MultiSelect from `@wintermuted/ui-react-select`, and theme helpers from `@wintermuted/ui-react/theme`.
 
 Use typed CSF metadata (`satisfies Meta<...>`) and `StoryObj`, supply accessible labels, and add explicit controls for props that docgen cannot infer from primitive wrappers or generic components. Use `useArgs` from `storybook/preview-api` in rendered examples when interaction must update Controls, and `fn` from `storybook/test` for observable callbacks. Theme CSS and preview spacing are shared centrally; keep production styling in the theme package.
 

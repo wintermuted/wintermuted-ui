@@ -36,7 +36,7 @@
     }
   },
   "release": {
-    "projects": ["ui-theme", "ui-react", "showcase"],
+    "projects": ["ui-theme", "ui-react", "ui-react-select", "showcase"],
     "projectsRelationship": "independent",
     "releaseTag": {
       "pattern": "{projectName}@{version}"

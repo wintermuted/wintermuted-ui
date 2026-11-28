@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { React, h, dom, render, screen, fireEvent, act, userEvent, theme, setSystemTheme } from "./react/setup.js";
 
 const ui = await import("@wintermuted/ui-react");
-const { MultiSelect } = await import("@wintermuted/ui-react/select");
+const { MultiSelect } = await import("@wintermuted/ui-react-select");
 
 test("native props, polymorphism, slots, and button default do not submit forms", async () => {
   const user = userEvent.setup();

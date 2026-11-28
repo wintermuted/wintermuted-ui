@@ -6,7 +6,7 @@ import { join } from "node:path";
 import { test } from "node:test";
 import { withThemeBaseline } from "./release-baseline.mjs";
 
-function fixture(t, includeShowcase = true) {
+function fixture(t, includeShowcase = true, includeSelect = true) {
   const cwd = mkdtempSync(join(tmpdir(), "wm-release-"));
   t.after(() => rmSync(cwd, { recursive: true, force: true }));
   const git = (...args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
@@ -16,6 +16,10 @@ function fixture(t, includeShowcase = true) {
   writeFileSync(join(cwd, "package.json"), "{}");
   mkdirSync(join(cwd, "packages", "ui-react"), { recursive: true });
   writeFileSync(join(cwd, "packages", "ui-react", "package.json"), '{"version":"0.0.0"}');
+  if (includeSelect) {
+    mkdirSync(join(cwd, "packages", "ui-react-select"), { recursive: true });
+    writeFileSync(join(cwd, "packages", "ui-react-select", "package.json"), '{"version":"0.1.0"}');
+  }
   if (includeShowcase) {
     mkdirSync(join(cwd, "packages", "showcase"), { recursive: true });
     writeFileSync(join(cwd, "packages", "showcase", "package.json"), '{"version":"0.1.0","private":true}');
@@ -90,4 +94,46 @@ test("missing showcase history rejects preparation and cleans up temporary publi
   await assert.rejects(withThemeBaseline(async () => assert.fail("must not release"), cwd), /No showcase package history/);
   assert.equal(git("tag", "--list", "ui-theme@*"), "");
   assert.equal(git("tag", "--list", "ui-react@*"), "");
+});
+
+test("select bootstrap includes its introduction and later releases use their own reachable tag", async (t) => {
+  const { cwd, git } = fixture(t);
+  git("tag", "ui-theme@1.0.0");
+  git("tag", "ui-react@1.0.0");
+  const initial = git("rev-parse", "HEAD");
+  await withThemeBaseline(async ({ baselines, firstSelectRelease }) => {
+    assert.equal(firstSelectRelease, true);
+    assert.equal(baselines["ui-react-select"], initial);
+    assert.equal(git("tag", "--list", "ui-react-select@*"), "");
+  }, cwd);
+  git("tag", "ui-react-select@0.1.0");
+  git("commit", "--quiet", "--allow-empty", "-m", "fix: later select change");
+  await withThemeBaseline(async ({ baselines, firstSelectRelease }) => {
+    assert.equal(firstSelectRelease, false);
+    assert.equal(baselines["ui-react-select"], initial);
+  }, cwd);
+});
+
+test("missing select introduction history fails and cleans up temporary tags", async (t) => {
+  const { cwd, git } = fixture(t, true, false);
+  git("tag", "v0.21.7");
+  await assert.rejects(withThemeBaseline(async () => assert.fail("must not release"), cwd), /No react-select package history/);
+  assert.equal(git("tag", "--list", "ui-theme@*"), "");
+  assert.equal(git("tag", "--list", "ui-react@*"), "");
+});
+
+test("first select changelog starts before the introducing commit without creating a release tag", async (t) => {
+  const { cwd, git } = fixture(t, true, false);
+  git("tag", "ui-theme@1.0.0");
+  git("tag", "ui-react@1.0.0");
+  const baseline = git("rev-parse", "HEAD");
+  mkdirSync(join(cwd, "packages", "ui-react-select"));
+  writeFileSync(join(cwd, "packages", "ui-react-select", "package.json"), '{"version":"0.1.0"}');
+  git("add", ".");
+  git("commit", "--quiet", "-m", "feat!: extract adapter");
+  await withThemeBaseline(async ({ baselines, firstSelectRelease }) => {
+    assert.equal(firstSelectRelease, true);
+    assert.equal(baselines["ui-react-select"], baseline);
+    assert.equal(git("tag", "--list", "ui-react-select@*"), "");
+  }, cwd);
 });

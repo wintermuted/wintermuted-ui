@@ -69,13 +69,13 @@ This package lives in `packages/ui-theme` within the [Wintermuted UI monorepo](h
 
 Version 1.0.0 removes the legacy `react`, `react/select`, and `theme` entry points, their TypeScript mappings, and all React-related peer dependencies. CSS imports and `--wm-*` tokens are unchanged. CSS-only consumers need no React packages.
 
-React components and theme runtime helpers now come exclusively from `@wintermuted/ui-react`:
+Core React components and theme runtime helpers come from `@wintermuted/ui-react`; MultiSelect comes from the standalone `@wintermuted/ui-react-select` package:
 
 ```js
 import "@wintermuted/ui-theme/index.css";
 import { Button, ThemeProvider } from "@wintermuted/ui-react";
-import { MultiSelect } from "@wintermuted/ui-react/select";
+import { MultiSelect } from "@wintermuted/ui-react-select";
 import { initTheme } from "@wintermuted/ui-react/theme";
 ```
 
-Install `@wintermuted/ui-react` and React/React DOM 18.3 or 19; add react-select 5.8 or newer only for the select adapter. See the [1.0 migration guide](https://github.com/wintermuted/wintermuted-ui/blob/main/docs/migration-to-v1.md) for installation, import mappings, test tooling, and release ordering.
+Install `@wintermuted/ui-react` and React/React DOM 18.3 or 19; add `@wintermuted/ui-react-select` and react-select 5.8 or newer only for the select adapter. See the [1.0 migration guide](https://github.com/wintermuted/wintermuted-ui/blob/main/docs/migration-to-v1.md) for installation, import mappings, test tooling, and release ordering.

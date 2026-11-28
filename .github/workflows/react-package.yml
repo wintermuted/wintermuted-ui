@@ -38,7 +38,7 @@ jobs:
         run: npm run release -- --dry-run
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
-      - name: Verify compiled npm packages, optional-peer isolation, and bundler/NodeNext consumers
+      - name: Verify compiled npm packages, select-package isolation, and bundler/NodeNext consumers
         run: npm run test:consumers -- --react-major=${{ matrix.react }}
       - name: Run complete unit and release integration suite
         run: npm test

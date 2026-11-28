@@ -1,8 +1,8 @@
 # Release runbook
 
-Nx Release owns package versions, dependency-range updates, changelogs, npm publication, and GitHub releases. The checked-in workflow releases `ui-theme`, `ui-react`, and `showcase` independently after compatibility checks. It publishes only the public theme and React packages to npm; the private root and showcase are never published to npm.
+Nx Release owns package versions, dependency-range updates, changelogs, npm publication, and GitHub releases. The checked-in workflow releases `ui-theme`, `ui-react`, `ui-react-select`, and `showcase` independently after compatibility checks. It publishes the three public packages to npm; the private root, Storybook, and showcase are never published to npm.
 
-This guide describes the 1.0 release configuration. A manifest version or successful Pages deployment is not evidence that a package has been published.
+This guide includes the original 1.0 split and the later standalone select package. A manifest version or successful Pages deployment is not evidence that a package has been published.
 
 ## Release identities and artifacts
 
@@ -10,6 +10,7 @@ This guide describes the 1.0 release configuration. A manifest version or succes
 | --- | --- | --- | --- |
 | `@wintermuted/ui-theme` | `packages/ui-theme/package.json` | CSS, the CSS-loading root, README, and license | `ui-theme@X.Y.Z` |
 | `@wintermuted/ui-react` | `packages/ui-react/package.json` | Staged ESM, declarations, manifest, README, and license | `ui-react@X.Y.Z` |
+| `@wintermuted/ui-react-select` | `packages/ui-react-select/package.json` | Staged MultiSelect ESM, declarations, manifest, README, and license | `ui-react-select@X.Y.Z` |
 | `@wintermuted/showcase` (private) | `packages/showcase/package.json` | GitHub release archive `showcase-X.Y.Z.tar.gz` containing `.nojekyll` and the static `showcase/` site | `showcase@X.Y.Z` |
 
 Versions are independent: a React-only change need not bump the theme. When the theme changes, Nx may also update the dependent React package and its required theme range. `preserveMatchingDependencyRanges` is disabled so an out-of-range major dependency update can be written instead of blocking release preparation.
@@ -28,8 +29,8 @@ Legacy `vX.Y.Z` theme tags are retained. Do not rewrite them, move an existing p
 | `scripts/release-publication.mjs` | Per-package authentication fallback and exact downloadable-content verification |
 | `scripts/release-assets.mjs` | Attach checksum-verified npm tarballs to existing matching GitHub releases without overwriting assets |
 | `scripts/release-changelog.mjs` | Finalize each changed project's notes from its own pre-release baseline |
-| `scripts/release-baseline.mjs` | Temporary legacy/first-React baselines and initial showcase release detection |
-| `scripts/stage-react.mjs` | Assemble the React package without bundling peers |
+| `scripts/release-baseline.mjs` | Temporary legacy/first-React baselines and first showcase/select release detection |
+| `scripts/stage-react.mjs` | Assemble either React package without bundling peers |
 | `.github/workflows/react-package.yml` | Compatibility workflow reused as the release gate |
 | `.github/workflows/auto-release.yml` | Publication, atomic Git push, finalization, and theme downstream dispatch |
 | `.github/workflows/publish-package.yml` | Inspect publication, recover package assets, or deliberately republish an existing tagged package |
@@ -61,6 +62,28 @@ Before the first standalone React release, the wrapper finds the commit that int
 For theme history without an Nx tag, the wrapper temporarily maps the latest reachable legacy `v...` tag to the equivalent `ui-theme@...` tag. Temporary tags are removed after success or failure. Missing history fails explicitly rather than silently treating the theme as a new package.
 
 ## Before merging
+
+### Standalone react-select package
+
+Removing `@wintermuted/ui-react/select` requires a breaking merge message for
+ui-react. Consumers install `@wintermuted/ui-react-select` and its required
+react-select peer; native Select stays in ui-react.
+
+The first ui-react-select release explicitly uses Nx `firstRelease` with 0.1.0,
+independent of the introducing commit's conventional type. Its changelog baseline
+is the parent of the package-introduction commit (or that commit in a root-only
+history). No fabricated adapter tag is created. Later releases use the latest
+reachable `ui-react-select@...` tag and conventional-commit selection.
+
+Both React packages are staged after version preparation. Publication inspection,
+verified npm asset attachment, and recovery support the new package name and
+`wintermuted-ui-react-select-X.Y.Z.tgz` artifact. Showcase declares the adapter as
+a dependency and follows its releases; Storybook uses a workspace `*` range.
+
+Configure trusted publishing separately for `@wintermuted/ui-react-select` on
+the Auto Release workflow, or ensure the existing NPM_TOKEN fallback can publish
+it. Theme/core publishing authorization does not automatically authorize the new
+package. Do not migrate consumers before the new package is available on npm.
 
 Confirm the public package boundary, update directly related documentation, and include migration instructions for breaks. For this split, external React consumers must migrate all removed subpaths, not merely upgrade the CSS dependency.
 
@@ -103,7 +126,7 @@ flowchart TD
     Theme -->|"No"| Done["Finish without theme dispatch"]
 ```
 
-Auto Release runs on pushes to `main` and serializes releases through its concurrency group. The release job uses the GitHub environment `wintermuted-ui-theme` for both packages.
+Auto Release runs on pushes to `main` and serializes releases through its concurrency group. The release job uses the GitHub environment `wintermuted-ui-theme` for all public packages.
 
 The wrapper has three modes:
 
@@ -129,7 +152,7 @@ The release commit and all selected package tags are pushed together with `git p
 
 ## Publication prerequisites
 
-Both packages publish publicly to npm. The release runner installs npm 11.5.1, enables provenance, and grants `id-token: write` for trusted publishing.
+All three public packages publish to npm. The release runner installs npm 11.5.1, enables provenance, and grants `id-token: write` for trusted publishing.
 
 Configure npm trusted publishing separately for each package, using the repository and Auto Release workflow identity and matching environment where required. The new React package needs its own configuration; the theme's configuration does not authorize it automatically. If the initial package cannot yet use trusted publishing, provide an authorized `NPM_TOKEN` fallback for the first publication.
 

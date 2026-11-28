@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "rootDir": "src",
+    "outDir": "../../dist/packages/ui-react-select/src",
+    "declaration": true,
+    "noEmitOnError": true,
+    "skipLibCheck": false,
+    "jsx": "react-jsx",
+    "types": ["react", "react-dom"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"]
+}

@@ -35,6 +35,7 @@ for (const [type, expected] of [
     git("tag", `v${version}`);
     const reactVersion = JSON.parse(readFileSync(join(cwd, "packages", "ui-react", "package.json"), "utf8")).version;
     git("tag", `ui-react@${reactVersion}`);
+    git("tag", "ui-react-select@0.1.0");
     git("tag", "showcase@0.1.0");
     const tokens = join(cwd, "packages", "ui-theme", "styles", "tokens.css");
     writeFileSync(tokens, `${readFileSync(tokens, "utf8")}\n/* release fixture change */\n`);
@@ -76,7 +77,7 @@ test("package-local release documentation triggers a patch for every package wit
   git("add", ".");
   git("commit", "--quiet", "-m", "chore: package baseline");
   const expected = {};
-  for (const project of ["ui-theme", "ui-react", "showcase"]) {
+  for (const project of ["ui-theme", "ui-react", "ui-react-select", "showcase"]) {
     const manifest = JSON.parse(readFileSync(join(cwd, "packages", project, "package.json"), "utf8"));
     git("tag", `${project}@${manifest.version}`);
     const [major, minor, patch] = manifest.version.split(".").map(Number);
@@ -103,7 +104,7 @@ test("package-local release documentation triggers a patch for every package wit
   assert.match(outputs, /^released=true$/m);
   assert.match(outputs, /^theme_released=true$/m);
   assert.match(outputs, /^showcase_released=true$/m);
-  assert.match(outputs, /^projects=ui-theme,ui-react$/m);
+  assert.match(outputs, /^projects=ui-theme,ui-react,ui-react-select$/m);
   assert.match(output, /Skipped publishing packages/);
 });
 
@@ -126,7 +127,7 @@ test("independent releases filter publication, advance changelog baselines, and 
   writeFileSync(themePath, JSON.stringify({ ...JSON.parse(currentTheme), version: "0.22.0" }));
   writeFileSync(reactPath, JSON.stringify({ ...JSON.parse(currentReact), version: "0.0.0" }));
   // Historical fixtures must not contain changelogs for releases they have not created.
-  for (const project of ["ui-theme", "ui-react", "showcase"]) {
+  for (const project of ["ui-theme", "ui-react", "ui-react-select", "showcase"]) {
     writeFileSync(join(cwd, "packages", project, "CHANGELOG.md"), "# Changelog\n");
   }
   git("add", ".");
@@ -146,11 +147,12 @@ test("independent releases filter publication, advance changelog baselines, and 
   const state = JSON.parse(readFileSync(join(cwd, ".nx", "release-state.json"), "utf8"));
   assert.equal(state.projectsVersionData["ui-theme"].newVersion, "1.0.0");
   assert.equal(state.projectsVersionData["ui-react"].newVersion, "1.0.0");
-  assert.deepEqual(state.baselines, { "ui-theme": initialBaseline, "ui-react": initialBaseline, showcase: initialBaseline });
+  assert.deepEqual(state.baselines, { "ui-theme": initialBaseline, "ui-react": initialBaseline, "ui-react-select": initialBaseline, showcase: initialBaseline });
+  assert.equal(state.projectsVersionData["ui-react-select"].newVersion, "0.1.0");
   const outputs = readFileSync(outputPath, "utf8");
   assert.match(outputs, /^theme_released=true$/m);
-  assert.match(outputs, /^projects=ui-theme,ui-react$/m);
-  assert.match(outputs, /^tags=.*ui-theme@1\.0\.0.*ui-react@1\.0\.0.*showcase@0\.1\.0$/m);
+  assert.match(outputs, /^projects=ui-theme,ui-react,ui-react-select$/m);
+  assert.match(outputs, /^tags=.*ui-theme@1\.0\.0.*ui-react@1\.0\.0.*ui-react-select@0\.1\.0.*showcase@0\.1\.0$/m);
   assert.equal(git("tag", "--list", "ui-react@0.0.0"), "");
   assert.equal(git("rev-list", "-n", "1", "ui-theme@1.0.0"), state.commit);
   assert.equal(git("rev-list", "-n", "1", "ui-react@1.0.0"), state.commit);
@@ -170,7 +172,7 @@ test("independent releases filter publication, advance changelog baselines, and 
   assert.match(reactOutputs, /^projects=ui-react$/m);
   assert.equal(JSON.parse(readFileSync(themePath, "utf8")).version, "1.0.0");
   const firstReactState = JSON.parse(readFileSync(join(cwd, ".nx", "release-state.json"), "utf8"));
-  assert.deepEqual(firstReactState.baselines, { "ui-theme": state.commit, "ui-react": state.commit, showcase: state.commit });
+  assert.deepEqual(firstReactState.baselines, { "ui-theme": state.commit, "ui-react": state.commit, "ui-react-select": state.commit, showcase: state.commit });
 
   writeFileSync(reactSource, `${readFileSync(reactSource, "utf8")}\n// Second React-only release fixture\n`);
   git("add", ".");
@@ -223,6 +225,56 @@ test("changelog finalization rejects incomplete baselines before creating any re
   assert.equal(calls, 0);
 });
 
+test("select bootstraps at 0.1.0 and releases independently with showcase dependency updates", { timeout: 180000 }, (t) => {
+  const cwd = mkdtempSync(join(tmpdir(), "wm-select-release-"));
+  t.after(() => rmSync(cwd, { recursive: true, force: true }));
+  for (const path of ["package.json", "package-lock.json", "nx.json", ".gitignore", "packages", "scripts"]) {
+    cpSync(join(root, path), join(cwd, path), { recursive: true });
+  }
+  symlinkSync(join(root, "node_modules"), join(cwd, "node_modules"), process.platform === "win32" ? "junction" : "dir");
+  const git = (...args) => execFileSync("git", args, { cwd, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
+  git("init", "--quiet");
+  git("config", "user.name", "Release test");
+  git("config", "user.email", "release-test@example.invalid");
+  git("remote", "add", "origin", "https://github.com/wintermuted/wintermuted-ui.git");
+  git("add", ".");
+  git("commit", "--quiet", "-m", "chore: package baseline");
+  for (const project of ["ui-theme", "ui-react", "showcase"]) {
+    const manifest = JSON.parse(readFileSync(join(cwd, "packages", project, "package.json"), "utf8"));
+    git("tag", `${project}@${manifest.version}`);
+  }
+  const source = join(cwd, "packages", "ui-react-select", "src", "index.tsx");
+  const outputPath = join(cwd, ".nx", "select-output.txt");
+  const prepare = () => {
+    execFileSync(process.execPath, ["scripts/release.mjs", "--prepare"], {
+      cwd, encoding: "utf8",
+      env: { ...process.env, NX_DAEMON: "false", NX_INTERACTIVE: "false", GITHUB_OUTPUT: outputPath },
+      stdio: ["ignore", "pipe", "pipe"],
+    });
+    return JSON.parse(readFileSync(join(cwd, ".nx", "release-state.json"), "utf8"));
+  };
+  writeFileSync(source, `${readFileSync(source, "utf8")}\n// initial adapter release fixture\n`);
+  git("add", ".");
+  git("commit", "--quiet", "-m", "feat!: extract react-select adapter");
+  const first = prepare();
+  assert.equal(first.projectsVersionData["ui-react-select"].newVersion, "0.1.0");
+  assert.equal(first.projectsVersionData["ui-react"].newVersion, null);
+  assert.equal(first.projectsVersionData["ui-theme"].newVersion, null);
+  assert.match(readFileSync(outputPath, "utf8"), /^projects=ui-react-select$/m);
+  assert.equal(git("rev-list", "-n", "1", "ui-react-select@0.1.0"), first.commit);
+  writeFileSync(source, `${readFileSync(source, "utf8")}\n// subsequent adapter release fixture\n`);
+  git("add", ".");
+  git("commit", "--quiet", "-m", "fix: update adapter");
+  const second = prepare();
+  assert.equal(second.projectsVersionData["ui-react-select"].newVersion, "0.1.1");
+  assert.equal(second.projectsVersionData["ui-react"].newVersion, null);
+  assert.equal(second.projectsVersionData["ui-theme"].newVersion, null);
+  assert.ok(second.projectsVersionData.showcase.newVersion);
+  assert.equal(second.baselines["ui-react-select"], first.commit);
+  const showcase = JSON.parse(readFileSync(join(cwd, "packages", "showcase", "package.json"), "utf8"));
+  assert.equal(showcase.dependencies["@wintermuted/ui-react-select"], "0.1.1");
+});
+
 test("showcase bootstraps at 0.1.0, releases independently, and follows dependency updates without npm publication", { timeout: 180000 }, async (t) => {
   const cwd = mkdtempSync(join(tmpdir(), "wm-showcase-release-"));
   t.after(() => rmSync(cwd, { recursive: true, force: true }));
@@ -242,7 +294,7 @@ test("showcase bootstraps at 0.1.0, releases independently, and follows dependen
   const [reactMajor, reactMinor, reactPatch] = JSON.parse(
     readFileSync(join(cwd, "packages", "ui-react", "package.json"), "utf8")
   ).version.split(".").map(Number);
-  for (const project of ["ui-theme", "ui-react"]) {
+  for (const project of ["ui-theme", "ui-react", "ui-react-select"]) {
     const manifest = JSON.parse(readFileSync(join(cwd, "packages", project, "package.json"), "utf8"));
     git("tag", `${project}@${manifest.version}`);
   }
@@ -252,7 +304,7 @@ test("showcase bootstraps at 0.1.0, releases independently, and follows dependen
   git("add", ".");
   git("commit", "--quiet", "-m", "feat: version the showcase");
   const env = { ...process.env, NX_DAEMON: "false", NX_INTERACTIVE: "false" };
-  const manifests = ["ui-theme", "ui-react", "showcase"].map(project => join(cwd, "packages", project, "package.json"));
+  const manifests = ["ui-theme", "ui-react", "ui-react-select", "showcase"].map(project => join(cwd, "packages", project, "package.json"));
   const before = [...manifests, join(cwd, "package-lock.json")].map(path => readFileSync(path, "utf8"));
   const initialTags = git("tag", "--list");
   const dryRun = execFileSync(process.execPath, ["scripts/release.mjs", "--dry-run"], {

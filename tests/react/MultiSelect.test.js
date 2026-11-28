@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { h, render, screen, userEvent } from "./setup.js";
-const { MultiSelect } = await import("@wintermuted/ui-react/select");
+const { MultiSelect } = await import("@wintermuted/ui-react-select");
 
 test("MultiSelect preserves inputId precedence, instance props, formatted options, and single-value callbacks", async () => {
   const user = userEvent.setup();

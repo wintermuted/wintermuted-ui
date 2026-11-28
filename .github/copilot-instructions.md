@@ -6,6 +6,7 @@ This is an Nx monorepo with npm workspaces and one root lockfile.
 
 - `packages/ui-theme`: published `@wintermuted/ui-theme`, with `index.css`, `index.js`, and `styles/`.
 - `packages/ui-react/src`: canonical React TSX components and TypeScript theme utilities; declarations are generated during the package build.
+- `packages/ui-react-select/src`: standalone typed react-select adapter components, compiled and released independently.
 - `packages/showcase`: private, versioned static HTML documentation using Vite. Categorized page sources live in `src/pages`, shared layouts/plugin in `src/templates`, styles in `src/styles`, and React examples in `src/examples`. `src/site.config.mjs` maps nested sources to stable public filenames. Shared classic JavaScript remains in `public/showcase.js`.
 - `scripts`: consumer linking, release migration, packaging, and checks.
 
@@ -17,12 +18,12 @@ This is an Nx monorepo with npm workspaces and one root lockfile.
 - Author React components in typed TSX and React-free helpers in TypeScript. Publish compiled JavaScript and generated `.d.ts` declarations; do not distribute TSX or bundle React.
 - Keep each main-entry React component in its own `src/components/*.tsx` file, shared interfaces in `src/interfaces.ts`, and `src/index.tsx` as a re-export-only barrel. Internal modules import dependencies directly rather than through the barrel.
 - Give every React component a dedicated unit test in `tests/react/<Component>.test.js` and register it in `tests/react-components.test.js`. Reuse shared DOM setup and retain cross-component integration coverage.
-- Keep react-select isolated to `ui-react/select`; it is an optional peer of the React package.
-- Keep React components and theme runtime helpers exclusively in `ui-react/src`; do not copy them into `ui-theme`.
+- Keep react-select-dependent components exclusively in `ui-react-select`; react-select is its required peer, never a core `ui-react` dependency or peer.
+- Keep core React components and theme runtime helpers in `ui-react/src`; do not copy React implementations into `ui-theme`.
 - Keep the CSS-only root export free of React imports and global runtime effects.
-- Declare workspace dependencies in manifests. `ui-react` depends on `ui-theme`, never the reverse; the theme has no React peers.
+- Declare workspace dependencies in manifests. `ui-react` and `ui-react-select` depend on `ui-theme`, never the reverse; the theme has no React peers.
 - Use conventional commits. Nx Release versions packages independently from changed-file history; do not manually bump the theme version.
-- `ui-theme`, `ui-react`, and private `showcase` are released automatically with independent versions. Showcase releases include static archives and never publish to npm; dependency updates also trigger showcase releases.
+- `ui-theme`, `ui-react`, `ui-react-select`, and private `showcase` are released automatically with independent versions. Showcase releases include static archives and never publish to npm; dependency updates also trigger showcase releases.
 
 ## Development and CI
 

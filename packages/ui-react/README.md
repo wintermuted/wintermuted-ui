@@ -1,30 +1,30 @@
 # `@wintermuted/ui-react`
 
-React components for Wintermuted UI: native primitives, accessible interactions, theme helpers, and an optional react-select integration. Components are authored in typed TSX; the published package contains compiled JavaScript and generated TypeScript declarations.
+React components for Wintermuted UI: native primitives, accessible interactions, and theme helpers. Components are authored in typed TSX; the published package contains compiled JavaScript and generated TypeScript declarations. Searchable MultiSelect is published separately in `@wintermuted/ui-react-select`.
 
-The patch release following the typed TSX migration delivers the migrated source as compiled ESM and generated declarations, without changing the public entry points or bundling React.
+The `@wintermuted/ui-react/select` entry point has been removed. Install `@wintermuted/ui-react-select` and migrate MultiSelect imports to its root; native `Select` remains in this package.
 
 See the [React architecture guide](https://github.com/wintermuted/wintermuted-ui/blob/main/packages/ui-react/docs/architecture.md) for entry-point isolation, interaction ownership, theme synchronization, declarations, and packaging.
 
 ```js
 import "@wintermuted/ui-theme";
 import { Button, ThemeProvider } from "@wintermuted/ui-react";
-import { MultiSelect } from "@wintermuted/ui-react/select";
+import { MultiSelect } from "@wintermuted/ui-react-select";
 import { initTheme } from "@wintermuted/ui-react/theme";
 ```
 
-Consumers load the theme explicitly; React components do not inject global styles. React/React DOM 18.3 or 19 are peers. Install react-select only when using the `select` entry point.
+Consumers load the theme explicitly; React components do not inject global styles. React/React DOM 18.3 or 19 are peers. This package has no react-select dependency or peer.
 
-Starting with 1.0.0, this is the standalone home for all Wintermuted React components and theme runtime helpers. It depends on `@wintermuted/ui-theme` 1.x; the CSS-only theme has no dependency on this package or React. Nx Release publishes both packages with independent versions.
+Starting with 1.0.0, this is the standalone home for core Wintermuted React components and theme runtime helpers. It depends on `@wintermuted/ui-theme` 1.x; the CSS-only theme has no dependency on this package or React. Nx Release publishes the theme, core React, and react-select packages independently.
 
-The `build` target compiles TypeScript/TSX to ESM and generates declarations in `dist/packages/ui-react`, alongside the manifest, README, and license. It does not bundle React or other peers. `npx nx pack ui-react` packs that output. A source-only `prepack` guard rejects direct packing or publishing of the TSX workspace; staging removes the guard from the compiled npm package. CI checks source types and packed consumers with bundler/NodeNext resolution and with/without the optional react-select peer.
+The `build` target compiles TypeScript/TSX to ESM and generates declarations in `dist/packages/ui-react`, alongside the manifest, README, and license. It does not bundle React or other peers. `npx nx pack ui-react` packs that output. A source-only `prepack` guard rejects direct packing or publishing of the TSX workspace; staging removes the guard from the compiled npm package. CI checks source types and packed consumers with bundler/NodeNext resolution and with/without the standalone react-select package.
 
 The old theme package's `react`, `react/select`, and `theme` exports were removed in 1.0.0. See the [migration guide](https://github.com/wintermuted/wintermuted-ui/blob/main/docs/migration-to-v1.md).
 
 ```sh
 npm install @wintermuted/ui-react@^1.0.0 @wintermuted/ui-theme@^1.0.0 react react-dom
 # Only for MultiSelect:
-npm install react-select
+npm install @wintermuted/ui-react-select react-select
 ```
 
 ## Usage
@@ -197,8 +197,10 @@ CI generates and checks all public declarations and packed React 18/19 consumers
 
 ## Searchable select
 
+Install the separate [ui-react-select package](https://github.com/wintermuted/wintermuted-ui/blob/main/packages/ui-react-select/README.md) for MultiSelect. It requires react-select 5 as a peer; ordinary ui-react consumers do not need either package.
+
 ```tsx
-import { MultiSelect } from "@wintermuted/ui-react/select";
+import { MultiSelect } from "@wintermuted/ui-react-select";
 
 const options = [{ value: 1, label: "North at Main", stop: { id: 1 } }];
 <MultiSelect

@@ -1,6 +1,6 @@
 # React package architecture
 
-`@wintermuted/ui-react` adds React behavior to the shared CSS theme: native primitives, accessible interactions, an optional select adapter, and theme preference helpers. It depends on `ui-theme`; the theme does not depend on it.
+`@wintermuted/ui-react` adds React behavior to the shared CSS theme: native primitives, accessible interactions, and theme preference helpers. It depends on `ui-theme`; the theme does not depend on it. MultiSelect is owned by the separate `@wintermuted/ui-react-select` package.
 
 For public props and usage, see the [package README](../README.md). For broader relationships and publication, see the [monorepo architecture](../../../docs/architecture.md) and [release runbook](../../../docs/releases.md).
 
@@ -15,7 +15,6 @@ ui-react/
     primitive.ts / utils.ts  Shared polymorphic factory, classes, and client effect
     ThemeContext.ts          Shared React theme context
     useTheme.ts              Theme context hook
-    select.tsx               Typed optional react-select integration
     theme.ts                 React-free runtime theme helpers and types
   package.json               Exports, peers, theme dependency, Nx targets
   tsconfig.json              Strict source validation and declaration emission
@@ -24,18 +23,19 @@ ui-react/
 
 TypeScript/TSX is the canonical source. Package builds generate JavaScript and declarations; do not maintain separate hand-authored `.d.ts` copies.
 
-Keep component implementations in their own files and make `index.tsx` a re-export-only entry point. Components import dependencies directly, not through the public barrel, to avoid circular imports. Shared interfaces live in `interfaces.ts` and are imported with `import type`; react-select-specific types remain isolated in `select.tsx`. React-free preference types remain in `theme.ts`.
+Keep component implementations in their own files and make `index.tsx` a re-export-only entry point. Components import dependencies directly, not through the public barrel, to avoid circular imports. Shared interfaces live in `interfaces.ts` and are imported with `import type`; react-select-specific types remain isolated in `ui-react-select/src/components/MultiSelect.tsx`. React-free preference types remain in `theme.ts`.
 
 ```mermaid
 flowchart LR
     App["React application"] -->|"components"| Index["ui-react"]
-    App -->|"optional adapter"| Select["ui-react/select"]
+    App -->|"separate package"| Select["ui-react-select"]
     App -->|"bootstrap / SSR"| Theme["ui-react/theme"]
     App -->|"explicit CSS import"| CSS["ui-theme"]
     Index --> Theme
     Index --> React["React peer"]
     Select --> React
-    Select --> Adapter["react-select optional peer"]
+    Select --> Adapter["react-select required peer"]
+    Select --> CSS
 ```
 
 The main entry must not import or re-export the select adapter. Ordinary components should remain usable without installing react-select.
@@ -96,9 +96,9 @@ Use one document-level provider per application. A custom `storageKey` must matc
 
 For client startup, call `initTheme({ storageKey })` before mounting. For SSR first paint, emit `getThemeScript(storageKey)` before styles and apply the application's CSP nonce. The script escapes `<` in serialized keys and stays self-contained. Do not replace it with unsanitized interpolation or make hydration markup depend on a client-only preference during server rendering.
 
-## Optional searchable select
+## Separate searchable-select package
 
-`select.tsx` wraps react-select rather than recreating its option/state model. It forwards remaining props, defaults `isMulti` to true, supplies generated instance IDs, maps a supplied control ID, and composes the shared search-select class.
+`ui-react-select/src/components/MultiSelect.tsx` wraps react-select rather than recreating its option/state model. Its package root re-exports MultiSelect and MultiSelectProps. It forwards remaining props, defaults `isMulti` to true, supplies generated instance IDs, maps a supplied control ID, and composes the shared search-select class. The removed `ui-react/select` export has no compatibility shim.
 
 Style functions refer to `--wm-*` custom properties so an already-open menu reflects theme changes. Consumer style overrides merge through react-select's `mergeStyles`.
 
@@ -124,9 +124,9 @@ Nx packing/publication uses that staged output, not the TypeScript source worksp
 
 The source workspace's `prepack` hook runs `scripts/block-react-source-pack.mjs` and refuses normal `npm pack`/`npm publish` commands against source. Do not bypass it with `--ignore-scripts`: the workspace manifest intentionally points at TSX and is not a distributable package. The compiled manifest has no source guard or source script path, so Nx can pack and publish it normally.
 
-Consumer checks first install only React/React DOM and verify root/theme runtime imports and declarations without react-select present. They then install the optional peer and exercise the adapter. Both fixtures validate TypeScript bundler and NodeNext resolution in CI; package-only checks skip compilation and typechecking.
+Consumer checks first install only React/React DOM and verify root/theme runtime imports and declarations without react-select or ui-react-select present. They then install the standalone adapter package, which requires react-select as a peer, and exercise the adapter. Both fixtures validate TypeScript bundler and NodeNext resolution in CI; package-only checks skip compilation and typechecking.
 
-React and React DOM are peers. react-select is an optional peer. The theme is a normal package dependency, but applications importing its CSS should also declare it directly.
+React and React DOM are peers. Core ui-react has no react-select dependency or peer. ui-react-select declares react-select as a required peer and depends directly on the theme, not ui-react. Applications importing theme CSS should also declare the theme directly.
 
 Architecture docs are repository-only under the current packaging configuration. The package README links to this guide on GitHub rather than assuming it exists in the npm tarball.
 
@@ -134,13 +134,13 @@ Independent React changes can release without changing the theme. Theme releases
 
 ## Extending safely
 
-1. Choose the main, select, or theme entry according to its dependency boundary.
+1. Choose the core React package, standalone select package, or theme helper entry according to its dependency boundary.
 2. Reuse primitives and existing ID/focus/theme helpers rather than duplicating behavior.
 3. Add typed TSX components or TypeScript helpers, preserving native props, refs, and controlled-state ownership.
 4. Keep presentation in the theme and update shared class/variant contracts there when required.
 5. Add focused behavior cases to the existing React tests, update the showcase, and document the public contract.
 
-Every component has a dedicated unit test in `tests/react/<Component>.test.js`, including the optional `MultiSelect` adapter. `tests/react-components.test.js` includes these tests in the existing `npm test` command. Shared DOM setup and primitive contract assertions live alongside the tests; individual files can also run independently with Node's test runner.
+Every component has a dedicated unit test in `tests/react/<Component>.test.js`, including the standalone `MultiSelect` adapter. `tests/react-components.test.js` includes these tests in the existing `npm test` command. Shared DOM setup and primitive contract assertions live alongside the tests; individual files can also run independently with Node's test runner.
 
 The React package compatibility workflow runs `npm test` on every pull request and every push to `main`, including merges. Its unit/integration step includes the complete component suite before build, typecheck, browser, and packed-consumer checks; no path filters exclude component or test changes.
 

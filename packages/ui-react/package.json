@@ -8,12 +8,10 @@
   "types": "./src/index.tsx",
   "exports": {
     ".": { "types": "./src/index.tsx", "default": "./src/index.tsx" },
-    "./select": { "types": "./src/select.tsx", "default": "./src/select.tsx" },
     "./theme": { "types": "./src/theme.ts", "default": "./src/theme.ts" }
   },
   "typesVersions": {
     "*": {
-      "select": ["src/select.tsx"],
       "theme": ["src/theme.ts"]
     }
   },
@@ -33,10 +31,8 @@
   },
   "peerDependencies": {
     "react": "^18.3.0 || ^19.0.0",
-    "react-dom": "^18.3.0 || ^19.0.0",
-    "react-select": "^5.8.0"
+    "react-dom": "^18.3.0 || ^19.0.0"
   },
-  "peerDependenciesMeta": { "react-select": { "optional": true } },
   "nx": {
     "name": "ui-react",
     "tags": ["type:library"],

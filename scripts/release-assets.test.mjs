@@ -82,3 +82,21 @@ test("uncertain upload failure is not retried and removes its temporary package"
   assert.equal(uploads, 1);
   assert.equal(existsSync(temporaryPath), false);
 });
+
+test("standalone select releases attach their own verified npm tarball", async () => {
+  const selectTag = "ui-react-select@0.1.0";
+  const selectAsset = { ...asset, name: "wintermuted-ui-react-select-0.1.0.tgz" };
+  const url = await attachReleaseAsset(selectTag, repository, {
+    inspect: async (name, version) => {
+      assert.equal(name, "@wintermuted/ui-react-select");
+      assert.equal(version, "0.1.0");
+      return { bytes };
+    },
+    gh: args => {
+      assert.equal(args[0], "api");
+      return args[1].includes("/releases/assets/") ? bytes :
+        JSON.stringify({ tag_name: selectTag, draft: false, assets: [selectAsset] });
+    },
+  });
+  assert.equal(url, selectAsset.browser_download_url);
+});
