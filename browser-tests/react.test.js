@@ -108,7 +108,17 @@ test("static layouts work without JavaScript and enhance navigation without dupl
     await page.keyboard.press("Escape");
     assert.equal(await menu.getAttribute("aria-expanded"), "false");
     await menu.click();
+    const sidebarBounds = await page.locator(".docs-sidebar").evaluate(node => ({
+      top: node.getBoundingClientRect().top,
+      bottom: node.getBoundingClientRect().bottom,
+      viewport: innerHeight,
+      clientHeight: node.clientHeight,
+      scrollHeight: node.scrollHeight,
+    }));
+    assert.ok(sidebarBounds.top >= 0 && sidebarBounds.bottom <= sidebarBounds.viewport + 1);
+    assert.ok(sidebarBounds.scrollHeight > sidebarBounds.clientHeight);
     await page.locator(".docs-nav-disclosure > summary").click();
+    assert.ok(await page.locator(".docs-sidebar").evaluate(node => node.scrollTop > 0));
     await page.locator('.docs-sidebar [data-page="layout-topnav.html"]').click();
     await page.waitForURL(`${base}layout-topnav.html`);
     assert.equal(await page.locator(".docs-nav-disclosure").getAttribute("open"), "");

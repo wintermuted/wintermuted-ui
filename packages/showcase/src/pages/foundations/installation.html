@@ -81,6 +81,7 @@ if (saved === 'dark') {
           <h3 id="theme-select">Light/dark/system selector without React</h3>
           <p>The HTML equivalent of React ThemeSelect is a labeled native select. No ThemeProvider or React hook is needed.
             The initializer below follows the OS in System mode and persists explicit choices.
+            It also synchronizes with other controls, such as this site's toolbar, that update the same storage key and root theme attribute.
             Run it before presenting your application where possible to avoid a first-paint flash.
             Change the sample storage key for your application; storage errors are not silently ignored.</p>
           <div id="appearance-example" class="component-demo wm-field" data-demo="appearance" data-storage-key="wm-showcase-theme">

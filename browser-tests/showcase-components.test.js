@@ -306,6 +306,25 @@ test("non-React showcase counterparts render, copy independently and retain thei
       await page.waitForFunction(() => !document.documentElement.hasAttribute("data-theme"));
       await page.emulateMedia({ colorScheme: "dark" });
       await page.waitForFunction(() => document.documentElement.getAttribute("data-theme") === "dark");
+      const toolbar = page.locator("[data-theme-toggle]").first();
+      await toolbar.click();
+      assert.equal(await select.inputValue(), "light");
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      assert.equal(await page.locator("html").getAttribute("data-theme"), null);
+      assert.equal(await page.evaluate(() => localStorage.getItem("wm-showcase-theme")), "light");
+
+      await select.selectOption("system");
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.waitForFunction(() => !document.documentElement.hasAttribute("data-theme"));
+      await toolbar.click();
+      assert.equal(await select.inputValue(), "dark");
+      await page.emulateMedia({ colorScheme: "dark" });
+      await page.emulateMedia({ colorScheme: "light" });
+      await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+      assert.equal(await page.locator("html").getAttribute("data-theme"), "dark");
+      assert.equal(await page.evaluate(() => localStorage.getItem("wm-showcase-theme")), "dark");
       await select.selectOption("light");
       assert.equal(await page.locator("html").getAttribute("data-theme"), null);
     });

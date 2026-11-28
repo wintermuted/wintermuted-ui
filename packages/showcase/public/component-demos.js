@@ -427,8 +427,11 @@
     const select = root.querySelector("select");
     const media = matchMedia("(prefers-color-scheme: dark)");
     const key = root.dataset.storageKey;
-    let preference = localStorage.getItem(key) ?? "system";
-    if (!["light", "dark", "system"].includes(preference)) preference = "system";
+    function readPreference() {
+      const saved = localStorage.getItem(key);
+      return ["light", "dark", "system"].includes(saved) ? saved : "system";
+    }
+    let preference = readPreference();
     function apply() {
       const dark = preference === "dark" || (preference === "system" && media.matches);
       document.documentElement.toggleAttribute("data-theme", dark);
@@ -442,6 +445,13 @@
       apply();
     });
     media.addEventListener("change", () => { if (preference === "system") apply(); });
+    new MutationObserver(() => {
+      const saved = readPreference();
+      if (saved !== preference) {
+        preference = saved;
+        apply();
+      }
+    }).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
     apply();
   }
 
