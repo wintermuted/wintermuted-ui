@@ -68,6 +68,23 @@ test("Pages publishes measured coverage beside the matching production or previe
   }
 });
 
+test("Pages watches every library consumed by showcase and Storybook for production and previews", () => {
+  const libraries = new Set();
+  for (const project of ["showcase", "storybook"]) {
+    const manifest = JSON.parse(readFileSync(new URL(`../packages/${project}/package.json`, import.meta.url), "utf8"));
+    for (const dependency of Object.keys(manifest.dependencies)) {
+      if (dependency.startsWith("@wintermuted/ui-")) libraries.add(dependency.split("/")[1]);
+    }
+  }
+  const workflow = readWorkflow("deploy-showcase-pages");
+  for (const event of ["push", "pull_request"]) {
+    const trigger = workflow.split(`  ${event}:\n`)[1].split(/^  \w/m)[0];
+    for (const library of libraries) {
+      assert.ok(trigger.includes(`"packages/${library}/**"`), `${event} must watch ${library}`);
+    }
+  }
+});
+
 test("Pages restricts deployment to main or pull-request previews before any staging", () => {
   const workflow = readWorkflow("deploy-showcase-pages");
   const deployJob = workflow.slice(workflow.indexOf("\n  deploy:\n"), workflow.indexOf("\n  publish:\n"));

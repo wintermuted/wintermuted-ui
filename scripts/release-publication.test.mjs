@@ -32,7 +32,7 @@ test("only captured pre-submission ENEEDAUTH output permits authentication fallb
 test("complementary trusted and fallback successes never republish the successful theme", async () => {
   const calls = [];
   const published = new Map();
-  for (const name of ["@wintermuted/ui-theme", "@wintermuted/ui-react"]) {
+  for (const name of ["@wintermuted/ui-theme", "@wintermuted/ui-react", "@wintermuted/ui-react-select"]) {
     await publishProject({ ...packageIdentity, name }, {
       inspect: async () => published.get(name),
       trusted: async () => {
@@ -46,7 +46,8 @@ test("complementary trusted and fallback successes never republish the successfu
       }
     });
   }
-  assert.deepEqual(calls, ["trusted:@wintermuted/ui-theme", "trusted:@wintermuted/ui-react", "fallback:@wintermuted/ui-react"]);
+  assert.deepEqual(calls, ["trusted:@wintermuted/ui-theme", "trusted:@wintermuted/ui-react",
+    "fallback:@wintermuted/ui-react", "trusted:@wintermuted/ui-react-select"]);
 });
 
 test("an exact existing version is skipped, but different content and registry errors block retries", async () => {

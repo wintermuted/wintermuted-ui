@@ -23,7 +23,7 @@ Wintermuted UI separates visual styling from optional React behavior. Use the CS
 | --- | --- | --- |
 | Plain HTML, server-rendered pages, or a non-React framework | `@wintermuted/ui-theme` | Load CSS and use theme tokens/classes. |
 | React application | `@wintermuted/ui-react`, `@wintermuted/ui-theme`, React and React DOM | Load CSS explicitly; import behavior from `ui-react`. |
-| React searchable-select consumer | The React application packages plus `react-select` | Import `MultiSelect` from `ui-react/select`. |
+| React searchable-select consumer | `@wintermuted/ui-react-select`, `@wintermuted/ui-theme`, React, React DOM, and `react-select` | Import `MultiSelect` from `ui-react-select`; core ui-react is not required. |
 
 The React package depends on the theme, never the reverse. Theme 1.0 removes the old React subpaths rather than retaining forwarding shims; existing consumers must follow the migration guide.
 

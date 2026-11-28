@@ -75,7 +75,7 @@ test("loading and disclosure transfer resolves only package-owned modules withou
   for (const name of ["LoadIssue", "LoadStatusHelp", "ActionDisclosureAction"]) assert.ok(barrel.includes(name), name);
   const storybook = JSON.parse(await readFile(new URL("../storybook/package.json", root), "utf8"));
   const lock = JSON.parse(await readFile(new URL("../../package-lock.json", root), "utf8"));
-  for (const name of ["ui-react", "ui-theme"]) {
+  for (const name of ["ui-react", "ui-react-select", "ui-theme"]) {
     const dependency = `@wintermuted/${name}`;
     assert.equal(storybook.dependencies[dependency], "*", "Private stories must follow workspace releases without stale version pins");
     assert.equal(lock.packages[`node_modules/${dependency}`].resolved, `packages/${name}`);
@@ -89,22 +89,47 @@ test("React integration depends on the theme, not the reverse", async () => {
   assert.equal(react.dependencies["@wintermuted/ui-theme"], `^${pkg.version}`);
   assert.ok(react.peerDependencies.react);
   assert.ok(react.peerDependencies["react-dom"]);
-  assert.equal(react.peerDependenciesMeta["react-select"].optional, true);
+  assert.equal(react.peerDependencies["react-select"], undefined);
+  assert.equal(react.peerDependenciesMeta, undefined);
+  assert.equal(react.exports["./select"], undefined);
+  assert.equal(react.typesVersions["*"].select, undefined);
   assert.doesNotMatch(await readFile(new URL("../ui-react/src/index.tsx", root), "utf8"), /react-select/);
 });
 
-test("React source package refuses packing and publishing through its prepack hook", async () => {
-  const { spawnSync } = await import("node:child_process");
-  const { fileURLToPath } = await import("node:url");
-  const source = new URL("../ui-react/", root);
-  const react = JSON.parse(await readFile(new URL("package.json", source), "utf8"));
-  const [command, ...args] = react.scripts.prepack.split(" ");
-  assert.equal(command, "node");
-  const result = spawnSync(process.execPath, args, { cwd: fileURLToPath(source), encoding: "utf8" });
-  assert.equal(result.status, 1);
-  assert.match(result.stderr, /Cannot pack or publish.*TSX source workspace/);
-  assert.match(result.stderr, /dist\/packages\/ui-react/);
+test("standalone select package owns its required peers and typed adapter without core React imports", async () => {
+  const source = new URL("../ui-react-select/", root);
+  const select = JSON.parse(await readFile(new URL("package.json", source), "utf8"));
+  assert.equal(select.name, "@wintermuted/ui-react-select");
+  assert.equal(select.dependencies["@wintermuted/ui-theme"], `^${pkg.version}`);
+  assert.equal(select.dependencies["@wintermuted/ui-react"], undefined);
+  assert.equal(select.peerDependencies["react-select"], "^5.8.0");
+  assert.equal(select.peerDependenciesMeta, undefined);
+  assert.equal(select.sideEffects, false);
+  for (const target of Object.values(select.exports["."])) await access(new URL(target, source));
+  const barrel = await readFile(new URL("src/index.tsx", source), "utf8");
+  assert.match(barrel, /export type \{ MultiSelectProps \}/);
+  assert.equal(barrel.replace(/export[\s\S]*?from\s+["'][^"']+["'];/g, "").trim(), "");
+  const component = await readFile(new URL("src/components/MultiSelect.tsx", source), "utf8");
+  assert.match(component, /from "react-select"/);
+  assert.doesNotMatch(component, /@wintermuted\/ui-react["/]|\.css["']/);
+  const { readdir } = await import("node:fs/promises");
+  assert.ok(!(await readdir(new URL("../ui-react/src/", root))).includes("select.tsx"));
 });
+
+for (const project of ["ui-react", "ui-react-select"]) {
+  test(`${project} source package refuses packing and publishing through its prepack hook`, async () => {
+    const { spawnSync } = await import("node:child_process");
+    const { fileURLToPath } = await import("node:url");
+    const source = new URL(`../${project}/`, root);
+    const react = JSON.parse(await readFile(new URL("package.json", source), "utf8"));
+    const [command, ...args] = react.scripts.prepack.split(" ");
+    assert.equal(command, "node");
+    const result = spawnSync(process.execPath, args, { cwd: fileURLToPath(source), encoding: "utf8" });
+    assert.equal(result.status, 1);
+    assert.match(result.stderr, /Cannot pack or publish.*TSX source workspace/);
+    assert.ok(result.stderr.includes(`dist/packages/${project}`));
+  });
+}
 
 test("local linking links CSS-only theme without preparing React sources", async () => {
   const { mkdtemp, mkdir, cp, writeFile, rm } = await import("node:fs/promises");

@@ -9,7 +9,7 @@ on:
       project:
         description: "Package to republish"
         type: choice
-        options: [ui-theme, ui-react]
+        options: [ui-theme, ui-react, ui-react-select]
         default: ui-theme
       dry_run:
         description: "Preview publication without publishing"
@@ -101,9 +101,11 @@ jobs:
             echo "The requested tag does not match the package version."
             exit 1
           fi
-      - name: Stage React package
-        if: ${{ !inputs.verify_only && inputs.project == 'ui-react' }}
-        run: npx nx build ui-react
+      - name: Stage the selected React package
+        if: ${{ !inputs.verify_only && inputs.project != 'ui-theme' }}
+        env:
+          RELEASE_PROJECT: ${{ inputs.project }}
+        run: npx nx build "$RELEASE_PROJECT"
       - name: Publish package through Nx Release
         if: ${{ !inputs.verify_only }}
         env:

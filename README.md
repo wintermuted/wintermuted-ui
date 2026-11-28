@@ -18,6 +18,7 @@ Size badges show each latest npm release's unpacked package size, not a minified
 | --- | --- | --- |
 | `packages/ui-theme` | `ui-theme` | Published `@wintermuted/ui-theme` CSS/JS package |
 | `packages/ui-react` | `ui-react` | Existing React components and declarations, extracted into a separate package |
+| `packages/ui-react-select` | `ui-react-select` | Independently published react-select adapter and declarations |
 | `packages/showcase` | `showcase` | Private, versioned static documentation and React examples powered by Vite |
 | `packages/storybook` | `storybook` | Private React component playground and interactive documentation; not released |
 
@@ -58,16 +59,24 @@ import "@wintermuted/ui-theme";
 
 All existing modular CSS exports remain available. See [theme usage](packages/ui-theme/README.md).
 
-The canonical React implementation now lives in `packages/ui-react`. Within the workspace:
+Core React implementation lives in `packages/ui-react`; MultiSelect lives in `packages/ui-react-select`. Within the workspace:
 
 ```js
 import "@wintermuted/ui-theme/index.css";
 import { Button, ThemeProvider } from "@wintermuted/ui-react";
-import { MultiSelect } from "@wintermuted/ui-react/select";
+import { MultiSelect } from "@wintermuted/ui-react-select";
 import { initTheme } from "@wintermuted/ui-react/theme";
 ```
 
 Starting with 1.0.0, `ui-theme` is CSS-only: it has no React dependencies, React exports, or compatibility copies. React consumers install `@wintermuted/ui-react`, which depends on `ui-theme` and declares the React peers. See the [1.0 migration guide](docs/migration-to-v1.md), [documentation index](docs/README.md), and [React package guidance](packages/ui-react/README.md).
+
+MultiSelect requires `@wintermuted/ui-react-select` and its react-select peer.
+The old `@wintermuted/ui-react/select` export is removed; native Select remains
+in ui-react, which no longer declares a react-select peer.
+
+```sh
+npm install @wintermuted/ui-react-select react-select
+```
 
 The root is now private. New monorepo tags are not a drop-in GitHub-source npm install of the theme; use npm releases or a packed theme tarball.
 
@@ -78,8 +87,10 @@ npm run graph
 npx nx show projects
 npx nx build showcase
 npx nx build ui-react
+npx nx build ui-react-select
 npx nx pack ui-theme
 npx nx pack ui-react
+npx nx pack ui-react-select
 ```
 
 The theme needs no CSS compilation. React's build compiles TypeScript/TSX to ESM and generates declarations in `dist/packages/ui-react`, without bundling peers. Vite builds every showcase HTML page into `dist/packages/showcase/showcase`, using relative URLs compatible with nested previews. Workspace dependencies and shared configuration participate in Nx cache invalidation.
@@ -93,7 +104,7 @@ npm run test:pack
 npm run test:browser
 ```
 
-`test:pack` requires compiled React output from CI; it never builds locally. `test:consumers` additionally runs TypeScript 7 bundler/NodeNext, Vite 8, and Webpack 5 consumer checks in CI, including React usage without the optional react-select peer. Node behavior tests transform TSX source directly, and Vite resolves workspace source during showcase development.
+`test:pack` requires compiled output for both React packages from CI; it never builds locally. `test:consumers` additionally runs TypeScript 7 bundler/NodeNext, Vite 8, and Webpack 5 consumer checks in CI, including core React usage without react-select or the standalone adapter package. Node behavior tests transform TSX source directly, and Vite resolves workspace source during showcase development.
 
 ## Local consumer linking
 
@@ -114,7 +125,7 @@ Deployments consume built output, not copied source. Production replacements pre
 
 See the [release runbook](docs/releases.md) for the full workflow, authentication boundaries, first-publication checklist, and failure-stage recovery.
 
-Nx Release manages independent versions, conventional-commit version selection, project changelogs, and GitHub releases for `ui-theme`, `ui-react`, and `showcase`. Only the public theme and React packages are published to npm.
+Nx Release manages independent versions, conventional-commit version selection, project changelogs, and GitHub releases for `ui-theme`, `ui-react`, `ui-react-select`, and `showcase`. Only the three public packages are published to npm.
 
 The private showcase starts at `0.1.0` and uses `showcase@X.Y.Z` tags. Its own releasable changes and updates to declared theme/React dependencies produce new showcase versions. Each showcase GitHub release includes `showcase-X.Y.Z.tar.gz`, containing `.nojekyll` and the built `showcase/` site directory. Nested page sources and shared templates live under its `src` directory, with stable public page URLs. See the [showcase package guide](packages/showcase/README.md). External documentation-framework distribution is deferred.
 
@@ -131,3 +142,8 @@ The main workflow validates compatibility, prepares Nx version/changelog changes
 The manual publish workflow is recovery-only and defaults to a dry run. It never bumps versions.
 
 The 1.0 split is a breaking release for both packages. Preserve the breaking-change marker in the merge commit (`feat!: separate CSS theme from React integration`) so automatic version selection resolves 1.0.0 from the existing baselines. Configure trusted publishing for `@wintermuted/ui-react` on the Auto Release workflow, or ensure the `NPM_TOKEN` fallback can publish both packages. Do not migrate external React consumers until both 1.0.0 packages are available on npm.
+
+The later react-select split removes `ui-react/select` and also requires a
+breaking merge message. The adapter's first independent release is explicitly
+0.1.0, with no fabricated historical release tag. Configure trusted publishing
+for `@wintermuted/ui-react-select` separately, or authorize the token fallback.

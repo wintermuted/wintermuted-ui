@@ -8,7 +8,7 @@ import {
   PageHeader, Breadcrumbs, PreviewImage, FilterPanel,
   ActionDisclosure, LoadStatus, RefreshAction,
 } from "@wintermuted/ui-react";
-import { MultiSelect } from "@wintermuted/ui-react/select";
+import { MultiSelect } from "@wintermuted/ui-react-select";
 import { initTheme } from "@wintermuted/ui-react/theme";
 
 const storageKey = "wintermuted:react-showcase:theme";

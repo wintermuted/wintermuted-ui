@@ -2,7 +2,7 @@ import { useId } from "react";
 import type { Meta, StoryObj } from "@storybook/react-vite";
 import { useArgs } from "storybook/preview-api";
 import { fn } from "storybook/test";
-import { MultiSelect, type MultiSelectProps } from "@wintermuted/ui-react/select";
+import { MultiSelect, type MultiSelectProps } from "@wintermuted/ui-react-select";
 
 interface Option { value: string; label: string }
 type SelectArgs = MultiSelectProps<Option, true>;
@@ -43,7 +43,7 @@ const meta = {
     isDisabled: { control: "boolean" },
   },
   parameters: {
-    docs: { description: { component: "The optional react-select integration, imported from @wintermuted/ui-react/select. The example adds an associated label and typed multi-selection options." } },
+    docs: { description: { component: "The standalone react-select integration, imported from @wintermuted/ui-react-select with a required react-select peer. The example adds an associated label and typed multi-selection options." } },
   },
 } satisfies Meta<SelectArgs>;
 

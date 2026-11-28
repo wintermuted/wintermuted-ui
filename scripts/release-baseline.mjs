@@ -41,7 +41,16 @@ export async function withThemeBaseline(run, cwd = process.cwd()) {
       if (!initial) throw new Error("No showcase package history exists. Fetch full release history before running Nx Release.");
       baselines.showcase = git("rev-list", "--parents", "-n", "1", initial).split(" ")[1] || initial;
     }
-    return await run({ from, baseline, baselines, firstShowcaseRelease });
+    const select = tags("ui-react-select@*").find((tag) => /^ui-react-select@\d+\.\d+\.\d+$/.test(tag));
+    const firstSelectRelease = !select;
+    if (select) {
+      baselines["ui-react-select"] = git("rev-list", "-n", "1", select);
+    } else {
+      const initial = git("log", "--reverse", "--diff-filter=A", "--format=%H", "--", "packages/ui-react-select/package.json").split("\n")[0];
+      if (!initial) throw new Error("No react-select package history exists. Fetch full release history before running Nx Release.");
+      baselines["ui-react-select"] = git("rev-list", "--parents", "-n", "1", initial).split(" ")[1] || initial;
+    }
+    return await run({ from, baseline, baselines, firstShowcaseRelease, firstSelectRelease });
   } finally {
     for (const tag of temporaryTags.reverse()) git("tag", "--delete", tag);
   }

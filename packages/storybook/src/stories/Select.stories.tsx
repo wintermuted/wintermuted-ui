@@ -24,7 +24,7 @@ const meta = {
   },
   args: { value: "private", disabled: false, onChange: fn() },
   argTypes: { value: { control: "select", options: ["private", "team"] }, disabled: { control: "boolean" } },
-  parameters: { docs: { description: { component: "A labeled native select with controlled selection and an unavailable option. This does not require the optional react-select integration." } } },
+  parameters: { docs: { description: { component: "A labeled native select with controlled selection and an unavailable option. This does not require the standalone ui-react-select package or react-select." } } },
 } satisfies Meta<SelectArgs>;
 
 export default meta;

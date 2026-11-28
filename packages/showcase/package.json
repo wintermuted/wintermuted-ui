@@ -6,7 +6,8 @@
   "type": "module",
   "dependencies": {
     "@wintermuted/ui-theme": "1.0.4",
-    "@wintermuted/ui-react": "1.3.0"
+    "@wintermuted/ui-react": "1.3.0",
+    "@wintermuted/ui-react-select": "0.1.0"
   },
   "nx": {
     "name": "showcase",

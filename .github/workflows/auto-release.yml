@@ -47,9 +47,9 @@ jobs:
       - name: Prepare versions, changelogs, commit and tags with Nx Release
         id: release
         run: npm run release -- --prepare
-      - name: Stage React package with the prepared release version
+      - name: Stage React packages with the prepared release versions
         if: steps.release.outputs.projects != ''
-        run: npx nx build ui-react
+        run: npx nx run-many -t build --projects=ui-react,ui-react-select
       - name: Build and check the released showcase
         if: steps.release.outputs.showcase_released == 'true'
         run: |

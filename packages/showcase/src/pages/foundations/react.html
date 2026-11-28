@@ -108,15 +108,18 @@
           <h3>Install only what you use</h3>
           <pre><code>npm install @wintermuted/ui-theme@^1.0.0 @wintermuted/ui-react@^1.0.0 react react-dom
 # Optional searchable multi-select:
-npm install react-select</code></pre>
-          <p>Starting with 1.0, React components and theme runtime helpers live exclusively in
-            <code>@wintermuted/ui-react</code>. The CSS-only theme has no React dependencies.
+npm install @wintermuted/ui-react-select react-select</code></pre>
+          <p>Core React components and theme runtime helpers live in
+            <code>@wintermuted/ui-react</code>; MultiSelect lives in
+            <code>@wintermuted/ui-react-select</code> with its required react-select peer.
+            The old <code>@wintermuted/ui-react/select</code> entry point is removed.
+            The CSS-only theme has no React dependencies.
             Upgrading from 0.x? Follow the
             <a href="https://github.com/wintermuted/wintermuted-ui/blob/main/docs/migration-to-v1.md">1.0 migration guide</a>
             after both packages are published.</p>
           <pre><code>import "@wintermuted/ui-theme/index.css";
 import { Button, ThemeProvider, ThemeSelect } from "@wintermuted/ui-react";
-import { MultiSelect } from "@wintermuted/ui-react/select";
+import { MultiSelect } from "@wintermuted/ui-react-select";
 import { initTheme } from "@wintermuted/ui-react/theme";
 
 initTheme({ storageKey: "my-app:theme" }); // before createRoot

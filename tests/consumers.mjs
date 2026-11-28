@@ -24,6 +24,8 @@ try {
   const reactDist = join(root, "dist", "packages", "ui-react");
   assert.ok(existsSync(join(reactDist, "package.json")), "Missing compiled React package; CI must build ui-react before consumer checks.");
   const reactManifest = JSON.parse(readFileSync(join(reactDist, "package.json"), "utf8"));
+  assert.equal(reactManifest.exports["./select"], undefined);
+  assert.equal(reactManifest.peerDependencies["react-select"], undefined);
   assert.equal(reactManifest.scripts?.prepack, undefined, "The compiled package must not retain the source-only pack guard.");
   const reactPacked = JSON.parse(runNpm(["pack", reactDist, "--json", "--pack-destination", temp], root))[0];
   assert.match(reactManifest.main, /\.js$/);
@@ -37,6 +39,22 @@ try {
   }
   assert.ok(!reactPacked.files.some(file => /\.tsx?$/.test(file.path) && !file.path.endsWith(".d.ts")),
     "React package must not ship TypeScript implementation files.");
+  assert.ok(!reactPacked.files.some(file => /^src\/select\./.test(file.path)));
+  const selectDist = join(root, "dist", "packages", "ui-react-select");
+  assert.ok(existsSync(join(selectDist, "package.json")), "Missing compiled select package; CI must build ui-react-select before consumer checks.");
+  const selectManifest = JSON.parse(readFileSync(join(selectDist, "package.json"), "utf8"));
+  assert.equal(selectManifest.scripts?.prepack, undefined);
+  assert.equal(selectManifest.peerDependencies["react-select"], "^5.8.0");
+  assert.equal(selectManifest.peerDependenciesMeta, undefined);
+  const selectPacked = JSON.parse(runNpm(["pack", selectDist, "--json", "--pack-destination", temp], root))[0];
+  for (const targets of Object.values(selectManifest.exports)) {
+    assert.match(targets.default, /\.js$/);
+    assert.match(targets.types, /\.d\.ts$/);
+    for (const target of Object.values(targets)) {
+      assert.ok(selectPacked.files.some(file => file.path === target.replace(/^\.\//, "")), `Missing packed select export: ${target}`);
+    }
+  }
+  assert.ok(!selectPacked.files.some(file => /\.tsx?$/.test(file.path) && !file.path.endsWith(".d.ts")));
   for (const name of ["LoadStatus", "RefreshAction", "ActionDisclosure"]) {
     for (const suffix of [".js", ".d.ts"]) {
       assert.ok(reactPacked.files.some(file => file.path === `src/components/${name}${suffix}`),
@@ -64,6 +82,21 @@ try {
       { cwd: css, stdio: "inherit" });
   };
   const { mkdirSync } = await import("node:fs");
+  const standalone = join(temp, "standalone-select");
+  mkdirSync(standalone);
+  writeFileSync(join(standalone, "package.json"), JSON.stringify({ private: true, type: "module" }));
+  runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", tarball,
+    `react@${reactVersion}`, `react-dom@${reactVersion}`, join(temp, selectPacked.filename)], standalone);
+  const resolveSelect = createRequire(join(standalone, "package.json"));
+  assert.throws(() => resolveSelect.resolve("@wintermuted/ui-react"), { code: "MODULE_NOT_FOUND" });
+  execFileSync(process.execPath, ["--input-type=module", "-e", `
+import assert from "node:assert/strict";
+import React from "react";
+import {renderToString} from "react-dom/server";
+import {MultiSelect} from "@wintermuted/ui-react-select";
+assert.match(renderToString(React.createElement(MultiSelect, {options: [], "aria-label": "Standalone stops"})),
+  /Standalone stops/);
+`], { cwd: standalone, stdio: "inherit" });
   mkdirSync(css);
   writeFileSync(join(css, "package.json"), JSON.stringify({ private: true, type: "module" }));
   runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", tarball], css);
@@ -97,6 +130,8 @@ try {
     `@types/react@${reactMajor}`, `@types/react-dom@${reactMajor}`], css);
   runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", join(temp, reactPacked.filename)], css);
   assert.throws(() => resolveInstalled.resolve("react-select"), { code: "MODULE_NOT_FOUND" });
+  assert.throws(() => resolveInstalled.resolve("@wintermuted/ui-react-select"), { code: "MODULE_NOT_FOUND" });
+  assert.throws(() => resolveInstalled.resolve("@wintermuted/ui-react/select"), { code: "ERR_PACKAGE_PATH_NOT_EXPORTED" });
   const resolveReact = createRequire(join(css, "node_modules", "@wintermuted", "ui-react", "package.json"));
   assert.throws(() => resolveReact.resolve("react-select"), { code: "MODULE_NOT_FOUND" });
   execFileSync(process.execPath, ["--input-type=module", "-e", `
@@ -199,7 +234,8 @@ initTheme();
 `);
     for (const resolution of ["bundler", "NodeNext"]) typecheck("without-select.tsx", resolution);
   }
-  runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", "react-select@5"], css);
+  runNpm(["install", "--ignore-scripts", "--no-audit", "--no-fund", join(temp, selectPacked.filename)], css);
+  assert.ok(resolveInstalled.resolve("react-select"));
   const docs = new JSDOM(readFileSync(join(root, "packages", "showcase", "src", "pages", "foundations", "react.html"), "utf8"));
   const example = [...docs.window.document.querySelectorAll("pre code")]
     .map(node => node.textContent).find(code => code.startsWith("import "));
@@ -212,7 +248,7 @@ import assert from "node:assert/strict";
 import React from "react";
 import {renderToString} from "react-dom/server";
 import {Button, Card, ThemeProvider} from "@wintermuted/ui-react";
-import {MultiSelect} from "@wintermuted/ui-react/select";
+import {MultiSelect} from "@wintermuted/ui-react-select";
 import {initTheme, getThemeScript} from "@wintermuted/ui-react/theme";
 assert.match(renderToString(React.createElement(ThemeProvider, null, React.createElement(Card, null,
   React.createElement(Button, null, "Refresh")))), /Refresh/);
@@ -225,7 +261,7 @@ import assert from "node:assert/strict";
 import React from "react";
 import {renderToString} from "react-dom/server";
 import {Button} from "@wintermuted/ui-react";
-import {MultiSelect} from "@wintermuted/ui-react/select";
+import {MultiSelect} from "@wintermuted/ui-react-select";
 import {initTheme} from "@wintermuted/ui-react/theme";
 assert.match(renderToString(React.createElement(Button, null, "Standalone")), /Standalone/);
 assert.match(renderToString(React.createElement(MultiSelect, {options: []})), /input/);
@@ -235,11 +271,15 @@ assert.equal(initTheme(), "light");
   writeFileSync(join(css, "consumer.tsx"), `
 import * as React from "react";
 import {Button, Card, CardTitle, Input, Select, ListItem, Table, Dialog, Tabs, Menu, ThemeProvider, ThemeSelect} from "@wintermuted/ui-react";
-import {MultiSelect} from "@wintermuted/ui-react/select";
+import {MultiSelect} from "@wintermuted/ui-react-select";
+import type {MultiSelectProps} from "@wintermuted/ui-react-select";
 import {initTheme, getThemeScript} from "@wintermuted/ui-react/theme";
 initTheme(); getThemeScript("test:theme");
 const input = React.createRef<HTMLInputElement>();
 const options = [{value: 1, label: "Main", stop: {id: 1}}];
+const selectProps: MultiSelectProps<(typeof options)[number], false> = {
+  isMulti: false, options, onChange: value => { const stop: number | undefined = value?.stop.id; },
+};
 export const app = <ThemeProvider><Card as="article"><CardTitle as="h4">Stops</CardTitle>
 <Button onClick={e => e.currentTarget.focus()}>Refresh</Button>
 <Input ref={input} onChange={e => console.log(e.currentTarget.value)}/>
@@ -247,6 +287,7 @@ export const app = <ThemeProvider><Card as="article"><CardTitle as="h4">Stops</C
 <ListItem value={2}>Main</ListItem><Table responsive aria-label="Arrivals"/>
 <MultiSelect options={options} defaultValue={options} onChange={values => values.map(o => o.stop.id)}/>
 <MultiSelect isMulti={false} options={options} onChange={value => value?.stop.id}/>
+<MultiSelect {...selectProps}/>
 <Dialog open={false} onClose={() => {}} title="Stops"/><ThemeSelect/>
 <Tabs label="Views" items={[{id:"a",label:"Arrivals",content:"Times"}]}/>
 <Menu label="Actions" items={[{id:"a", label:"Refresh", onSelect: e => e.currentTarget.focus()}]}/>
@@ -258,7 +299,7 @@ import "@wintermuted/ui-theme/index.css";
 import React from "react";
 import {createRoot} from "react-dom/client";
 import {Button, ThemeProvider, ThemeSelect} from "@wintermuted/ui-react";
-import {MultiSelect} from "@wintermuted/ui-react/select";
+import {MultiSelect} from "@wintermuted/ui-react-select";
 import {initTheme} from "@wintermuted/ui-react/theme";
 initTheme();
 createRoot(document.getElementById("root")).render(React.createElement(ThemeProvider, null,

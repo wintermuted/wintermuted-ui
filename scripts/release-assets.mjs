@@ -11,8 +11,8 @@ export async function attachReleaseAsset(tag, repository, {
   inspect = (name, version) => inspectPublication(name, version, fetch, { includeTarball: true }),
   gh = runGh
 } = {}) {
-  const match = /^(ui-theme|ui-react)@(\d+\.\d+\.\d+)$/.exec(tag || "");
-  if (!match) throw new Error("Assets require ui-theme@X.Y.Z or ui-react@X.Y.Z");
+  const match = /^(ui-theme|ui-react|ui-react-select)@(\d+\.\d+\.\d+)$/.exec(tag || "");
+  if (!match) throw new Error("Assets require a public package tag: ui-theme, ui-react, or ui-react-select@X.Y.Z");
   if (!/^[\w.-]+\/[\w.-]+$/.test(repository || "")) throw new Error("A GitHub owner/repository is required");
   const [, project, version] = match;
   const publication = await inspect(`@wintermuted/${project}`, version);
@@ -56,8 +56,8 @@ async function main() {
   let tags = process.argv.slice(2);
   if (tags.length === 1 && tags[0] === "--released") {
     const projects = process.env.RELEASE_PROJECTS?.split(",");
-    if (!projects?.length || projects.some((project) => !["ui-theme", "ui-react"].includes(project))) {
-      throw new Error("RELEASE_PROJECTS must select only ui-theme and/or ui-react");
+    if (!projects?.length || projects.some((project) => !["ui-theme", "ui-react", "ui-react-select"].includes(project))) {
+      throw new Error("RELEASE_PROJECTS must select only ui-theme, ui-react, and/or ui-react-select");
     }
     tags = projects.map((project) => {
       const manifest = JSON.parse(readFileSync(`packages/${project}/package.json`, "utf8"));

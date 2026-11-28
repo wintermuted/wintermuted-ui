@@ -11,7 +11,8 @@ flowchart LR
     App -->|"imports components"| React["@wintermuted/ui-react"]
     React -->|"package dependency"| Theme
     React -->|"peer dependencies"| Peers["React + React DOM"]
-    Select["ui-react/select"] -->|"optional peer"| Adapter["react-select"]
+    Select["ui-react-select"] -->|"required peer"| Adapter["react-select"]
+    Select --> Theme
     React --- Select
     Showcase["Private showcase"] --> Theme
     Showcase --> React
@@ -22,7 +23,8 @@ An installed dependency is not the same as a runtime import. `ui-react` declares
 | Location | Owns | Does not own |
 | --- | --- | --- |
 | `packages/ui-theme` | Tokens, base styles, component CSS, stylesheet exports | React code, theme preference JavaScript, or React peers |
-| `packages/ui-react/src` | React components, declarations, optional select adapter, theme runtime helpers | A second CSS implementation, bundled React, or implicit global CSS loading |
+| `packages/ui-react/src` | Core React components, declarations, theme runtime helpers | react-select dependencies, a second CSS implementation, bundled React, or implicit global CSS loading |
+| `packages/ui-react-select/src` | Typed MultiSelect adapter and declarations | Core component copies, bundled peers, or implicit global CSS loading |
 | `packages/showcase` | Versioned static HTML documentation, internal shared site layouts, runnable React examples, documentation-specific presentation | A public npm package, external site framework, or an alternative component implementation |
 | `scripts` | Staging, consumer linking, release baselines, and output checks | Hand-maintained copies of public component code |
 
@@ -68,12 +70,12 @@ React components are authored in TypeScript/TSX and published as JavaScript with
 | Entry point | Purpose | Runtime boundary |
 | --- | --- | --- |
 | `@wintermuted/ui-react` | Components, `ThemeProvider`, `useTheme`, `ThemeSelect` | Imports React; does not import react-select or inject CSS |
-| `@wintermuted/ui-react/select` | `MultiSelect` adapter | Uses the optional react-select peer |
+| `@wintermuted/ui-react-select` | `MultiSelect` adapter | Requires react-select as a peer; independent of ui-react |
 | `@wintermuted/ui-react/theme` | `initTheme`, `getThemeScript`, preference helpers | Helper implementation has no React imports |
 
 Primitives map native props and refs onto semantic elements and shared CSS classes. Stateful components own their interaction behavior, not application routing, data fetching, or grid layout. The [React README](../packages/ui-react/README.md) is the contract for accessibility, controlled state, keyboard behavior, and supported props.
 
-Keep select integration isolated to `/select` so ordinary component consumers do not need react-select. React and React DOM remain consumer-supplied peers; they must not be bundled into the package.
+Keep select integration isolated in `ui-react-select` so ordinary component consumers do not need react-select. The former `ui-react/select` export is removed. React and React DOM remain consumer-supplied peers; they must not be bundled into either React package.
 
 ### Theme initialization and SSR
 
@@ -99,13 +101,17 @@ Preferences are System, Light, or Dark. Overrides persist in local storage; Syst
 
 Compilation generates declarations without bundling peers. `nx pack ui-react` and its release publish target use the staged directory with JavaScript/declaration export paths. Consumer tests pack that same compiled output; do not pack the TypeScript source workspace directly.
 
+The same staging script accepts `ui-react-select` and compiles its standalone
+source into `dist/packages/ui-react-select`, deriving compiled export paths from
+each package manifest. Both source workspaces reject direct packing.
+
 The theme publishes its source styles directly. Theme 1.0 no longer copies React files during `prepack`; generated legacy React copies must not become a second source of truth.
 
 There is one root lockfile. Declare dependencies in the workspace that uses them; do not rely on incidental hoisting or create nested lockfiles.
 
 ## Nx graph and caching
 
-The dependency direction is `showcase -> ui-react -> ui-theme`, with an additional direct `showcase -> ui-theme` dependency. The theme does not depend on React or the React workspace.
+The dependency directions are `showcase -> ui-react -> ui-theme` and `showcase -> ui-react-select -> ui-theme`, with an additional direct `showcase -> ui-theme` dependency. Storybook follows the same workspace dependencies. The theme does not depend on either React package, and the adapter does not depend on ui-react.
 
 Nx infers workspace relationships from package manifests. Shared inputs include root manifests, the root lockfile, `nx.json`, and the React staging script. Build/typecheck inputs include upstream inputs; build targets depend on upstream build targets where present.
 

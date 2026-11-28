@@ -8,7 +8,8 @@ import { pathToFileURL } from "node:url";
 import { stripVTControlCharacters } from "node:util";
 
 const registry = "https://registry.npmjs.org";
-const packageRoots = { "ui-theme": "packages/ui-theme", "ui-react": "dist/packages/ui-react" };
+const packageRoots = { "ui-theme": "packages/ui-theme", "ui-react": "dist/packages/ui-react",
+  "ui-react-select": "dist/packages/ui-react-select" };
 
 export function isPreSubmissionAuthRejection(error) {
   if (!Number.isInteger(error.status) || error.status === 0) return false;
@@ -80,8 +81,8 @@ export async function publishProject({ name, version, shasum }, { inspect, trust
 async function main() {
   if (process.argv[2] === "--inspect") {
     const tag = process.argv[3];
-    const match = /^(ui-theme|ui-react)@(\d+\.\d+\.\d+)$/.exec(tag || "");
-    if (!match) throw new Error("Inspection requires ui-theme@X.Y.Z or ui-react@X.Y.Z");
+    const match = /^(ui-theme|ui-react|ui-react-select)@(\d+\.\d+\.\d+)$/.exec(tag || "");
+    if (!match) throw new Error("Inspection requires a public package tag: ui-theme, ui-react, or ui-react-select@X.Y.Z");
     const result = await inspectPublication(`@wintermuted/${match[1]}`, match[2]);
     if (!result) throw new Error(`${tag} is not visible in the registry`);
     console.log(JSON.stringify(result, null, 2));
@@ -89,7 +90,7 @@ async function main() {
   }
   const projects = process.env.RELEASE_PROJECTS?.split(",");
   if (!projects?.length || projects.some((project) => !Object.hasOwn(packageRoots, project))) {
-    throw new Error("RELEASE_PROJECTS must select only ui-theme and/or ui-react");
+    throw new Error("RELEASE_PROJECTS must select only ui-theme, ui-react, and/or ui-react-select");
   }
   const run = (args, env = process.env) => {
     const result = spawnSync("npm", args, {
