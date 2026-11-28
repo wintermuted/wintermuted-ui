@@ -176,6 +176,92 @@ test("inspection verifies exact metadata and downloaded SHA-1 and SHA-512 digest
   await assert.rejects(inspectPublication(packageIdentity.name, manifest.version, request), /Invalid registry identity/);
 });
 
+function tarballVisibilityFixture(statusAfterSubmission = () => 404) {
+  const bytes = Buffer.from("delayed tarball fixture");
+  const identity = { ...packageIdentity, shasum: createHash("sha1").update(bytes).digest("hex") };
+  const manifest = {
+    name: identity.name, version: identity.version,
+    dist: {
+      tarball: "https://registry.npmjs.org/fixture.tgz",
+      shasum: identity.shasum,
+      integrity: `sha512-${createHash("sha512").update(bytes).digest("base64")}`
+    }
+  };
+  let submitted = false;
+  return {
+    identity, manifest,
+    submit: () => { submitted = true; },
+    inspect: (name, version) => inspectPublication(name, version, async (url) => {
+      if (!submitted) return new Response("", { status: 404 });
+      if (!String(url).endsWith(".tgz")) return Response.json(manifest);
+      const status = statusAfterSubmission();
+      return new Response(status === 200 ? bytes : "", { status });
+    })
+  };
+}
+
+test("visible metadata with a delayed tarball waits after trusted or fallback success without resubmission", async () => {
+  for (const useFallback of [false, true]) {
+    let waits = 0;
+    const fixture = tarballVisibilityFixture(() => waits >= 2 ? 200 : 404);
+    const calls = [];
+    await publishProject(fixture.identity, {
+      inspect: fixture.inspect,
+      trusted: async () => {
+        calls.push("trusted");
+        if (useFallback) throw loginRejection();
+        fixture.submit();
+      },
+      fallback: async () => { calls.push("fallback"); fixture.submit(); },
+      sleep: async (milliseconds) => { assert.equal(milliseconds, 15000); waits += 1; }
+    });
+    assert.equal(waits, 2);
+    assert.deepEqual(calls, useFallback ? ["trusted", "fallback"] : ["trusted"]);
+  }
+});
+
+test("a persistent tarball 404 exhausts the visibility window without republishing", async () => {
+  const fixture = tarballVisibilityFixture();
+  let waits = 0;
+  let submissions = 0;
+  await assert.rejects(publishProject(fixture.identity, {
+    inspect: fixture.inspect,
+    trusted: async () => { submissions += 1; fixture.submit(); },
+    fallback: async () => assert.fail("Must not republish"),
+    sleep: async () => { waits += 1; }
+  }), /not downloadable/);
+  assert.equal(waits, 40);
+  assert.equal(submissions, 1);
+});
+
+test("tarball delays before submission or after a failed command never authorize publication or fallback", async () => {
+  for (const existing of [true, false]) {
+    const fixture = tarballVisibilityFixture();
+    if (existing) fixture.submit();
+    let submissions = 0;
+    await assert.rejects(publishProject(fixture.identity, {
+      inspect: fixture.inspect,
+      trusted: async () => { submissions += 1; fixture.submit(); throw loginRejection(); },
+      fallback: async () => assert.fail("Visible metadata must not authorize fallback"),
+      sleep: async () => assert.fail("Only successful submissions may wait")
+    }), /Tarball download failed.*HTTP 404/);
+    assert.equal(submissions, existing ? 0 : 1);
+  }
+});
+
+test("post-submission tarball polling fails immediately on other HTTP errors or different registry content", async () => {
+  for (const status of [401, 429, 500, 404]) {
+    const fixture = tarballVisibilityFixture(() => status);
+    if (status === 404) fixture.manifest.dist.shasum = "different-content";
+    await assert.rejects(publishProject(fixture.identity, {
+      inspect: fixture.inspect,
+      trusted: async () => fixture.submit(),
+      fallback: async () => assert.fail("Must not republish"),
+      sleep: async () => assert.fail("Must fail immediately")
+    }), status === 404 ? /registry content differs/ : /Tarball download failed/);
+  }
+});
+
 test("only an explicit 404 means absent; network, authorization and tarball errors fail closed", async () => {
   assert.equal(await inspectPublication(packageIdentity.name, packageIdentity.version, async () => new Response("", { status: 404 })), null);
   for (const status of [401, 429, 500]) {
